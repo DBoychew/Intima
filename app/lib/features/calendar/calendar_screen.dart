@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 import 'quick_log_sheet.dart';
@@ -43,17 +44,29 @@ class CalendarScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Днес · 30 юни',
-                      style: Theme.of(context).textTheme.titleLarge),
+                  Text(
+                    'Днес · 30 юни',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Text('Настроение: 🙂', style: TextStyle(fontSize: 15)),
+                      const Text(
+                        'Настроение: 🙂',
+                        style: TextStyle(fontSize: 15),
+                      ),
                       const Spacer(),
-                      Text('Енергия ', style: Theme.of(context).textTheme.labelMedium),
+                      Text(
+                        'Енергия ',
+                        style: Theme.of(context).textTheme.labelMedium,
+                      ),
                       const Icon(Icons.bolt, color: AppColors.accent, size: 18),
                       const Icon(Icons.bolt, color: AppColors.accent, size: 18),
-                      const Icon(Icons.bolt, color: AppColors.surfaceHigh, size: 18),
+                      const Icon(
+                        Icons.bolt,
+                        color: AppColors.surfaceHigh,
+                        size: 18,
+                      ),
                     ],
                   ),
                 ],
@@ -69,8 +82,10 @@ class CalendarScreen extends StatelessWidget {
                   const Text('🔮', style: TextStyle(fontSize: 24)),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: Text('Следващ цикъл — около 24 юли',
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    child: Text(
+                      'Следващ цикъл — около 24 юли',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
                 ],
               ),
@@ -102,13 +117,22 @@ class CalendarScreen extends StatelessWidget {
       cells.add(const SizedBox());
     }
     for (var day = 1; day <= _daysInMonth; day++) {
-      cells.add(_DayCell(
-        day: day,
-        isToday: day == _today,
-        isPeriod: _periodDays.contains(day),
-        isIntimacy: _intimacyDays.contains(day),
-        isFertile: _fertileDays.contains(day),
-      ));
+      cells.add(
+        _DayCell(
+          day: day,
+          isToday: day == _today,
+          isPeriod: _periodDays.contains(day),
+          isIntimacy: _intimacyDays.contains(day),
+          isFertile: _fertileDays.contains(day),
+          onTap: () {
+            HapticFeedback.selectionClick();
+            showQuickLogSheet(
+              context,
+              dateLabel: day == _today ? null : '$day юни',
+            );
+          },
+        ),
+      );
     }
     return GridView.count(
       crossAxisCount: 7,
@@ -120,19 +144,19 @@ class CalendarScreen extends StatelessWidget {
 
   Widget _legend(BuildContext context) {
     Widget item(Color color, String label, {bool heart = false}) => Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            heart
-                ? const Icon(Icons.favorite, color: AppColors.intimacy, size: 12)
-                : Container(
-                    width: 8,
-                    height: 8,
-                    decoration:
-                        BoxDecoration(color: color, shape: BoxShape.circle)),
-            const SizedBox(width: 6),
-            Text(label, style: Theme.of(context).textTheme.labelMedium),
-          ],
-        );
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        heart
+            ? const Icon(Icons.favorite, color: AppColors.intimacy, size: 12)
+            : Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+              ),
+        const SizedBox(width: 6),
+        Text(label, style: Theme.of(context).textTheme.labelMedium),
+      ],
+    );
     return Wrap(
       spacing: 16,
       runSpacing: 8,
@@ -152,6 +176,7 @@ class _DayCell extends StatelessWidget {
     required this.isPeriod,
     required this.isIntimacy,
     required this.isFertile,
+    required this.onTap,
   });
 
   final int day;
@@ -159,44 +184,52 @@ class _DayCell extends StatelessWidget {
   final bool isPeriod;
   final bool isIntimacy;
   final bool isFertile;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: isFertile
-              ? AppColors.fertile.withValues(alpha: 0.18)
-              : null,
-          border: isToday
-              ? Border.all(color: AppColors.primarySoft, width: 2)
-              : null,
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            Text('$day', style: const TextStyle(fontSize: 14)),
-            if (isPeriod)
-              Positioned(
-                bottom: 4,
-                child: Container(
-                  width: 6,
-                  height: 6,
-                  decoration: const BoxDecoration(
-                      color: AppColors.period, shape: BoxShape.circle),
+    return InkWell(
+      onTap: onTap,
+      customBorder: const CircleBorder(),
+      child: Center(
+        child: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isFertile ? AppColors.fertile.withValues(alpha: 0.18) : null,
+            border: isToday
+                ? Border.all(color: AppColors.primarySoft, width: 2)
+                : null,
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              Text('$day', style: const TextStyle(fontSize: 14)),
+              if (isPeriod)
+                Positioned(
+                  bottom: 4,
+                  child: Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: AppColors.period,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                 ),
-              ),
-            if (isIntimacy)
-              const Positioned(
-                top: 2,
-                right: 2,
-                child:
-                    Icon(Icons.favorite, color: AppColors.intimacy, size: 11),
-              ),
-          ],
+              if (isIntimacy)
+                const Positioned(
+                  top: 2,
+                  right: 2,
+                  child: Icon(
+                    Icons.favorite,
+                    color: AppColors.intimacy,
+                    size: 11,
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

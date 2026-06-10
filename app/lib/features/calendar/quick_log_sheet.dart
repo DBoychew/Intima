@@ -3,11 +3,12 @@ import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 
-void showQuickLogSheet(BuildContext context) {
+/// [dateLabel] — null означава „днес"; иначе напр. „12 юни".
+void showQuickLogSheet(BuildContext context, {String? dateLabel}) {
   showModalBottomSheet<void>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => const _QuickLogSheet(),
+    builder: (_) => _QuickLogSheet(dateLabel: dateLabel),
   );
 }
 
@@ -20,7 +21,10 @@ class _IntimateSession {
 }
 
 class _QuickLogSheet extends StatefulWidget {
-  const _QuickLogSheet();
+  const _QuickLogSheet({this.dateLabel});
+
+  /// null = запис за днес.
+  final String? dateLabel;
 
   @override
   State<_QuickLogSheet> createState() => _QuickLogSheetState();
@@ -91,7 +95,10 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Center(
-              child: Text('Как си днес?',
+              child: Text(
+                  widget.dateLabel == null
+                      ? 'Как си днес?'
+                      : 'Запис за ${widget.dateLabel}',
                   style: Theme.of(context).textTheme.headlineSmall),
             ),
             const SizedBox(height: 16),
