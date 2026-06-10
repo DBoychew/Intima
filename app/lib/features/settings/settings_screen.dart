@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../core/bg_dates.dart';
 import '../../core/cycle_settings.dart';
+import '../../data/db_manager.dart';
+import '../../security/app_lock.dart';
+import '../../security/pin_widgets.dart';
+import '../../security/secure_flag.dart';
 import '../../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -12,11 +18,73 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _pin = true;
-  bool _biometric = true;
+  bool _pin = false;
+  bool _biometric = false;
   bool _hideRecents = true;
   bool _reminder = true;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 21, minute: 0);
+
+  @override
+  void initState() {
+    super.initState();
+    _pin = appLock.pinEnabled;
+    _biometric = appLock.biometricEnabled;
+    SecureFlag.enabled().then((v) {
+      if (mounted) setState(() => _hideRecents = v);
+    });
+  }
+
+  void _toast(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _togglePin(bool on) async {
+    if (on) {
+      final pin = await showPinCreateSheet(context);
+      if (pin == null) return;
+      await appLock.setPin(pin);
+      if (!mounted) return;
+      setState(() => _pin = true);
+      _toast('PIN заключването е активно 🔒');
+    } else {
+      final ok = await showPinVerifySheet(
+        context,
+        title: 'Потвърди с PIN, за да изключиш',
+      );
+      if (!ok) return;
+      await appLock.disablePin();
+      await appLock.setBiometric(false);
+      if (!mounted) return;
+      setState(() {
+        _pin = false;
+        _biometric = false;
+      });
+      _toast('PIN заключването е изключено');
+    }
+  }
+
+  Future<void> _toggleBiometric(bool on) async {
+    if (on) {
+      if (!_pin) {
+        _toast('Първо активирай PIN — биометрията е допълнение към него');
+        return;
+      }
+      if (!await appLock.canUseBiometrics()) {
+        if (mounted) {
+          _toast('Биометрията не е налична на това устройство');
+        }
+        return;
+      }
+    }
+    await appLock.setBiometric(on);
+    if (mounted) setState(() => _biometric = on);
+  }
+
+  Future<void> _toggleHideRecents(bool on) async {
+    await SecureFlag.set(on);
+    if (mounted) setState(() => _hideRecents = on);
+  }
 
   String get _timeLabel =>
       '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}';
@@ -105,26 +173,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: AppColors.surfaceHigh,
         title: const Text('Експорт на данните'),
         content: const Text(
-            'Всички записи ще бъдат експортирани в криптиран файл, който можеш да съхраниш или прехвърлиш.'),
+            'Всички записи ще бъдат експортирани като криптиран файл (AES-256). '
+            'Без ключа от това устройство той не може да бъде прочетен.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Отказ'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                    content: Text(
-                        'Експортът е готов 📦 (реалният файл идва във Фаза 2)')),
-              );
+              try {
+                final file = await dbManager.exportCopy();
+                await SharePlus.instance.share(
+                  ShareParams(
+                    files: [XFile(file.path)],
+                    subject: 'Intima — криптиран архив',
+                  ),
+                );
+              } catch (e) {
+                if (mounted) _toast('Експортът не успя: $e');
+              }
             },
             child: const Text('Експортирай'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _deleteEverything() async {
+    await dbManager.wipeEverything();
+    await appLock.reload();
+    cycleSettings.resetToDefaults();
+    if (!mounted) return;
+    setState(() {
+      _pin = false;
+      _biometric = false;
+    });
+    _toast('Всички данни са изтрити завинаги 🗑️');
+    context.go('/onboarding');
   }
 
   @override
@@ -181,18 +269,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _section('СИГУРНОСТ'),
           SwitchListTile(
             title: const Text('PIN заключване'),
+            subtitle: Text('Изисква PIN при всяко отваряне',
+                style: Theme.of(context).textTheme.labelMedium),
             value: _pin,
-            onChanged: (v) => setState(() => _pin = v),
+            onChanged: _togglePin,
           ),
           SwitchListTile(
             title: const Text('Биометрия'),
+            subtitle: Text('Пръстов отпечатък или лице вместо PIN',
+                style: Theme.of(context).textTheme.labelMedium),
             value: _biometric,
-            onChanged: (v) => setState(() => _biometric = v),
+            onChanged: _toggleBiometric,
           ),
           SwitchListTile(
             title: const Text('Скрий в скорошни приложения'),
+            subtitle: Text('Блокира и скрийншотите',
+                style: Theme.of(context).textTheme.labelMedium),
             value: _hideRecents,
-            onChanged: (v) => setState(() => _hideRecents = v),
+            onChanged: _toggleHideRecents,
           ),
           _section('НАПОМНЯНИЯ'),
           SwitchListTile(
@@ -248,11 +342,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   TextButton(
                       onPressed: () {
                         Navigator.pop(ctx);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text(
-                                  'Всички данни са изтрити 🗑️ (прототип)')),
-                        );
+                        _deleteEverything();
                       },
                       child: const Text('Изтрий',
                           style: TextStyle(color: AppColors.error))),

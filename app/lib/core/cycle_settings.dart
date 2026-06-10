@@ -36,6 +36,15 @@ class CycleSettings extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Връща настройките по подразбиране — при GDPR изтриване.
+  void resetToDefaults() {
+    _cycleLength = 28;
+    _periodLength = 5;
+    _notifyPeriod = true;
+    _notifyOvulation = true;
+    notifyListeners();
+  }
+
   /// Началото на k-тия следващ цикъл (k = 1 е следващият).
   DateTime predictedPeriodStart(int k) =>
       lastPeriodStart.add(Duration(days: cycleLength * k));

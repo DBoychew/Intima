@@ -1,20 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'data/cycle_prefs_repository.dart';
+import 'data/db_manager.dart';
 import 'features/calendar/calendar_screen.dart';
 import 'features/diary/diary_editor_screen.dart';
 import 'features/diary/diary_entry.dart';
 import 'features/diary/diary_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/settings/settings_screen.dart';
+import 'security/app_lock.dart';
+import 'security/lock_screen.dart';
+import 'security/secure_flag.dart';
 import 'shell.dart';
 import 'theme/app_theme.dart';
 
-void main() => runApp(const IntimaApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dbManager.open();
+  await CyclePrefsRepository(dbManager).hydrate();
+  await appLock.init();
+  await SecureFlag.applyAtStartup();
+  runApp(const IntimaApp());
+}
 
 final _router = GoRouter(
   initialLocation: '/onboarding',
+  // Превключва моментално между /lock и приложението при (от)заключване.
+  refreshListenable: appLock,
+  redirect: (context, state) {
+    final atLock = state.matchedLocation == '/lock';
+    if (appLock.locked && !atLock) return '/lock';
+    if (!appLock.locked && atLock) return '/calendar';
+    return null;
+  },
   routes: [
+    GoRoute(
+      path: '/lock',
+      builder: (context, state) => const LockScreen(),
+    ),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => const OnboardingScreen(),
@@ -49,8 +73,31 @@ final _router = GoRouter(
   ],
 );
 
-class IntimaApp extends StatelessWidget {
+class IntimaApp extends StatefulWidget {
   const IntimaApp({super.key});
+
+  @override
+  State<IntimaApp> createState() => _IntimaAppState();
+}
+
+class _IntimaAppState extends State<IntimaApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Излизане от приложението → заключваме (ако има PIN).
+    if (state == AppLifecycleState.paused) appLock.lock();
+  }
 
   @override
   Widget build(BuildContext context) {
