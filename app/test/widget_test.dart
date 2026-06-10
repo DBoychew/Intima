@@ -5,8 +5,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intima/core/cycle_settings.dart';
 import 'package:intima/data/database.dart';
 import 'package:intima/data/db_manager.dart';
+import 'package:intima/data/diary_repository.dart';
 import 'package:intima/features/calendar/calendar_screen.dart';
 import 'package:intima/features/diary/diary_editor_screen.dart';
+import 'package:intima/features/diary/diary_screen.dart';
 import 'package:intima/main.dart';
 import 'package:intima/theme/app_theme.dart';
 
@@ -65,7 +67,7 @@ void main() {
     expect(find.text('Декември 2026'), findsOneWidget);
   });
 
-  testWidgets('Diary editor shows clear photo and tag actions', (
+  testWidgets('Diary editor: шаблони, тагове и действия', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
@@ -76,10 +78,10 @@ void main() {
     expect(find.text('Добави снимка'), findsOneWidget);
     expect(find.text('Нов таг'), findsOneWidget);
 
-    await tester.tap(find.text('Добави снимка'));
-    await tester.pump();
-
-    expect(find.text('Премахни снимка'), findsOneWidget);
+    // Шаблонът с начален текст го вмъква при празно поле.
+    await tester.tap(find.text('Благодарност'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Днес съм благодарна за'), findsOneWidget);
 
     await tester.tap(find.text('Нов таг'));
     await tester.pumpAndSettle();
@@ -88,5 +90,44 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('#пътуване'), findsOneWidget);
+  });
+
+  testWidgets('Diary списък: записи от базата, търсене и спомен', (
+    WidgetTester tester,
+  ) async {
+    await dbManager.openForTesting(IntimaDatabase(NativeDatabase.memory()));
+    await diaryRepository.create(
+      title: 'Вечерята с Н.',
+      body: 'Най-хубавата вечер от месеци.',
+      date: DateTime(2026, 6, 8),
+      mood: 4,
+      tags: ['нас'],
+      photoPath: null,
+    );
+    await diaryRepository.create(
+      title: 'Стар спомен',
+      body: 'Отдавнашен запис.',
+      date: DateTime(2026, 3, 1),
+      mood: 2,
+      tags: const [],
+      photoPath: null,
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.dark, home: const DiaryScreen()),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Вечерята с Н.'), findsOneWidget);
+    expect(find.text('Спомен от преди време'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, 'нас');
+    await tester.pumpAndSettle();
+    expect(find.text('Вечерята с Н.'), findsOneWidget);
+    expect(find.text('Стар спомен'), findsNothing);
+
+    await tester.enterText(find.byType(TextField).first, 'няма такова');
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Нищо не открихме'), findsOneWidget);
   });
 }

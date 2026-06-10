@@ -1,40 +1,68 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../core/moods.dart';
+import '../../data/calendar_repository.dart' show decodeStringList;
+import '../../data/database.dart';
+import '../../data/diary_repository.dart';
 import '../../theme/app_theme.dart';
-import 'diary_entry.dart';
+
+/// Шаблон със собствен журналинг промпт; [starter] се вмъква при празен текст.
+typedef _Template = ({String name, String hint, String? starter});
 
 class DiaryEditorScreen extends StatefulWidget {
   const DiaryEditorScreen({super.key, this.initial});
 
   /// null = нов запис; иначе редакция на съществуващ.
-  final DiaryEntry? initial;
+  final DiaryEntryRow? initial;
 
   @override
   State<DiaryEditorScreen> createState() => _DiaryEditorScreenState();
 }
 
 class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
-  static const _templates = [
-    'Свободен текст',
-    'Как се чувствам',
-    'Благодарност',
-    'За нас 💞',
+  static const List<_Template> _templates = [
+    (
+      name: 'Свободен текст',
+      hint: 'Започни да пишеш…',
+      starter: null,
+    ),
+    (
+      name: 'Как се чувствам',
+      hint: 'Какво усещаш в момента? Какво го предизвика?',
+      starter: null,
+    ),
+    (
+      name: 'Благодарност',
+      hint: 'Малките неща също се броят.',
+      starter: 'Днес съм благодарна за ',
+    ),
+    (
+      name: 'За нас 💞',
+      hint: 'Момент, който искаш да запомните заедно.',
+      starter: 'Нещо, което искам да запомня за нас: ',
+    ),
   ];
 
   late final TextEditingController _text;
   int _template = 0;
   int? _mood;
   late List<String> _tags;
-  late bool _hasPhoto;
+  String? _photoPath;
+  bool _saving = false;
 
   @override
   void initState() {
     super.initState();
-    _text = TextEditingController(text: widget.initial?.text ?? '');
+    _text = TextEditingController(text: widget.initial?.body ?? '');
     _mood = widget.initial?.mood;
-    _tags = [...widget.initial?.tags ?? []];
-    _hasPhoto = widget.initial?.hasPhoto ?? false;
+    _tags = [...decodeStringList(widget.initial?.tags)];
+    _photoPath = widget.initial?.photoPath;
   }
 
   @override
@@ -45,25 +73,100 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
 
   String get _derivedTitle {
     final firstLine = _text.text.trim().split('\n').first.trim();
-    if (firstLine.isEmpty) return _templates[_template];
+    if (firstLine.isEmpty) return _templates[_template].name;
     return firstLine.length <= 28
         ? firstLine
         : '${firstLine.substring(0, 28)}…';
   }
 
-  void _save() {
+  void _applyTemplate(int i) {
+    setState(() {
+      _template = i;
+      final starter = _templates[i].starter;
+      if (starter != null && _text.text.trim().isEmpty) {
+        _text.text = starter;
+        _text.selection =
+            TextSelection.collapsed(offset: starter.length);
+      }
+    });
+  }
+
+  Future<void> _save() async {
+    if (_saving) return;
+    setState(() => _saving = true);
     HapticFeedback.lightImpact();
-    Navigator.pop(
-      context,
-      DiaryEntry(
-        title: widget.initial?.title ?? _derivedTitle,
-        text: _text.text.trim(),
-        date: widget.initial?.date ?? '30 юни',
+    final initial = widget.initial;
+    if (initial == null) {
+      await diaryRepository.create(
+        title: _derivedTitle,
+        body: _text.text.trim(),
+        date: DateTime.now(),
         mood: _mood,
         tags: _tags,
-        hasPhoto: _hasPhoto,
+        photoPath: _photoPath,
+      );
+    } else {
+      await diaryRepository.update(initial.copyWith(
+        title: _derivedTitle,
+        body: _text.text.trim(),
+        mood: Value(_mood),
+        tags: jsonEncode(_tags),
+        hasPhoto: _photoPath != null,
+        photoPath: Value(_photoPath),
+      ));
+    }
+    if (mounted) Navigator.pop(context, true);
+  }
+
+  Future<void> _delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceHigh,
+        title: const Text('Изтриване на записа?'),
+        content: const Text('Записът и снимката му ще изчезнат завинаги.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Отказ'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child:
+                const Text('Изтрий', style: TextStyle(color: AppColors.error)),
+          ),
+        ],
       ),
     );
+    if (confirmed != true || !mounted) return;
+    await diaryRepository.delete(widget.initial!);
+    if (mounted) Navigator.pop(context, true);
+  }
+
+  Future<void> _pickPhoto() async {
+    HapticFeedback.selectionClick();
+    try {
+      final picked = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1920,
+        imageQuality: 85,
+      );
+      if (picked == null || !mounted) return;
+      final path = await diaryRepository.importPhoto(picked.path);
+      setState(() => _photoPath = path);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Галерията не е достъпна')),
+        );
+      }
+    }
+  }
+
+  Future<void> _removePhoto() async {
+    HapticFeedback.selectionClick();
+    await diaryRepository.deletePhotoFile(_photoPath);
+    if (mounted) setState(() => _photoPath = null);
   }
 
   Future<void> _addTag() async {
@@ -77,30 +180,22 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     }
   }
 
-  void _togglePhoto() {
-    HapticFeedback.selectionClick();
-    setState(() => _hasPhoto = !_hasPhoto);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          _hasPhoto
-              ? 'Снимката е прикачена 📷 (галерията идва във Фаза 4)'
-              : 'Снимката е премахната',
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.pop(context, false),
         ),
         title: Text(widget.initial == null ? 'Нов запис' : 'Редакция'),
         actions: [
+          if (widget.initial != null)
+            IconButton(
+              icon: const Icon(Icons.delete_outline, color: AppColors.error),
+              tooltip: 'Изтрий записа',
+              onPressed: _delete,
+            ),
           TextButton(
             onPressed: _save,
             child: const Text(
@@ -121,16 +216,16 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               children: List.generate(
                 _templates.length,
                 (i) => ChoiceChip(
-                  label: Text(_templates[i]),
+                  label: Text(_templates[i].name),
                   selected: _template == i,
-                  onSelected: (_) => setState(() => _template = i),
+                  onSelected: (_) => _applyTemplate(i),
                 ),
               ),
             ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(DiaryEntry.moods.length, (i) {
+              children: List.generate(moodEmojis.length, (i) {
                 final selected = _mood == i;
                 return GestureDetector(
                   onTap: () => setState(() => _mood = i),
@@ -143,7 +238,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
                           : null,
                     ),
                     child: Text(
-                      DiaryEntry.moods[i],
+                      moodEmojis[i],
                       style: const TextStyle(fontSize: 26),
                     ),
                   ),
@@ -157,27 +252,35 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
                 maxLines: null,
                 expands: true,
                 textAlignVertical: TextAlignVertical.top,
-                decoration: const InputDecoration(
-                  hintText: 'Започни да пишеш…',
+                decoration: InputDecoration(
+                  hintText: _templates[_template].hint,
                 ),
               ),
             ),
-            if (_hasPhoto || _tags.isNotEmpty) ...[
+            if (_photoPath != null) ...[
+              const SizedBox(height: 12),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image.file(
+                  File(_photoPath!),
+                  height: 96,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, _, _) => Container(
+                    height: 96,
+                    color: AppColors.surface,
+                    alignment: Alignment.center,
+                    child: const Text('Снимката липсва 📷'),
+                  ),
+                ),
+              ),
+            ],
+            if (_tags.isNotEmpty) ...[
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  if (_hasPhoto)
-                    InputChip(
-                      avatar: const Icon(
-                        Icons.photo,
-                        size: 18,
-                        color: AppColors.accentSoft,
-                      ),
-                      label: const Text('снимка'),
-                      onDeleted: _togglePhoto,
-                    ),
                   for (final t in _tags)
                     InputChip(
                       label: Text('#$t'),
@@ -191,12 +294,13 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               children: [
                 Expanded(
                   child: _ActionButton(
-                    icon: _hasPhoto
+                    icon: _photoPath != null
                         ? Icons.delete_outline
                         : Icons.photo_camera_outlined,
-                    label: _hasPhoto ? 'Премахни снимка' : 'Добави снимка',
-                    highlighted: _hasPhoto,
-                    onTap: _togglePhoto,
+                    label:
+                        _photoPath != null ? 'Премахни снимка' : 'Добави снимка',
+                    highlighted: _photoPath != null,
+                    onTap: _photoPath != null ? _removePhoto : _pickPhoto,
                   ),
                 ),
                 const SizedBox(width: 12),

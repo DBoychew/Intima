@@ -7,7 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 part 'database.g.dart';
 
-/// Запис в дневника (Фаза 4 ще добави реални снимки — дотогава пазим флаг).
+/// Запис в дневника.
 @DataClassName('DiaryEntryRow')
 class DiaryEntries extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -19,6 +19,9 @@ class DiaryEntries extends Table {
   /// JSON списък от тагове, напр. `["нас","вечеря"]`.
   TextColumn get tags => text().withDefault(const Constant('[]'))();
   BoolColumn get hasPhoto => boolean().withDefault(const Constant(false))();
+
+  /// Път до снимката в private storage на приложението (v2).
+  TextColumn get photoPath => text().nullable()();
 }
 
 /// Дневен запис от календара — най-много един на дата.
@@ -71,7 +74,16 @@ class IntimaDatabase extends _$IntimaDatabase {
   IntimaDatabase(super.e);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(diaryEntries, diaryEntries.photoPath);
+          }
+        },
+      );
 
   // --- Дневник ---
   Future<List<DiaryEntryRow>> allDiaryEntries() =>

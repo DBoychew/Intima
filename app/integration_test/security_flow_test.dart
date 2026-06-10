@@ -121,5 +121,46 @@ void main() {
     expect(todayLog!.isPeriod, isTrue);
     expect(todayLog.mood, 4);
     expect(find.textContaining('Следващ цикъл — около'), findsOneWidget);
+
+    // --- Фаза 4: дневник — създаване, търсене, изтриване ---
+    await tester.tap(find.text('Дневник'));
+    await tester.pumpAndSettle();
+    // Изчакай snackbar-а „Записано ✨" — застъпва FAB-а.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byType(FloatingActionButton).last);
+    await tester.pumpAndSettle();
+    expect(find.text('Нов запис'), findsOneWidget);
+
+    await tester.enterText(
+      find.byType(TextField).first,
+      'Интеграционен тест запис',
+    );
+    await tester.tap(find.text('🥰'));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.text('Запази'));
+    await tester.pumpAndSettle();
+
+    // Заглавие + preview на текста → поне едно съвпадение.
+    expect(find.text('Интеграционен тест запис'), findsWidgets);
+
+    // Търсене
+    await tester.enterText(find.byType(TextField).first, 'интеграционен');
+    await tester.pumpAndSettle();
+    expect(find.text('Интеграционен тест запис'), findsWidgets);
+    await tester.enterText(find.byType(TextField).first, '');
+    await tester.pumpAndSettle();
+
+    // Изтриване от редактора
+    await tester.tap(find.text('Интеграционен тест запис').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.delete_outline));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Изтрий'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Интеграционен тест запис'), findsNothing);
+    expect(await dbManager.db.allDiaryEntries(), isEmpty);
   });
 }

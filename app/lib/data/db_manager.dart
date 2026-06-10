@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
-import 'package:meta/meta.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -10,7 +10,8 @@ import 'database.dart';
 
 /// Държи живата връзка към криптираната база и операциите по жизнения ѝ
 /// цикъл: отваряне, експорт и пълно изтриване (GDPR).
-class DbManager {
+/// Уведомява слушателите при пълно изтриване, за да се презаредят екраните.
+class DbManager extends ChangeNotifier {
   IntimaDatabase? _db;
 
   IntimaDatabase get db {
@@ -67,6 +68,7 @@ class DbManager {
     if (await file.exists()) await file.delete();
     await SecureStore.wipeAll();
     await open();
+    notifyListeners();
   }
 }
 

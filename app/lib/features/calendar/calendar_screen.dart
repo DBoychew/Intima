@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../core/bg_dates.dart';
 import '../../core/cycle_settings.dart';
 import '../../data/calendar_repository.dart';
+import '../../data/db_manager.dart';
 import '../../theme/app_theme.dart';
 import 'quick_log_sheet.dart';
 
@@ -36,14 +37,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void initState() {
     super.initState();
-    // Прогнозата се преизчислява щом потребителката промени цикъла си.
+    // Прогнозата се преизчислява щом потребителката промени цикъла си;
+    // презареждаме и след GDPR изтриване.
     cycleSettings.addListener(_onCycleChanged);
+    dbManager.addListener(_load);
     _load();
   }
 
   @override
   void dispose() {
     cycleSettings.removeListener(_onCycleChanged);
+    dbManager.removeListener(_load);
     super.dispose();
   }
 

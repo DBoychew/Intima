@@ -83,6 +83,17 @@ class $DiaryEntriesTable extends DiaryEntries
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _photoPathMeta = const VerificationMeta(
+    'photoPath',
+  );
+  @override
+  late final GeneratedColumn<String> photoPath = GeneratedColumn<String>(
+    'photo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -92,6 +103,7 @@ class $DiaryEntriesTable extends DiaryEntries
     mood,
     tags,
     hasPhoto,
+    photoPath,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -150,6 +162,12 @@ class $DiaryEntriesTable extends DiaryEntries
         hasPhoto.isAcceptableOrUnknown(data['has_photo']!, _hasPhotoMeta),
       );
     }
+    if (data.containsKey('photo_path')) {
+      context.handle(
+        _photoPathMeta,
+        photoPath.isAcceptableOrUnknown(data['photo_path']!, _photoPathMeta),
+      );
+    }
     return context;
   }
 
@@ -187,6 +205,10 @@ class $DiaryEntriesTable extends DiaryEntries
         DriftSqlType.bool,
         data['${effectivePrefix}has_photo'],
       )!,
+      photoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_path'],
+      ),
     );
   }
 
@@ -206,6 +228,9 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
   /// JSON списък от тагове, напр. `["нас","вечеря"]`.
   final String tags;
   final bool hasPhoto;
+
+  /// Път до снимката в private storage на приложението (v2).
+  final String? photoPath;
   const DiaryEntryRow({
     required this.id,
     required this.title,
@@ -214,6 +239,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     this.mood,
     required this.tags,
     required this.hasPhoto,
+    this.photoPath,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -227,6 +253,9 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     }
     map['tags'] = Variable<String>(tags);
     map['has_photo'] = Variable<bool>(hasPhoto);
+    if (!nullToAbsent || photoPath != null) {
+      map['photo_path'] = Variable<String>(photoPath);
+    }
     return map;
   }
 
@@ -239,6 +268,9 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       mood: mood == null && nullToAbsent ? const Value.absent() : Value(mood),
       tags: Value(tags),
       hasPhoto: Value(hasPhoto),
+      photoPath: photoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoPath),
     );
   }
 
@@ -255,6 +287,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       mood: serializer.fromJson<int?>(json['mood']),
       tags: serializer.fromJson<String>(json['tags']),
       hasPhoto: serializer.fromJson<bool>(json['hasPhoto']),
+      photoPath: serializer.fromJson<String?>(json['photoPath']),
     );
   }
   @override
@@ -268,6 +301,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       'mood': serializer.toJson<int?>(mood),
       'tags': serializer.toJson<String>(tags),
       'hasPhoto': serializer.toJson<bool>(hasPhoto),
+      'photoPath': serializer.toJson<String?>(photoPath),
     };
   }
 
@@ -279,6 +313,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     Value<int?> mood = const Value.absent(),
     String? tags,
     bool? hasPhoto,
+    Value<String?> photoPath = const Value.absent(),
   }) => DiaryEntryRow(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -287,6 +322,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     mood: mood.present ? mood.value : this.mood,
     tags: tags ?? this.tags,
     hasPhoto: hasPhoto ?? this.hasPhoto,
+    photoPath: photoPath.present ? photoPath.value : this.photoPath,
   );
   DiaryEntryRow copyWithCompanion(DiaryEntriesCompanion data) {
     return DiaryEntryRow(
@@ -297,6 +333,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       mood: data.mood.present ? data.mood.value : this.mood,
       tags: data.tags.present ? data.tags.value : this.tags,
       hasPhoto: data.hasPhoto.present ? data.hasPhoto.value : this.hasPhoto,
+      photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
     );
   }
 
@@ -309,13 +346,15 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
           ..write('date: $date, ')
           ..write('mood: $mood, ')
           ..write('tags: $tags, ')
-          ..write('hasPhoto: $hasPhoto')
+          ..write('hasPhoto: $hasPhoto, ')
+          ..write('photoPath: $photoPath')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, title, body, date, mood, tags, hasPhoto);
+  int get hashCode =>
+      Object.hash(id, title, body, date, mood, tags, hasPhoto, photoPath);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -326,7 +365,8 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
           other.date == this.date &&
           other.mood == this.mood &&
           other.tags == this.tags &&
-          other.hasPhoto == this.hasPhoto);
+          other.hasPhoto == this.hasPhoto &&
+          other.photoPath == this.photoPath);
 }
 
 class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
@@ -337,6 +377,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
   final Value<int?> mood;
   final Value<String> tags;
   final Value<bool> hasPhoto;
+  final Value<String?> photoPath;
   const DiaryEntriesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -345,6 +386,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     this.mood = const Value.absent(),
     this.tags = const Value.absent(),
     this.hasPhoto = const Value.absent(),
+    this.photoPath = const Value.absent(),
   });
   DiaryEntriesCompanion.insert({
     this.id = const Value.absent(),
@@ -354,6 +396,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     this.mood = const Value.absent(),
     this.tags = const Value.absent(),
     this.hasPhoto = const Value.absent(),
+    this.photoPath = const Value.absent(),
   }) : title = Value(title),
        body = Value(body),
        date = Value(date);
@@ -365,6 +408,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     Expression<int>? mood,
     Expression<String>? tags,
     Expression<bool>? hasPhoto,
+    Expression<String>? photoPath,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -374,6 +418,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
       if (mood != null) 'mood': mood,
       if (tags != null) 'tags': tags,
       if (hasPhoto != null) 'has_photo': hasPhoto,
+      if (photoPath != null) 'photo_path': photoPath,
     });
   }
 
@@ -385,6 +430,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     Value<int?>? mood,
     Value<String>? tags,
     Value<bool>? hasPhoto,
+    Value<String?>? photoPath,
   }) {
     return DiaryEntriesCompanion(
       id: id ?? this.id,
@@ -394,6 +440,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
       mood: mood ?? this.mood,
       tags: tags ?? this.tags,
       hasPhoto: hasPhoto ?? this.hasPhoto,
+      photoPath: photoPath ?? this.photoPath,
     );
   }
 
@@ -421,6 +468,9 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     if (hasPhoto.present) {
       map['has_photo'] = Variable<bool>(hasPhoto.value);
     }
+    if (photoPath.present) {
+      map['photo_path'] = Variable<String>(photoPath.value);
+    }
     return map;
   }
 
@@ -433,7 +483,8 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
           ..write('date: $date, ')
           ..write('mood: $mood, ')
           ..write('tags: $tags, ')
-          ..write('hasPhoto: $hasPhoto')
+          ..write('hasPhoto: $hasPhoto, ')
+          ..write('photoPath: $photoPath')
           ..write(')'))
         .toString();
   }
@@ -1698,6 +1749,7 @@ typedef $$DiaryEntriesTableCreateCompanionBuilder =
       Value<int?> mood,
       Value<String> tags,
       Value<bool> hasPhoto,
+      Value<String?> photoPath,
     });
 typedef $$DiaryEntriesTableUpdateCompanionBuilder =
     DiaryEntriesCompanion Function({
@@ -1708,6 +1760,7 @@ typedef $$DiaryEntriesTableUpdateCompanionBuilder =
       Value<int?> mood,
       Value<String> tags,
       Value<bool> hasPhoto,
+      Value<String?> photoPath,
     });
 
 class $$DiaryEntriesTableFilterComposer
@@ -1751,6 +1804,11 @@ class $$DiaryEntriesTableFilterComposer
 
   ColumnFilters<bool> get hasPhoto => $composableBuilder(
     column: $table.hasPhoto,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1798,6 +1856,11 @@ class $$DiaryEntriesTableOrderingComposer
     column: $table.hasPhoto,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DiaryEntriesTableAnnotationComposer
@@ -1829,6 +1892,9 @@ class $$DiaryEntriesTableAnnotationComposer
 
   GeneratedColumn<bool> get hasPhoto =>
       $composableBuilder(column: $table.hasPhoto, builder: (column) => column);
+
+  GeneratedColumn<String> get photoPath =>
+      $composableBuilder(column: $table.photoPath, builder: (column) => column);
 }
 
 class $$DiaryEntriesTableTableManager
@@ -1869,6 +1935,7 @@ class $$DiaryEntriesTableTableManager
                 Value<int?> mood = const Value.absent(),
                 Value<String> tags = const Value.absent(),
                 Value<bool> hasPhoto = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
               }) => DiaryEntriesCompanion(
                 id: id,
                 title: title,
@@ -1877,6 +1944,7 @@ class $$DiaryEntriesTableTableManager
                 mood: mood,
                 tags: tags,
                 hasPhoto: hasPhoto,
+                photoPath: photoPath,
               ),
           createCompanionCallback:
               ({
@@ -1887,6 +1955,7 @@ class $$DiaryEntriesTableTableManager
                 Value<int?> mood = const Value.absent(),
                 Value<String> tags = const Value.absent(),
                 Value<bool> hasPhoto = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
               }) => DiaryEntriesCompanion.insert(
                 id: id,
                 title: title,
@@ -1895,6 +1964,7 @@ class $$DiaryEntriesTableTableManager
                 mood: mood,
                 tags: tags,
                 hasPhoto: hasPhoto,
+                photoPath: photoPath,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
