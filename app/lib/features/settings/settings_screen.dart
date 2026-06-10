@@ -14,6 +14,47 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _biometric = true;
   bool _hideRecents = true;
   bool _reminder = true;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 21, minute: 0);
+
+  String get _timeLabel =>
+      '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}';
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+    );
+    if (picked != null) setState(() => _reminderTime = picked);
+  }
+
+  void _export() {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceHigh,
+        title: const Text('Експорт на данните'),
+        content: const Text(
+            'Всички записи ще бъдат експортирани в криптиран файл, който можеш да съхраниш или прехвърлиш.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Отказ'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text(
+                        'Експортът е готов 📦 (реалният файл идва във Фаза 2)')),
+              );
+            },
+            child: const Text('Експортирай'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,19 +87,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: const Text('Час'),
-            trailing: Text('21:00',
+            trailing: Text(_timeLabel,
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium!
                     .copyWith(color: AppColors.accentSoft)),
-            onTap: () {},
+            onTap: _pickTime,
           ),
           _section('ДАННИ'),
           ListTile(
             title: const Text('Експортирай данните'),
             trailing: const Icon(Icons.chevron_right,
                 color: AppColors.textSecondary),
-            onTap: () {},
+            onTap: _export,
           ),
           ListTile(
             title: const Text('Изтрий всичко',
@@ -77,7 +118,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       onPressed: () => Navigator.pop(ctx),
                       child: const Text('Отказ')),
                   TextButton(
-                      onPressed: () => Navigator.pop(ctx),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Всички данни са изтрити 🗑️ (прототип)')),
+                        );
+                      },
                       child: const Text('Изтрий',
                           style: TextStyle(color: AppColors.error))),
                 ],

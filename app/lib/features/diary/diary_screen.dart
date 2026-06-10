@@ -2,58 +2,103 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../theme/app_theme.dart';
+import 'diary_entry.dart';
 
-/// Прототип с примерни записи — реалните идват от БД във Фаза 4.
-class DiaryScreen extends StatelessWidget {
+class DiaryScreen extends StatefulWidget {
   const DiaryScreen({super.key});
 
-  static const _entries = [
-    (
-      emoji: '🥰',
+  @override
+  State<DiaryScreen> createState() => _DiaryScreenState();
+}
+
+class _DiaryScreenState extends State<DiaryScreen> {
+  final _entries = <DiaryEntry>[
+    DiaryEntry(
+      mood: 4,
       title: 'Вечерята с Н.',
       date: '28 юни',
       tags: ['нас', 'вечеря'],
-      excerpt: 'Най-хубавата вечер от месеци. Говорихме си до късно и…',
+      text:
+          'Най-хубавата вечер от месеци. Говорихме си до късно и се смяхме като в началото.',
     ),
-    (
-      emoji: '🙂',
+    DiaryEntry(
+      mood: 2,
       title: 'Благодарност',
       date: '26 юни',
       tags: ['благодарност'],
-      excerpt: 'Днес съм благодарна за спокойствието и за чая сутринта…',
+      text: 'Днес съм благодарна за спокойствието и за чая сутринта.',
     ),
-    (
-      emoji: '😐',
+    DiaryEntry(
+      mood: 1,
       title: 'Тежък ден',
       date: '23 юни',
       tags: ['работа'],
-      excerpt: 'Много срещи, малко въздух. Утре ще е по-добре.',
+      text: 'Много срещи, малко въздух. Утре ще е по-добре.',
     ),
   ];
+  String _query = '';
+
+  Future<void> _openEditor({DiaryEntry? entry, int? index}) async {
+    final result = await context.push<DiaryEntry>('/diary/new', extra: entry);
+    if (result == null || !mounted) return;
+    setState(() {
+      if (index == null) {
+        _entries.insert(0, result);
+      } else {
+        _entries[index] = result;
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Записът е запазен 💜')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final visible = _query.isEmpty
+        ? _entries
+        : _entries.where((e) => e.matches(_query)).toList();
     return Scaffold(
       appBar: AppBar(title: const Text('Дневник')),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.go('/diary/new'),
+        onPressed: () => _openEditor(),
         child: const Icon(Icons.add),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const TextField(
-            decoration: InputDecoration(
+          TextField(
+            onChanged: (v) => setState(() => _query = v),
+            decoration: const InputDecoration(
               hintText: 'Търси в записите…',
               prefixIcon: Icon(Icons.search, color: AppColors.textSecondary),
             ),
           ),
           const SizedBox(height: 16),
-          for (final e in _entries) ...[
+          if (visible.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 48),
+              child: Column(
+                children: [
+                  const Text('🔍', style: TextStyle(fontSize: 40)),
+                  const SizedBox(height: 12),
+                  Text(
+                    _query.isEmpty
+                        ? 'Тук ще живеят твоите моменти. 💜'
+                        : 'Нищо не открихме за „$_query“.',
+                    style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          for (final e in visible) ...[
             Card(
               child: ListTile(
                 contentPadding: const EdgeInsets.all(16),
-                leading: Text(e.emoji, style: const TextStyle(fontSize: 28)),
+                leading: Text(e.moodEmoji, style: const TextStyle(fontSize: 28)),
                 title: Text(e.title,
                     style: Theme.of(context).textTheme.titleLarge),
                 subtitle: Padding(
@@ -62,7 +107,7 @@ class DiaryScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        e.excerpt,
+                        e.text,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context)
@@ -72,13 +117,17 @@ class DiaryScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        '${e.date} · ${e.tags.map((t) => '#$t').join(' ')}',
+                        [
+                          e.date,
+                          if (e.hasPhoto) '📷',
+                          ...e.tags.map((t) => '#$t'),
+                        ].join(' · '),
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
                     ],
                   ),
                 ),
-                onTap: () {},
+                onTap: () => _openEditor(entry: e, index: _entries.indexOf(e)),
               ),
             ),
             const SizedBox(height: 12),

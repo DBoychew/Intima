@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'features/calendar/calendar_screen.dart';
 import 'features/diary/diary_editor_screen.dart';
+import 'features/diary/diary_entry.dart';
 import 'features/diary/diary_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/settings/settings_screen.dart';
@@ -33,7 +34,8 @@ final _router = GoRouter(
             routes: [
               GoRoute(
                   path: 'new',
-                  builder: (context, state) => const DiaryEditorScreen()),
+                  builder: (context, state) => DiaryEditorScreen(
+                      initial: state.extra as DiaryEntry?)),
             ],
           ),
         ]),

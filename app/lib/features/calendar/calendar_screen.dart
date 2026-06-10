@@ -13,46 +13,90 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  static const _fertileDays = {19, 20, 21};
-  static const _today = 30;
-  static const _daysInMonth = 30;
-  static const _firstWeekday = 1; // 1 юни 2026 е понеделник
+  static const _monthNames = [
+    'януари',
+    'февруари',
+    'март',
+    'април',
+    'май',
+    'юни',
+    'юли',
+    'август',
+    'септември',
+    'октомври',
+    'ноември',
+    'декември',
+  ];
+  static const _year = 2026;
+  static const _todayMonth = 6;
+  static const _todayDay = 30;
   static const _moods = ['😞', '😐', '🙂', '😊', '🥰'];
 
-  final _periodDays = <int>{3, 4, 5, 6, 7};
-  final _intimacyDays = <int>{17, 28};
+  int _month = _todayMonth;
+  // Ключ "месец-ден", за да пазим маркери за всички месеци.
+  final _periodDays = <String>{'6-3', '6-4', '6-5', '6-6', '6-7'};
+  final _intimacyDays = <String>{'6-17', '6-28'};
+  final _fertileDays = <String>{'6-19', '6-20', '6-21'};
   int _todayMood = 2;
 
+  int get _daysInMonth => DateTime(_year, _month + 1, 0).day;
+  int get _firstWeekday => DateTime(_year, _month, 1).weekday;
+  String get _monthTitle =>
+      '${_monthNames[_month - 1][0].toUpperCase()}${_monthNames[_month - 1].substring(1)} $_year';
+
+  String _key(int day) => '$_month-$day';
+
   Future<void> _openLog(int day) async {
+    final isToday = _month == _todayMonth && day == _todayDay;
     final result = await showQuickLogSheet(
       context,
-      dateLabel: day == _today ? null : '$day юни',
-      initialPeriod: _periodDays.contains(day),
-      initialIntimacy: _intimacyDays.contains(day),
+      dateLabel: isToday ? null : '$day ${_monthNames[_month - 1]}',
+      initialPeriod: _periodDays.contains(_key(day)),
+      initialIntimacy: _intimacyDays.contains(_key(day)),
     );
     if (result == null || !mounted) return;
     setState(() {
-      result.period ? _periodDays.add(day) : _periodDays.remove(day);
-      result.intimacy ? _intimacyDays.add(day) : _intimacyDays.remove(day);
-      if (day == _today && result.mood != null) _todayMood = result.mood!;
+      result.period
+          ? _periodDays.add(_key(day))
+          : _periodDays.remove(_key(day));
+      result.intimacy
+          ? _intimacyDays.add(_key(day))
+          : _intimacyDays.remove(_key(day));
+      if (_month == _todayMonth && day == _todayDay && result.mood != null) {
+        _todayMood = result.mood!;
+      }
     });
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Записано ✨')),
     );
   }
 
+  void _changeMonth(int delta) {
+    HapticFeedback.selectionClick();
+    setState(() => _month = (_month + delta).clamp(1, 12));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Юни 2026'),
+        title: Text(_monthTitle),
         actions: [
-          IconButton(icon: const Icon(Icons.chevron_left), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.chevron_right), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.chevron_left),
+            onPressed: _month > 1 ? () => _changeMonth(-1) : null,
+          ),
+          IconButton(
+            icon: const Icon(Icons.chevron_right),
+            onPressed: _month < 12 ? () => _changeMonth(1) : null,
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _openLog(_today),
+        onPressed: () {
+          if (_month != _todayMonth) setState(() => _month = _todayMonth);
+          _openLog(_todayDay);
+        },
         child: const Icon(Icons.add),
       ),
       body: ListView(
@@ -146,10 +190,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       cells.add(
         _DayCell(
           day: day,
-          isToday: day == _today,
-          isPeriod: _periodDays.contains(day),
-          isIntimacy: _intimacyDays.contains(day),
-          isFertile: _fertileDays.contains(day),
+          isToday: _month == _todayMonth && day == _todayDay,
+          isPeriod: _periodDays.contains(_key(day)),
+          isIntimacy: _intimacyDays.contains(_key(day)),
+          isFertile: _fertileDays.contains(_key(day)),
           onTap: () {
             HapticFeedback.selectionClick();
             _openLog(day);
