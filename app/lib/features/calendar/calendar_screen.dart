@@ -5,15 +5,41 @@ import '../../theme/app_theme.dart';
 import 'quick_log_sheet.dart';
 
 /// Прототип с примерни данни — реалните идват от БД във Фаза 3.
-class CalendarScreen extends StatelessWidget {
+class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
 
-  static const _periodDays = {3, 4, 5, 6, 7};
-  static const _intimacyDays = {17, 28};
+  @override
+  State<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
   static const _fertileDays = {19, 20, 21};
   static const _today = 30;
   static const _daysInMonth = 30;
   static const _firstWeekday = 1; // 1 юни 2026 е понеделник
+  static const _moods = ['😞', '😐', '🙂', '😊', '🥰'];
+
+  final _periodDays = <int>{3, 4, 5, 6, 7};
+  final _intimacyDays = <int>{17, 28};
+  int _todayMood = 2;
+
+  Future<void> _openLog(int day) async {
+    final result = await showQuickLogSheet(
+      context,
+      dateLabel: day == _today ? null : '$day юни',
+      initialPeriod: _periodDays.contains(day),
+      initialIntimacy: _intimacyDays.contains(day),
+    );
+    if (result == null || !mounted) return;
+    setState(() {
+      result.period ? _periodDays.add(day) : _periodDays.remove(day);
+      result.intimacy ? _intimacyDays.add(day) : _intimacyDays.remove(day);
+      if (day == _today && result.mood != null) _todayMood = result.mood!;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Записано ✨')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +52,7 @@ class CalendarScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => showQuickLogSheet(context),
+        onPressed: () => _openLog(_today),
         child: const Icon(Icons.add),
       ),
       body: ListView(
@@ -51,9 +77,9 @@ class CalendarScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Text(
-                        'Настроение: 🙂',
-                        style: TextStyle(fontSize: 15),
+                      Text(
+                        'Настроение: ${_moods[_todayMood]}',
+                        style: const TextStyle(fontSize: 15),
                       ),
                       const Spacer(),
                       Text(
@@ -126,10 +152,7 @@ class CalendarScreen extends StatelessWidget {
           isFertile: _fertileDays.contains(day),
           onTap: () {
             HapticFeedback.selectionClick();
-            showQuickLogSheet(
-              context,
-              dateLabel: day == _today ? null : '$day юни',
-            );
+            _openLog(day);
           },
         ),
       );

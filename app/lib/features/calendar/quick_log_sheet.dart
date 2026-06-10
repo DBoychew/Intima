@@ -3,12 +3,35 @@ import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
 
+/// Резултатът от бързия запис — календарът се обновява по него.
+class QuickLogResult {
+  const QuickLogResult({
+    required this.mood,
+    required this.period,
+    required this.intimacy,
+  });
+
+  final int? mood;
+  final bool period;
+  final bool intimacy;
+}
+
 /// [dateLabel] — null означава „днес"; иначе напр. „12 юни".
-void showQuickLogSheet(BuildContext context, {String? dateLabel}) {
-  showModalBottomSheet<void>(
+/// Връща null при затваряне без „Запази".
+Future<QuickLogResult?> showQuickLogSheet(
+  BuildContext context, {
+  String? dateLabel,
+  bool initialPeriod = false,
+  bool initialIntimacy = false,
+}) {
+  return showModalBottomSheet<QuickLogResult>(
     context: context,
     isScrollControlled: true,
-    builder: (_) => _QuickLogSheet(dateLabel: dateLabel),
+    builder: (_) => _QuickLogSheet(
+      dateLabel: dateLabel,
+      initialPeriod: initialPeriod,
+      initialIntimacy: initialIntimacy,
+    ),
   );
 }
 
@@ -21,10 +44,16 @@ class _IntimateSession {
 }
 
 class _QuickLogSheet extends StatefulWidget {
-  const _QuickLogSheet({this.dateLabel});
+  const _QuickLogSheet({
+    this.dateLabel,
+    this.initialPeriod = false,
+    this.initialIntimacy = false,
+  });
 
   /// null = запис за днес.
   final String? dateLabel;
+  final bool initialPeriod;
+  final bool initialIntimacy;
 
   @override
   State<_QuickLogSheet> createState() => _QuickLogSheetState();
@@ -52,6 +81,13 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
   bool get _intimacyOn => _sessions.isNotEmpty;
 
   @override
+  void initState() {
+    super.initState();
+    if (widget.initialPeriod) _selected.add('Менструация');
+    if (widget.initialIntimacy) _sessions.add(_IntimateSession());
+  }
+
+  @override
   void dispose() {
     for (final s in _sessions) {
       s.note.dispose();
@@ -72,9 +108,13 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
 
   void _save() {
     HapticFeedback.lightImpact();
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Записано ✨')),
+    Navigator.pop(
+      context,
+      QuickLogResult(
+        mood: _mood,
+        period: _selected.contains('Менструация'),
+        intimacy: _sessions.isNotEmpty,
+      ),
     );
   }
 
