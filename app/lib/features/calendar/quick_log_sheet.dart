@@ -1,19 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../data/calendar_repository.dart';
 import '../../theme/app_theme.dart';
 
-/// Резултатът от бързия запис — календарът се обновява по него.
+/// Резултатът от бързия запис — пише се директно в базата.
 class QuickLogResult {
   const QuickLogResult({
     required this.mood,
     required this.period,
-    required this.intimacy,
+    required this.symptoms,
+    required this.libido,
+    required this.energy,
+    required this.moments,
   });
 
   final int? mood;
   final bool period;
-  final bool intimacy;
+  final List<String> symptoms;
+  final double libido;
+  final double energy;
+  final List<MomentDraft> moments;
+
+  bool get intimacy => moments.isNotEmpty;
 }
 
 /// [dateLabel] — null означава „днес"; иначе напр. „12 юни".
@@ -21,39 +30,71 @@ class QuickLogResult {
 Future<QuickLogResult?> showQuickLogSheet(
   BuildContext context, {
   String? dateLabel,
+  int? initialMood,
   bool initialPeriod = false,
-  bool initialIntimacy = false,
+  List<String> initialSymptoms = const [],
+  double initialLibido = 0.5,
+  double initialEnergy = 0.5,
+  List<MomentDraft> initialMoments = const [],
 }) {
   return showModalBottomSheet<QuickLogResult>(
     context: context,
     isScrollControlled: true,
     builder: (_) => _QuickLogSheet(
       dateLabel: dateLabel,
+      initialMood: initialMood,
       initialPeriod: initialPeriod,
-      initialIntimacy: initialIntimacy,
+      initialSymptoms: initialSymptoms,
+      initialLibido: initialLibido,
+      initialEnergy: initialEnergy,
+      initialMoments: initialMoments,
     ),
   );
 }
 
 /// Един интимен момент — на ден може да има няколко.
 class _IntimateSession {
+  _IntimateSession();
+
+  _IntimateSession.from(MomentDraft draft)
+      : arousal = draft.arousal,
+        orgasms = draft.orgasms {
+    positions.addAll(draft.positions);
+    note.text = draft.note;
+  }
+
   double arousal = 0.6;
   int orgasms = 1;
   final positions = <String>{};
   final note = TextEditingController();
+
+  MomentDraft toDraft() => MomentDraft(
+        arousal: arousal,
+        orgasms: orgasms,
+        positions: positions.toList(),
+        note: note.text.trim(),
+      );
 }
 
 class _QuickLogSheet extends StatefulWidget {
   const _QuickLogSheet({
     this.dateLabel,
+    this.initialMood,
     this.initialPeriod = false,
-    this.initialIntimacy = false,
+    this.initialSymptoms = const [],
+    this.initialLibido = 0.5,
+    this.initialEnergy = 0.5,
+    this.initialMoments = const [],
   });
 
   /// null = запис за днес.
   final String? dateLabel;
+  final int? initialMood;
   final bool initialPeriod;
-  final bool initialIntimacy;
+  final List<String> initialSymptoms;
+  final double initialLibido;
+  final double initialEnergy;
+  final List<MomentDraft> initialMoments;
 
   @override
   State<_QuickLogSheet> createState() => _QuickLogSheetState();
@@ -74,8 +115,8 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
 
   int? _mood;
   final _selected = <String>{};
-  double _libido = 0.6;
-  double _energy = 0.4;
+  double _libido = 0.5;
+  double _energy = 0.5;
   final _sessions = <_IntimateSession>[];
 
   bool get _intimacyOn => _sessions.isNotEmpty;
@@ -83,8 +124,12 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
   @override
   void initState() {
     super.initState();
+    _mood = widget.initialMood;
+    _libido = widget.initialLibido;
+    _energy = widget.initialEnergy;
     if (widget.initialPeriod) _selected.add('Менструация');
-    if (widget.initialIntimacy) _sessions.add(_IntimateSession());
+    _selected.addAll(widget.initialSymptoms.where(_tags.contains));
+    _sessions.addAll(widget.initialMoments.map(_IntimateSession.from));
   }
 
   @override
@@ -113,7 +158,11 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
       QuickLogResult(
         mood: _mood,
         period: _selected.contains('Менструация'),
-        intimacy: _sessions.isNotEmpty,
+        symptoms:
+            _selected.where((t) => t != 'Менструация').toList(),
+        libido: _libido,
+        energy: _energy,
+        moments: [for (final s in _sessions) s.toDraft()],
       ),
     );
   }

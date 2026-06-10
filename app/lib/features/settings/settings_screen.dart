@@ -155,11 +155,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (result != null && mounted) {
       setState(() => onSave(result));
+      final next = cycleSettings.nextPeriodStart;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Записано ✨ Следваща менструация — около '
-            '${bgDate(cycleSettings.nextPeriodStart)}',
+            next == null
+                ? 'Записано ✨'
+                : 'Записано ✨ Следваща менструация — около ${bgDate(next)}',
           ),
         ),
       );
@@ -260,7 +262,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: const Text('Очаквана следваща менструация'),
-            trailing: Text(bgDate(cycleSettings.nextPeriodStart),
+            subtitle: cycleSettings.nextPeriodStart == null
+                ? Text('Отбележи менструация в календара',
+                    style: Theme.of(context).textTheme.labelMedium)
+                : null,
+            trailing: Text(
+                cycleSettings.nextPeriodStart == null
+                    ? '—'
+                    : bgDate(cycleSettings.nextPeriodStart!),
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium!

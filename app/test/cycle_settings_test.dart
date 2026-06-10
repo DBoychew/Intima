@@ -3,9 +3,20 @@ import 'package:intima/core/cycle_settings.dart';
 
 void main() {
   group('CycleSettings', () {
-    test('предвижда следващата менструация по дължината на цикъла', () {
+    CycleSettings withData() =>
+        CycleSettings()..lastPeriodStart = DateTime(2026, 6, 3);
+
+    test('без отбелязана менструация няма предикции', () {
       final s = CycleSettings();
-      // Мок: последна менструация от 3 юни 2026, цикъл 28 дни.
+      expect(s.lastPeriodStart, isNull);
+      expect(s.nextPeriodStart, isNull);
+      expect(s.ovulation, isNull);
+      expect(s.isFertile(DateTime(2026, 6, 17)), isFalse);
+      expect(s.isPredictedPeriod(DateTime(2026, 7, 1)), isFalse);
+    });
+
+    test('предвижда следващата менструация по дължината на цикъла', () {
+      final s = withData();
       expect(s.nextPeriodStart, DateTime(2026, 7, 1));
 
       s.cycleLength = 30;
@@ -23,7 +34,7 @@ void main() {
     });
 
     test('маркира очакваните дни от менструацията', () {
-      final s = CycleSettings();
+      final s = withData();
       expect(s.isPredictedPeriod(DateTime(2026, 7, 1)), isTrue);
       expect(s.isPredictedPeriod(DateTime(2026, 7, 5)), isTrue);
       expect(s.isPredictedPeriod(DateTime(2026, 7, 6)), isFalse);
@@ -32,7 +43,7 @@ void main() {
     });
 
     test('фертилният прозорец е около овулацията', () {
-      final s = CycleSettings();
+      final s = withData();
       // Овулация ≈ 1 юли - 14 дни = 17 юни.
       expect(s.isFertile(DateTime(2026, 6, 17)), isTrue);
       expect(s.isFertile(DateTime(2026, 6, 15)), isTrue);
@@ -41,13 +52,21 @@ void main() {
       expect(s.isFertile(DateTime(2026, 7, 15)), isTrue);
     });
 
+    test('reset връща и lastPeriodStart към null', () {
+      final s = withData();
+      s.resetToDefaults();
+      expect(s.lastPeriodStart, isNull);
+      expect(s.nextPeriodStart, isNull);
+    });
+
     test('уведомява слушателите при промяна', () {
       final s = CycleSettings();
       var notified = 0;
       s.addListener(() => notified++);
       s.cycleLength = 29;
       s.periodLength = 4;
-      expect(notified, 2);
+      s.lastPeriodStart = DateTime(2026, 6, 3);
+      expect(notified, 3);
     });
   });
 }

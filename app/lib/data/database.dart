@@ -98,9 +98,21 @@ class IntimaDatabase extends _$IntimaDatabase {
   Future<void> upsertDayLog(DayLogsCompanion log) =>
       into(dayLogs).insertOnConflictUpdate(log);
 
+  /// Всички менструални дни, най-новите първи — за извличане на
+  /// началото на последния цикъл.
+  Future<List<DayLogRow>> allPeriodLogs() => (select(dayLogs)
+        ..where((t) => t.isPeriod.equals(true))
+        ..orderBy([(t) => OrderingTerm.desc(t.date)]))
+      .get();
+
   // --- Интимни моменти ---
   Future<List<IntimateMomentRow>> momentsOn(String date) =>
       (select(intimateMoments)..where((t) => t.date.equals(date))).get();
+
+  Future<List<IntimateMomentRow>> monthMoments(String yearMonthPrefix) =>
+      (select(intimateMoments)
+            ..where((t) => t.date.like('$yearMonthPrefix%')))
+          .get();
 
   Future<int> insertMoment(IntimateMomentsCompanion moment) =>
       into(intimateMoments).insert(moment);

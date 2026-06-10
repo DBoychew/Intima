@@ -3,48 +3,42 @@ import 'package:flutter/services.dart';
 
 import '../../core/bg_dates.dart';
 import '../../core/cycle_settings.dart';
+import '../../data/calendar_repository.dart';
 import '../../theme/app_theme.dart';
 import 'quick_log_sheet.dart';
 
-/// Прототип с примерни данни — реалните идват от БД във Фаза 3.
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+  const CalendarScreen({super.key, this.todayOverride});
+
+  /// Фиксира „днес" — само за тестове.
+  final DateTime? todayOverride;
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  static const _todayYear = 2026;
-  static const _todayMonth = 6;
-  static const _todayDay = 30;
   static const _moods = ['😞', '😐', '🙂', '😊', '🥰'];
 
-  int _year = _todayYear;
-  int _month = _todayMonth;
-  // Ключ "година-месец-ден", за да не смесваме записи от различни години.
-  final _periodDays = <String>{
-    '2026-6-3',
-    '2026-6-4',
-    '2026-6-5',
-    '2026-6-6',
-    '2026-6-7',
-  };
-  final _intimacyDays = <String>{'2026-6-17', '2026-6-28'};
-  int _todayMood = 2;
+  late final DateTime _today = widget.todayOverride ?? DateTime.now();
+  late int _year = _today.year;
+  late int _month = _today.month;
+  MonthData _data = MonthData.empty;
 
   int get _daysInMonth => DateTime(_year, _month + 1, 0).day;
   int get _firstWeekday => DateTime(_year, _month, 1).weekday;
   String get _monthTitle =>
       '${bgMonths[_month - 1][0].toUpperCase()}${bgMonths[_month - 1].substring(1)} $_year';
 
-  String _key(int day) => '$_year-$_month-$day';
+  bool get _viewingTodayMonth =>
+      _year == _today.year && _month == _today.month;
 
   @override
   void initState() {
     super.initState();
     // Прогнозата се преизчислява щом потребителката промени цикъла си.
     cycleSettings.addListener(_onCycleChanged);
+    _load();
   }
 
   @override
@@ -55,30 +49,49 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   void _onCycleChanged() => setState(() {});
 
+  Future<void> _load() async {
+    await calendarRepository.refreshLastPeriodStart();
+    final data = await calendarRepository.month(_year, _month);
+    if (mounted) setState(() => _data = data);
+  }
+
   Future<void> _openLog(int day) async {
-    final isToday =
-        _year == _todayYear && _month == _todayMonth && day == _todayDay;
+    final date = DateTime(_year, _month, day);
+    final isToday = _viewingTodayMonth && day == _today.day;
+    final log = _data.logs[day];
+    final existing = _data.momentsByDay[day] ?? const [];
+
     final result = await showQuickLogSheet(
       context,
       dateLabel: isToday ? null : '$day ${bgMonths[_month - 1]} $_year',
-      initialPeriod: _periodDays.contains(_key(day)),
-      initialIntimacy: _intimacyDays.contains(_key(day)),
+      initialMood: log?.mood,
+      initialPeriod: log?.isPeriod ?? false,
+      initialSymptoms: decodeStringList(log?.symptoms),
+      initialLibido: log?.libido ?? 0.5,
+      initialEnergy: log?.energy ?? 0.5,
+      initialMoments: [
+        for (final m in existing)
+          MomentDraft(
+            arousal: m.arousal,
+            orgasms: m.orgasms,
+            positions: decodeStringList(m.positions),
+            note: m.note,
+          ),
+      ],
     );
     if (result == null || !mounted) return;
-    setState(() {
-      result.period
-          ? _periodDays.add(_key(day))
-          : _periodDays.remove(_key(day));
-      result.intimacy
-          ? _intimacyDays.add(_key(day))
-          : _intimacyDays.remove(_key(day));
-      if (_year == _todayYear &&
-          _month == _todayMonth &&
-          day == _todayDay &&
-          result.mood != null) {
-        _todayMood = result.mood!;
-      }
-    });
+
+    await calendarRepository.saveQuickLog(
+      date: date,
+      mood: result.mood,
+      period: result.period,
+      libido: result.libido,
+      energy: result.energy,
+      symptoms: result.symptoms,
+      moments: result.moments,
+    );
+    await _load();
+    if (!mounted) return;
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Записано ✨')));
@@ -90,7 +103,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     setState(() {
       _year = target.year;
       _month = target.month;
+      _data = MonthData.empty;
     });
+    _load();
   }
 
   @override
@@ -113,13 +128,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (_year != _todayYear || _month != _todayMonth) {
+          if (!_viewingTodayMonth) {
             setState(() {
-              _year = _todayYear;
-              _month = _todayMonth;
+              _year = _today.year;
+              _month = _today.month;
             });
+            _load();
           }
-          _openLog(_todayDay);
+          _openLog(_today.day);
         },
         child: const Icon(Icons.add),
       ),
@@ -132,41 +148,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           const SizedBox(height: 16),
           _legend(context),
           const SizedBox(height: 16),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Днес · 30 юни',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Text(
-                        'Настроение: ${_moods[_todayMood]}',
-                        style: const TextStyle(fontSize: 15),
-                      ),
-                      const Spacer(),
-                      Text(
-                        'Енергия ',
-                        style: Theme.of(context).textTheme.labelMedium,
-                      ),
-                      const Icon(Icons.bolt, color: AppColors.accent, size: 18),
-                      const Icon(Icons.bolt, color: AppColors.accent, size: 18),
-                      const Icon(
-                        Icons.bolt,
-                        color: AppColors.surfaceHigh,
-                        size: 18,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _todayCard(context),
           const SizedBox(height: 12),
           _predictionCard(context),
           const SizedBox(height: 80),
@@ -175,11 +157,74 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  Widget _todayCard(BuildContext context) {
+    final todayLog = _viewingTodayMonth ? _data.logs[_today.day] : null;
+    final energy = todayLog?.energy;
+    final filledBolts = energy == null ? 0 : (energy * 3).round().clamp(0, 3);
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Днес · ${bgDate(_today)}',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  todayLog?.mood == null
+                      ? 'Все още няма запис за днес'
+                      : 'Настроение: ${_moods[todayLog!.mood!]}',
+                  style: const TextStyle(fontSize: 15),
+                ),
+                const Spacer(),
+                Text(
+                  'Енергия ',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+                for (var i = 0; i < 3; i++)
+                  Icon(
+                    Icons.bolt,
+                    color: i < filledBolts
+                        ? AppColors.accent
+                        : AppColors.surfaceHigh,
+                    size: 18,
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _predictionCard(BuildContext context) {
     final next = cycleSettings.nextPeriodStart;
-    final daysLeft = next
-        .difference(DateTime(_todayYear, _todayMonth, _todayDay))
-        .inDays;
+    if (next == null) {
+      return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              const Text('🌱', style: TextStyle(fontSize: 24)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Отбележи първия ден от менструацията си и Intima ще '
+                  'предвижда следващия цикъл и фертилните дни.',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final daysLeft = next.difference(DateTime(_today.year, _today.month, _today.day)).inDays;
     final countdown = daysLeft <= 0
         ? 'очаква се всеки момент'
         : 'след $daysLeft ${daysLeft == 1 ? 'ден' : 'дни'}';
@@ -234,14 +279,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
     for (var day = 1; day <= _daysInMonth; day++) {
       final date = DateTime(_year, _month, day);
-      final isPeriod = _periodDays.contains(_key(day));
+      final isPeriod = _data.isPeriod(day);
       cells.add(
         _DayCell(
           day: day,
-          isToday:
-              _year == _todayYear && _month == _todayMonth && day == _todayDay,
+          isToday: _viewingTodayMonth && day == _today.day,
           isPeriod: isPeriod,
-          isIntimacy: _intimacyDays.contains(_key(day)),
+          isIntimacy: _data.hasIntimacy(day),
           isFertile: cycleSettings.isFertile(date),
           isPredicted: !isPeriod && cycleSettings.isPredictedPeriod(date),
           onTap: () {

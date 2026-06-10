@@ -1,5 +1,10 @@
+import 'package:drift/drift.dart' show Value;
+import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intima/core/cycle_settings.dart';
+import 'package:intima/data/database.dart';
+import 'package:intima/data/db_manager.dart';
 import 'package:intima/features/calendar/calendar_screen.dart';
 import 'package:intima/features/diary/diary_editor_screen.dart';
 import 'package:intima/main.dart';
@@ -17,8 +22,20 @@ void main() {
   testWidgets('Calendar arrows move across year boundaries', (
     WidgetTester tester,
   ) async {
+    // Реален календар = реална база; in-memory с малко период-дни.
+    await dbManager.openForTesting(IntimaDatabase(NativeDatabase.memory()));
+    cycleSettings.resetToDefaults();
+    for (final day in ['2026-06-03', '2026-06-04', '2026-06-05']) {
+      await dbManager.db.upsertDayLog(
+        DayLogsCompanion.insert(date: day, isPeriod: const Value(true)),
+      );
+    }
+
     await tester.pumpWidget(
-      MaterialApp(theme: AppTheme.dark, home: const CalendarScreen()),
+      MaterialApp(
+        theme: AppTheme.dark,
+        home: CalendarScreen(todayOverride: DateTime(2026, 6, 30)),
+      ),
     );
     await tester.pumpAndSettle();
 

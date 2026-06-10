@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:meta/meta.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -24,6 +25,13 @@ class DbManager {
     if (_db != null) return;
     final file = await databaseFile();
     _db = IntimaDatabase(openEncryptedDatabase(file, await _obtainKey()));
+  }
+
+  /// Само за тестове — инжектира готова (напр. in-memory) база.
+  @visibleForTesting
+  Future<void> openForTesting(IntimaDatabase db) async {
+    await _db?.close();
+    _db = db;
   }
 
   /// 256-битов произволен ключ, създаден веднъж и пазен в OS keystore-а.

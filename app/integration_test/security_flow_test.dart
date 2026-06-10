@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intima/core/cycle_settings.dart';
+import 'package:intima/data/calendar_repository.dart';
 import 'package:intima/data/database.dart';
 import 'package:intima/data/db_manager.dart';
 import 'package:intima/main.dart' as app;
@@ -90,5 +91,35 @@ void main() {
     expect(after?.cycleLength ?? 28, 28);
     expect(appLock.pinEnabled, isFalse);
     expect(find.text('Само твое.'), findsOneWidget);
+
+    // --- Фаза 3: бърз запис на менструация → предикциите тръгват ---
+    // Snackbar-ът от изтриването застъпва бутона — изчакваме да изчезне.
+    await tester.pump(const Duration(seconds: 5));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Продължи'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Продължи'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Започни'));
+    await tester.pumpAndSettle();
+
+    // Празна база → подсказка вместо прогноза.
+    expect(find.textContaining('Следващ цикъл — около'), findsNothing);
+
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text('Как си днес?'), findsOneWidget);
+    await tester.tap(find.text('🥰'));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.widgetWithText(FilterChip, 'Менструация'));
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.tap(find.text('Запази ✨'));
+    await tester.pumpAndSettle();
+
+    // Записът е в криптираната база и прогнозата е жива.
+    final todayLog = await dbManager.db.dayLog(dateKey(DateTime.now()));
+    expect(todayLog!.isPeriod, isTrue);
+    expect(todayLog.mood, 4);
+    expect(find.textContaining('Следващ цикъл — около'), findsOneWidget);
   });
 }

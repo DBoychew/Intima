@@ -1,0 +1,123 @@
+import 'dart:convert';
+
+import 'package:drift/drift.dart';
+
+import '../core/cycle_settings.dart';
+import 'database.dart';
+import 'db_manager.dart';
+
+/// Ключ 'YYYY-MM-DD' — каноничният формат на датите в базата.
+String dateKey(DateTime d) => '${d.year}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
+DateTime parseDateKey(String key) => DateTime(
+      int.parse(key.substring(0, 4)),
+      int.parse(key.substring(5, 7)),
+      int.parse(key.substring(8, 10)),
+    );
+
+List<String> decodeStringList(String? json) => json == null
+    ? const []
+    : (jsonDecode(json) as List).cast<String>();
+
+/// Чернова на интимен момент — мостът между бързия запис и базата.
+class MomentDraft {
+  const MomentDraft({
+    this.arousal = 0.6,
+    this.orgasms = 1,
+    this.positions = const [],
+    this.note = '',
+  });
+
+  final double arousal;
+  final int orgasms;
+  final List<String> positions;
+  final String note;
+}
+
+/// Данните за един месец, индексирани по ден от месеца.
+class MonthData {
+  const MonthData(this.logs, this.momentsByDay);
+
+  static const empty = MonthData({}, {});
+
+  final Map<int, DayLogRow> logs;
+  final Map<int, List<IntimateMomentRow>> momentsByDay;
+
+  bool isPeriod(int day) => logs[day]?.isPeriod ?? false;
+  bool hasIntimacy(int day) => momentsByDay[day]?.isNotEmpty ?? false;
+}
+
+class CalendarRepository {
+  CalendarRepository(this._manager);
+
+  final DbManager _manager;
+
+  Future<MonthData> month(int year, int monthNum) async {
+    final prefix = '$year-${monthNum.toString().padLeft(2, '0')}-';
+    final logs = await _manager.db.monthLogs(prefix);
+    final moments = await _manager.db.monthMoments(prefix);
+
+    int dayOf(String date) => int.parse(date.substring(8, 10));
+    final byDay = <int, List<IntimateMomentRow>>{};
+    for (final m in moments) {
+      byDay.putIfAbsent(dayOf(m.date), () => []).add(m);
+    }
+    return MonthData(
+      {for (final l in logs) dayOf(l.date): l},
+      byDay,
+    );
+  }
+
+  /// Записва целия бърз лог за деня и преизчислява предикциите.
+  Future<void> saveQuickLog({
+    required DateTime date,
+    required int? mood,
+    required bool period,
+    required double libido,
+    required double energy,
+    required List<String> symptoms,
+    required List<MomentDraft> moments,
+  }) async {
+    final key = dateKey(date);
+    await _manager.db.upsertDayLog(DayLogsCompanion.insert(
+      date: key,
+      mood: Value(mood),
+      libido: Value(libido),
+      energy: Value(energy),
+      isPeriod: Value(period),
+      symptoms: Value(jsonEncode(symptoms)),
+    ));
+    await _manager.db.replaceMomentsOn(key, [
+      for (final m in moments)
+        IntimateMomentsCompanion.insert(
+          date: key,
+          arousal: Value(m.arousal),
+          orgasms: Value(m.orgasms),
+          positions: Value(jsonEncode(m.positions)),
+          note: Value(m.note),
+        ),
+    ]);
+    await refreshLastPeriodStart();
+  }
+
+  /// Намира първия ден на най-скорошната непрекъсната серия от
+  /// менструални дни и обновява [CycleSettings.lastPeriodStart].
+  Future<void> refreshLastPeriodStart() async {
+    final rows = await _manager.db.allPeriodLogs();
+    if (rows.isEmpty) {
+      cycleSettings.lastPeriodStart = null;
+      return;
+    }
+    var start = parseDateKey(rows.first.date);
+    for (var i = 1; i < rows.length; i++) {
+      final prev = parseDateKey(rows[i].date);
+      if (start.difference(prev).inDays != 1) break;
+      start = prev;
+    }
+    cycleSettings.lastPeriodStart = start;
+  }
+}
+
+final calendarRepository = CalendarRepository(dbManager);

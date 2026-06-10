@@ -51,6 +51,7 @@ dependencies:
   flutter_riverpod: ^3.3.2
   share_plus: ^13.1.0
   crypto: ^3.0.7
+  meta: ^1.17.0
 
 dev_dependencies:
   flutter_test:
