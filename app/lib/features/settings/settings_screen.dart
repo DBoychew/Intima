@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/bg_dates.dart';
+import '../../core/cycle_settings.dart';
 import '../../theme/app_theme.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -25,6 +27,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialTime: _reminderTime,
     );
     if (picked != null) setState(() => _reminderTime = picked);
+  }
+
+  /// Голям и ясен избор на брой дни — слайдер с числото отгоре.
+  Future<void> _pickLength({
+    required String title,
+    required String hint,
+    required int value,
+    required int min,
+    required int max,
+    required ValueChanged<int> onSave,
+  }) async {
+    var current = value;
+    final result = await showModalBottomSheet<int>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Text(title, style: Theme.of(ctx).textTheme.headlineSmall),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                hint,
+                textAlign: TextAlign.center,
+                style: Theme.of(ctx).textTheme.labelMedium,
+              ),
+              const SizedBox(height: 16),
+              Center(
+                child: Text(
+                  '$current дни',
+                  style: Theme.of(ctx)
+                      .textTheme
+                      .displaySmall!
+                      .copyWith(color: AppColors.accentSoft),
+                ),
+              ),
+              Slider(
+                value: current.toDouble(),
+                min: min.toDouble(),
+                max: max.toDouble(),
+                divisions: max - min,
+                activeColor: AppColors.primarySoft,
+                onChanged: (v) => setSheetState(() => current = v.round()),
+              ),
+              const SizedBox(height: 8),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx, current),
+                child: const Text('Запази'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (result != null && mounted) {
+      setState(() => onSave(result));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Записано ✨ Следваща менструация — около '
+            '${bgDate(cycleSettings.nextPeriodStart)}',
+          ),
+        ),
+      );
+    }
   }
 
   void _export() {
@@ -63,6 +134,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _section('ЦИКЪЛ'),
+          ListTile(
+            title: const Text('Дължина на цикъла'),
+            subtitle: Text('По нея предвиждаме следващата менструация',
+                style: Theme.of(context).textTheme.labelMedium),
+            trailing: Text('${cycleSettings.cycleLength} дни',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: AppColors.accentSoft)),
+            onTap: () => _pickLength(
+              title: 'Дължина на цикъла',
+              hint:
+                  'От първия ден на една менструация до първия ден на следващата.',
+              value: cycleSettings.cycleLength,
+              min: 21,
+              max: 40,
+              onSave: (v) => cycleSettings.cycleLength = v,
+            ),
+          ),
+          ListTile(
+            title: const Text('Дължина на менструацията'),
+            trailing: Text('${cycleSettings.periodLength} дни',
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: AppColors.accentSoft)),
+            onTap: () => _pickLength(
+              title: 'Дължина на менструацията',
+              hint: 'Колко дни обикновено продължава менструацията ти.',
+              value: cycleSettings.periodLength,
+              min: 2,
+              max: 10,
+              onSave: (v) => cycleSettings.periodLength = v,
+            ),
+          ),
+          ListTile(
+            title: const Text('Очаквана следваща менструация'),
+            trailing: Text(bgDate(cycleSettings.nextPeriodStart),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium!
+                    .copyWith(color: AppColors.accentSoft)),
+          ),
           _section('СИГУРНОСТ'),
           SwitchListTile(
             title: const Text('PIN заключване'),
@@ -84,6 +199,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('Вечерно напомняне'),
             value: _reminder,
             onChanged: (v) => setState(() => _reminder = v),
+          ),
+          SwitchListTile(
+            title: const Text('Преди менструация'),
+            subtitle: Text('Дискретно, 2 дни по-рано',
+                style: Theme.of(context).textTheme.labelMedium),
+            value: cycleSettings.notifyPeriod,
+            onChanged: (v) => setState(() => cycleSettings.notifyPeriod = v),
+          ),
+          SwitchListTile(
+            title: const Text('В деня на овулация'),
+            value: cycleSettings.notifyOvulation,
+            onChanged: (v) =>
+                setState(() => cycleSettings.notifyOvulation = v),
           ),
           ListTile(
             title: const Text('Час'),

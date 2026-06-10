@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../core/bg_dates.dart';
+import '../../core/cycle_settings.dart';
 import '../../theme/app_theme.dart';
 import 'quick_log_sheet.dart';
 
@@ -13,44 +15,52 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
-  static const _monthNames = [
-    'януари',
-    'февруари',
-    'март',
-    'април',
-    'май',
-    'юни',
-    'юли',
-    'август',
-    'септември',
-    'октомври',
-    'ноември',
-    'декември',
-  ];
-  static const _year = 2026;
+  static const _todayYear = 2026;
   static const _todayMonth = 6;
   static const _todayDay = 30;
   static const _moods = ['😞', '😐', '🙂', '😊', '🥰'];
 
+  int _year = _todayYear;
   int _month = _todayMonth;
-  // Ключ "месец-ден", за да пазим маркери за всички месеци.
-  final _periodDays = <String>{'6-3', '6-4', '6-5', '6-6', '6-7'};
-  final _intimacyDays = <String>{'6-17', '6-28'};
-  final _fertileDays = <String>{'6-19', '6-20', '6-21'};
+  // Ключ "година-месец-ден", за да не смесваме записи от различни години.
+  final _periodDays = <String>{
+    '2026-6-3',
+    '2026-6-4',
+    '2026-6-5',
+    '2026-6-6',
+    '2026-6-7',
+  };
+  final _intimacyDays = <String>{'2026-6-17', '2026-6-28'};
   int _todayMood = 2;
 
   int get _daysInMonth => DateTime(_year, _month + 1, 0).day;
   int get _firstWeekday => DateTime(_year, _month, 1).weekday;
   String get _monthTitle =>
-      '${_monthNames[_month - 1][0].toUpperCase()}${_monthNames[_month - 1].substring(1)} $_year';
+      '${bgMonths[_month - 1][0].toUpperCase()}${bgMonths[_month - 1].substring(1)} $_year';
 
-  String _key(int day) => '$_month-$day';
+  String _key(int day) => '$_year-$_month-$day';
+
+  @override
+  void initState() {
+    super.initState();
+    // Прогнозата се преизчислява щом потребителката промени цикъла си.
+    cycleSettings.addListener(_onCycleChanged);
+  }
+
+  @override
+  void dispose() {
+    cycleSettings.removeListener(_onCycleChanged);
+    super.dispose();
+  }
+
+  void _onCycleChanged() => setState(() {});
 
   Future<void> _openLog(int day) async {
-    final isToday = _month == _todayMonth && day == _todayDay;
+    final isToday =
+        _year == _todayYear && _month == _todayMonth && day == _todayDay;
     final result = await showQuickLogSheet(
       context,
-      dateLabel: isToday ? null : '$day ${_monthNames[_month - 1]}',
+      dateLabel: isToday ? null : '$day ${bgMonths[_month - 1]} $_year',
       initialPeriod: _periodDays.contains(_key(day)),
       initialIntimacy: _intimacyDays.contains(_key(day)),
     );
@@ -62,18 +72,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
       result.intimacy
           ? _intimacyDays.add(_key(day))
           : _intimacyDays.remove(_key(day));
-      if (_month == _todayMonth && day == _todayDay && result.mood != null) {
+      if (_year == _todayYear &&
+          _month == _todayMonth &&
+          day == _todayDay &&
+          result.mood != null) {
         _todayMood = result.mood!;
       }
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Записано ✨')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Записано ✨')));
   }
 
   void _changeMonth(int delta) {
     HapticFeedback.selectionClick();
-    setState(() => _month = (_month + delta).clamp(1, 12));
+    final target = DateTime(_year, _month + delta);
+    setState(() {
+      _year = target.year;
+      _month = target.month;
+    });
   }
 
   @override
@@ -84,17 +101,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            onPressed: _month > 1 ? () => _changeMonth(-1) : null,
+            tooltip: 'Предишен месец',
+            onPressed: () => _changeMonth(-1),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            onPressed: _month < 12 ? () => _changeMonth(1) : null,
+            tooltip: 'Следващ месец',
+            onPressed: () => _changeMonth(1),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (_month != _todayMonth) setState(() => _month = _todayMonth);
+          if (_year != _todayYear || _month != _todayMonth) {
+            setState(() {
+              _year = _todayYear;
+              _month = _todayMonth;
+            });
+          }
           _openLog(_todayDay);
         },
         child: const Icon(Icons.add),
@@ -144,25 +168,47 @@ class _CalendarScreenState extends State<CalendarScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
+          _predictionCard(context),
+          const SizedBox(height: 80),
+        ],
+      ),
+    );
+  }
+
+  Widget _predictionCard(BuildContext context) {
+    final next = cycleSettings.nextPeriodStart;
+    final daysLeft = next
+        .difference(DateTime(_todayYear, _todayMonth, _todayDay))
+        .inDays;
+    final countdown = daysLeft <= 0
+        ? 'очаква се всеки момент'
+        : 'след $daysLeft ${daysLeft == 1 ? 'ден' : 'дни'}';
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Text('🔮', style: TextStyle(fontSize: 24)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('🔮', style: TextStyle(fontSize: 24)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'Следващ цикъл — около 24 юли',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
+                  Text(
+                    'Следващ цикъл — около ${bgDate(next)} ($countdown)',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'При цикъл от ${cycleSettings.cycleLength} дни · '
+                    'настройва се от Настройки',
+                    style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 80),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -187,13 +233,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
       cells.add(const SizedBox());
     }
     for (var day = 1; day <= _daysInMonth; day++) {
+      final date = DateTime(_year, _month, day);
+      final isPeriod = _periodDays.contains(_key(day));
       cells.add(
         _DayCell(
           day: day,
-          isToday: _month == _todayMonth && day == _todayDay,
-          isPeriod: _periodDays.contains(_key(day)),
+          isToday:
+              _year == _todayYear && _month == _todayMonth && day == _todayDay,
+          isPeriod: isPeriod,
           isIntimacy: _intimacyDays.contains(_key(day)),
-          isFertile: _fertileDays.contains(_key(day)),
+          isFertile: cycleSettings.isFertile(date),
+          isPredicted: !isPeriod && cycleSettings.isPredictedPeriod(date),
           onTap: () {
             HapticFeedback.selectionClick();
             _openLog(day);
@@ -210,7 +260,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _legend(BuildContext context) {
-    Widget item(Color color, String label, {bool heart = false}) => Row(
+    Widget item(
+      Color color,
+      String label, {
+      bool heart = false,
+      bool hollow = false,
+    }) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         heart
@@ -218,7 +273,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
             : Container(
                 width: 8,
                 height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: hollow ? null : color,
+                  border: hollow ? Border.all(color: color, width: 1.5) : null,
+                  shape: BoxShape.circle,
+                ),
               ),
         const SizedBox(width: 6),
         Text(label, style: Theme.of(context).textTheme.labelMedium),
@@ -229,6 +288,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       runSpacing: 8,
       children: [
         item(AppColors.period, 'Менструация'),
+        item(AppColors.period, 'Очаквана', hollow: true),
         item(AppColors.intimacy, 'Интимност', heart: true),
         item(AppColors.fertile, 'Фертилни дни'),
       ],
@@ -243,6 +303,7 @@ class _DayCell extends StatelessWidget {
     required this.isPeriod,
     required this.isIntimacy,
     required this.isFertile,
+    required this.isPredicted,
     required this.onTap,
   });
 
@@ -251,6 +312,9 @@ class _DayCell extends StatelessWidget {
   final bool isPeriod;
   final bool isIntimacy;
   final bool isFertile;
+
+  /// Очакван (прогнозен) ден от менструация — показва се с празна точка.
+  final bool isPredicted;
   final VoidCallback onTap;
 
   @override
@@ -281,6 +345,18 @@ class _DayCell extends StatelessWidget {
                     height: 6,
                     decoration: const BoxDecoration(
                       color: AppColors.period,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                )
+              else if (isPredicted)
+                Positioned(
+                  bottom: 4,
+                  child: Container(
+                    width: 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.period, width: 1.2),
                       shape: BoxShape.circle,
                     ),
                   ),

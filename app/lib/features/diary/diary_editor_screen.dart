@@ -67,29 +67,9 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
   }
 
   Future<void> _addTag() async {
-    final controller = TextEditingController();
     final tag = await showDialog<String>(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceHigh,
-        title: const Text('Нов таг'),
-        content: TextField(
-          controller: controller,
-          autofocus: true,
-          decoration: const InputDecoration(hintText: 'напр. нас'),
-          onSubmitted: (v) => Navigator.pop(ctx, v),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Отказ'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, controller.text),
-            child: const Text('Добави'),
-          ),
-        ],
-      ),
+      builder: (_) => const _AddTagDialog(),
     );
     final clean = tag?.trim().replaceAll('#', '');
     if (clean != null && clean.isNotEmpty && !_tags.contains(clean)) {
@@ -102,9 +82,11 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     setState(() => _hasPhoto = !_hasPhoto);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(_hasPhoto
-            ? 'Снимката е прикачена 📷 (галерията идва във Фаза 4)'
-            : 'Снимката е премахната'),
+        content: Text(
+          _hasPhoto
+              ? 'Снимката е прикачена 📷 (галерията идва във Фаза 4)'
+              : 'Снимката е премахната',
+        ),
       ),
     );
   }
@@ -121,8 +103,10 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         actions: [
           TextButton(
             onPressed: _save,
-            child: const Text('Запази',
-                style: TextStyle(color: AppColors.accentSoft, fontSize: 16)),
+            child: const Text(
+              'Запази',
+              style: TextStyle(color: AppColors.accentSoft, fontSize: 16),
+            ),
           ),
         ],
       ),
@@ -158,8 +142,10 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
                           ? AppColors.primary.withValues(alpha: 0.25)
                           : null,
                     ),
-                    child: Text(DiaryEntry.moods[i],
-                        style: const TextStyle(fontSize: 26)),
+                    child: Text(
+                      DiaryEntry.moods[i],
+                      style: const TextStyle(fontSize: 26),
+                    ),
                   ),
                 );
               }),
@@ -184,8 +170,11 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
                 children: [
                   if (_hasPhoto)
                     InputChip(
-                      avatar: const Icon(Icons.photo,
-                          size: 18, color: AppColors.accentSoft),
+                      avatar: const Icon(
+                        Icons.photo,
+                        size: 18,
+                        color: AppColors.accentSoft,
+                      ),
                       label: const Text('снимка'),
                       onDeleted: _togglePhoto,
                     ),
@@ -200,33 +189,114 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
             const SizedBox(height: 12),
             Row(
               children: [
-                TextButton.icon(
-                  onPressed: _togglePhoto,
-                  icon: Icon(
-                    _hasPhoto
-                        ? Icons.photo_camera
+                Expanded(
+                  child: _ActionButton(
+                    icon: _hasPhoto
+                        ? Icons.delete_outline
                         : Icons.photo_camera_outlined,
-                    color: _hasPhoto
-                        ? AppColors.accentSoft
-                        : AppColors.textSecondary,
-                  ),
-                  label: Text(
-                    _hasPhoto ? 'Снимка ✓' : 'Добави снимка',
-                    style: Theme.of(context).textTheme.labelMedium,
+                    label: _hasPhoto ? 'Премахни снимка' : 'Добави снимка',
+                    highlighted: _hasPhoto,
+                    onTap: _togglePhoto,
                   ),
                 ),
-                const Spacer(),
-                TextButton.icon(
-                  onPressed: _addTag,
-                  icon: const Icon(Icons.tag, color: AppColors.textSecondary),
-                  label: Text('Тагове',
-                      style: Theme.of(context).textTheme.labelMedium),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _ActionButton(
+                    icon: Icons.tag,
+                    label: 'Нов таг',
+                    onTap: _addTag,
+                  ),
                 ),
               ],
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Вторичен бутон в стила на полетата — мека повърхност без рамка,
+/// но с голяма зона за докосване.
+class _ActionButton extends StatelessWidget {
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.highlighted = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool highlighted;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = highlighted ? AppColors.accentSoft : AppColors.textSecondary;
+    return TextButton.icon(
+      onPressed: onTap,
+      icon: Icon(icon, size: 20, color: color),
+      label: Text(label),
+      style: TextButton.styleFrom(
+        foregroundColor: color,
+        backgroundColor: AppColors.surface,
+        minimumSize: const Size(0, 48),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
+      ),
+    );
+  }
+}
+
+class _AddTagDialog extends StatefulWidget {
+  const _AddTagDialog();
+
+  @override
+  State<_AddTagDialog> createState() => _AddTagDialogState();
+}
+
+class _AddTagDialogState extends State<_AddTagDialog> {
+  final _controller = TextEditingController();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() => Navigator.pop(context, _controller.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: AppColors.surfaceHigh,
+      title: const Text('Нов таг'),
+      content: TextField(
+        controller: _controller,
+        autofocus: true,
+        textInputAction: TextInputAction.done,
+        decoration: const InputDecoration(
+          labelText: 'Име на тага',
+          hintText: 'напр. нас',
+          prefixText: '# ',
+        ),
+        onSubmitted: (_) => _submit(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Отказ'),
+        ),
+        TextButton(
+          onPressed: _submit,
+          child: const Text(
+            'Добави',
+            style: TextStyle(color: AppColors.accentSoft),
+          ),
+        ),
+      ],
     );
   }
 }
