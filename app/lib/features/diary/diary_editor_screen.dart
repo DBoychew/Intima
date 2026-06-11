@@ -117,7 +117,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceHigh,
+        backgroundColor: context.colors.surfaceHigh,
         title: Text(_l10n.deleteEntryTitle),
         content: Text(_l10n.deleteEntryBody),
         actions: [
@@ -128,7 +128,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child:
-                Text(_l10n.delete, style: const TextStyle(color: AppColors.error)),
+                Text(_l10n.delete, style: TextStyle(color: context.colors.error)),
           ),
         ],
       ),
@@ -165,7 +165,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceHigh,
+        backgroundColor: context.colors.surfaceHigh,
         title: Text(_l10n.removePhotoTitle),
         content: Text(_l10n.removePhotoBody),
         actions: [
@@ -176,7 +176,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(_l10n.remove,
-                style: const TextStyle(color: AppColors.error)),
+                style: TextStyle(color: context.colors.error)),
           ),
         ],
       ),
@@ -209,7 +209,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               errorBuilder: (_, _, _) => Container(
                 width: 104,
                 height: 104,
-                color: AppColors.surface,
+                color: context.colors.surface,
                 alignment: Alignment.center,
                 child: const Text('📷'),
               ),
@@ -259,7 +259,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         actions: [
           if (widget.initial != null)
             IconButton(
-              icon: const Icon(Icons.delete_outline, color: AppColors.error),
+              icon: Icon(Icons.delete_outline, color: context.colors.error),
               tooltip: _l10n.deleteEntryTooltip,
               onPressed: _delete,
             ),
@@ -267,7 +267,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
             onPressed: _save,
             child: Text(
               _l10n.save,
-              style: const TextStyle(color: AppColors.accentSoft, fontSize: 16),
+              style: TextStyle(color: context.colors.accentSoft, fontSize: 16),
             ),
           ),
         ],
@@ -300,7 +300,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: selected
-                        ? AppColors.primary.withValues(alpha: 0.25)
+                        ? context.colors.primary.withValues(alpha: 0.25)
                         : null,
                   ),
                   child: Text(
@@ -417,14 +417,14 @@ class _ActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const color = AppColors.textSecondary;
+    final color = context.colors.textSecondary;
     return TextButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 20, color: color),
       label: Text(label),
       style: TextButton.styleFrom(
         foregroundColor: color,
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.colors.surface,
         minimumSize: const Size(0, 48),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
@@ -455,7 +455,7 @@ class _AddTagDialogState extends State<_AddTagDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: AppColors.surfaceHigh,
+      backgroundColor: context.colors.surfaceHigh,
       title: Text(AppLocalizations.of(context)!.newTagTitle),
       content: TextField(
         controller: _controller,
@@ -477,7 +477,7 @@ class _AddTagDialogState extends State<_AddTagDialog> {
           onPressed: _submit,
           child: Text(
             AppLocalizations.of(context)!.add,
-            style: const TextStyle(color: AppColors.accentSoft),
+            style: TextStyle(color: context.colors.accentSoft),
           ),
         ),
       ],

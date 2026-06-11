@@ -5,6 +5,7 @@ import 'boot_screen.dart';
 import 'core/cycle_settings.dart';
 import 'core/notifications.dart';
 import 'core/premium.dart';
+import 'core/theme_controller.dart';
 import 'data/cycle_prefs_repository.dart';
 import 'l10n/app_localizations.dart';
 import 'data/database.dart';
@@ -34,6 +35,7 @@ void main() {
       run: () async {
         await CyclePrefsRepository(dbManager).hydrate();
         await premium.init();
+        await themeController.init();
       },
     ),
     (label: (l) => l.bootLock, run: appLock.init),
@@ -135,14 +137,19 @@ class _IntimaAppState extends State<IntimaApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: 'Intima',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
-      locale: localeOverride,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      routerConfig: _router,
+    return ListenableBuilder(
+      listenable: themeController,
+      builder: (context, _) => MaterialApp.router(
+        title: 'Intima',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light,
+        darkTheme: AppTheme.dark,
+        themeMode: themeController.mode,
+        locale: localeOverride,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        routerConfig: _router,
+      ),
     );
   }
 }

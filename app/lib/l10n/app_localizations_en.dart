@@ -514,6 +514,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versionValue => '0.1.0 · prototype';
 
   @override
+  String get themeTitle => 'Theme';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeSystem => 'Follow system';
+
+  @override
   String get sectionPremium => 'INTIMA PREMIUM';
 
   @override

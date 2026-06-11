@@ -1,20 +1,131 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
-/// Източник на истината за дизайн токените — виж docs/design/DESIGN-SYSTEM.md
-abstract class AppColors {
-  static const background = Color(0xFF1A1025);
-  static const surface = Color(0xFF251735);
-  static const surfaceHigh = Color(0xFF2F1F44);
-  static const primary = Color(0xFF7C3AED);
-  static const primarySoft = Color(0xFFA78BFA);
-  static const accent = Color(0xFFD4A843);
-  static const accentSoft = Color(0xFFE8C97A);
-  static const textPrimary = Color(0xFFF3EFFA);
-  static const textSecondary = Color(0xFF9B8FB0);
-  static const period = Color(0xFFE25563);
-  static const intimacy = Color(0xFFD4A843);
-  static const fertile = Color(0xFF5EC9A8);
-  static const error = Color(0xFFEF5366);
+/// Брандовите цветове като ThemeExtension — екраните ги четат през
+/// `context.colors`, така светлата/тъмната тема се сменят навсякъде.
+/// Източник на истината за токените: docs/design/DESIGN-SYSTEM.md.
+class IntimaColors extends ThemeExtension<IntimaColors> {
+  const IntimaColors({
+    required this.background,
+    required this.surface,
+    required this.surfaceHigh,
+    required this.primary,
+    required this.primarySoft,
+    required this.accent,
+    required this.accentSoft,
+    required this.textPrimary,
+    required this.textSecondary,
+    required this.period,
+    required this.intimacy,
+    required this.fertile,
+    required this.error,
+  });
+
+  final Color background;
+  final Color surface;
+  final Color surfaceHigh;
+  final Color primary;
+  final Color primarySoft;
+  final Color accent;
+  final Color accentSoft;
+  final Color textPrimary;
+  final Color textSecondary;
+  final Color period;
+  final Color intimacy;
+  final Color fertile;
+  final Color error;
+
+  static const dark = IntimaColors(
+    background: Color(0xFF1A1025),
+    surface: Color(0xFF251735),
+    surfaceHigh: Color(0xFF2F1F44),
+    primary: Color(0xFF7C3AED),
+    primarySoft: Color(0xFFA78BFA),
+    accent: Color(0xFFD4A843),
+    accentSoft: Color(0xFFE8C97A),
+    textPrimary: Color(0xFFF3EFFA),
+    textSecondary: Color(0xFF9B8FB0),
+    period: Color(0xFFE25563),
+    intimacy: Color(0xFFD4A843),
+    fertile: Color(0xFF5EC9A8),
+    error: Color(0xFFEF5366),
+  );
+
+  /// Светла палитра — същият бранд (лилаво + злато), но злато и
+  /// вторичните цветове са потъмнени за контраст върху светло.
+  static const light = IntimaColors(
+    background: Color(0xFFF7F3FB),
+    surface: Color(0xFFFFFFFF),
+    surfaceHigh: Color(0xFFEFE7F8),
+    primary: Color(0xFF7C3AED),
+    primarySoft: Color(0xFF8B5CF6),
+    accent: Color(0xFFB8862F),
+    accentSoft: Color(0xFF9A7019),
+    textPrimary: Color(0xFF2A1F35),
+    textSecondary: Color(0xFF6E6285),
+    period: Color(0xFFD23A52),
+    intimacy: Color(0xFFB8862F),
+    fertile: Color(0xFF1F9D77),
+    error: Color(0xFFD93043),
+  );
+
+  @override
+  IntimaColors copyWith({
+    Color? background,
+    Color? surface,
+    Color? surfaceHigh,
+    Color? primary,
+    Color? primarySoft,
+    Color? accent,
+    Color? accentSoft,
+    Color? textPrimary,
+    Color? textSecondary,
+    Color? period,
+    Color? intimacy,
+    Color? fertile,
+    Color? error,
+  }) {
+    return IntimaColors(
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      surfaceHigh: surfaceHigh ?? this.surfaceHigh,
+      primary: primary ?? this.primary,
+      primarySoft: primarySoft ?? this.primarySoft,
+      accent: accent ?? this.accent,
+      accentSoft: accentSoft ?? this.accentSoft,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      period: period ?? this.period,
+      intimacy: intimacy ?? this.intimacy,
+      fertile: fertile ?? this.fertile,
+      error: error ?? this.error,
+    );
+  }
+
+  @override
+  IntimaColors lerp(IntimaColors? other, double t) {
+    if (other == null) return this;
+    Color l(Color a, Color b) => Color.lerp(a, b, t)!;
+    return IntimaColors(
+      background: l(background, other.background),
+      surface: l(surface, other.surface),
+      surfaceHigh: l(surfaceHigh, other.surfaceHigh),
+      primary: l(primary, other.primary),
+      primarySoft: l(primarySoft, other.primarySoft),
+      accent: l(accent, other.accent),
+      accentSoft: l(accentSoft, other.accentSoft),
+      textPrimary: l(textPrimary, other.textPrimary),
+      textSecondary: l(textSecondary, other.textSecondary),
+      period: l(period, other.period),
+      intimacy: l(intimacy, other.intimacy),
+      fertile: l(fertile, other.fertile),
+      error: l(error, other.error),
+    );
+  }
+}
+
+/// `context.colors.accent` навсякъде из екраните.
+extension IntimaColorsX on BuildContext {
+  IntimaColors get colors => Theme.of(this).extension<IntimaColors>()!;
 }
 
 /// Вградени шрифтове (assets/fonts) — без runtime fetch, приложението
@@ -25,53 +136,58 @@ abstract class AppFonts {
 }
 
 abstract class AppTheme {
-  static ThemeData get dark {
+  static ThemeData get dark => _build(IntimaColors.dark, Brightness.dark);
+  static ThemeData get light => _build(IntimaColors.light, Brightness.light);
+
+  static ThemeData _build(IntimaColors c, Brightness brightness) {
+    final onAccent =
+        brightness == Brightness.dark ? const Color(0xFF2A1F0A) : Colors.white;
     final base = ThemeData(
-      brightness: Brightness.dark,
+      brightness: brightness,
       useMaterial3: true,
       fontFamily: AppFonts.body,
-      scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
-        primary: AppColors.primary,
+      scaffoldBackgroundColor: c.background,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: c.primary,
+        brightness: brightness,
+      ).copyWith(
+        primary: c.primary,
         onPrimary: Colors.white,
-        secondary: AppColors.accent,
-        onSecondary: Color(0xFF2A1F0A),
-        surface: AppColors.surface,
-        onSurface: AppColors.textPrimary,
-        surfaceContainerHighest: AppColors.surfaceHigh,
-        error: AppColors.error,
+        secondary: c.accent,
+        onSecondary: onAccent,
+        surface: c.surface,
+        onSurface: c.textPrimary,
+        surfaceContainerHighest: c.surfaceHigh,
+        error: c.error,
       ),
+      extensions: [c],
     );
 
     final body = base.textTheme.apply(
       fontFamily: AppFonts.body,
-      bodyColor: AppColors.textPrimary,
-      displayColor: AppColors.textPrimary,
+      bodyColor: c.textPrimary,
+      displayColor: c.textPrimary,
     );
     final textTheme = body.copyWith(
-      displaySmall: const TextStyle(
+      displaySmall: TextStyle(
           fontFamily: AppFonts.display,
           fontSize: 32,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary),
-      headlineSmall: const TextStyle(
+          color: c.textPrimary),
+      headlineSmall: TextStyle(
           fontFamily: AppFonts.display,
           fontSize: 24,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary),
-      titleLarge: const TextStyle(
+          color: c.textPrimary),
+      titleLarge: TextStyle(
           fontFamily: AppFonts.display,
           fontSize: 20,
           fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary),
-      bodyMedium: const TextStyle(
-          fontFamily: AppFonts.body,
-          fontSize: 15,
-          color: AppColors.textPrimary),
-      labelMedium: const TextStyle(
-          fontFamily: AppFonts.body,
-          fontSize: 13,
-          color: AppColors.textSecondary),
+          color: c.textPrimary),
+      bodyMedium: TextStyle(
+          fontFamily: AppFonts.body, fontSize: 15, color: c.textPrimary),
+      labelMedium: TextStyle(
+          fontFamily: AppFonts.body, fontSize: 13, color: c.textSecondary),
     );
 
     return base.copyWith(
@@ -80,74 +196,74 @@ abstract class AppTheme {
         backgroundColor: Colors.transparent,
         elevation: 0,
         titleTextStyle: textTheme.headlineSmall,
-        iconTheme: const IconThemeData(color: AppColors.textPrimary),
+        iconTheme: IconThemeData(color: c.textPrimary),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: c.primary,
+          foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(52),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
           textStyle: const TextStyle(
               fontFamily: AppFonts.body,
               fontSize: 16,
               fontWeight: FontWeight.w600),
         ),
       ),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: AppColors.accent,
-        foregroundColor: Color(0xFF2A1F0A),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: c.accent,
+        foregroundColor: onAccent,
       ),
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: c.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         margin: EdgeInsets.zero,
       ),
       chipTheme: base.chipTheme.copyWith(
         backgroundColor: Colors.transparent,
-        selectedColor: AppColors.primary.withValues(alpha: 0.22),
-        side: const BorderSide(color: AppColors.surfaceHigh),
-        labelStyle: const TextStyle(
-            fontFamily: AppFonts.body,
-            fontSize: 13,
-            color: AppColors.textPrimary),
+        selectedColor: c.primary.withValues(alpha: 0.22),
+        side: BorderSide(color: c.surfaceHigh),
+        labelStyle: TextStyle(
+            fontFamily: AppFonts.body, fontSize: 13, color: c.textPrimary),
         shape: const StadiumBorder(),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: AppColors.surfaceHigh,
-        shape: RoundedRectangleBorder(
+      bottomSheetTheme: BottomSheetThemeData(
+        backgroundColor: c.surfaceHigh,
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         showDragHandle: true,
       ),
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primary.withValues(alpha: 0.25),
-        labelTextStyle: const WidgetStatePropertyAll(TextStyle(
+        backgroundColor: c.surface,
+        indicatorColor: c.primary.withValues(alpha: 0.25),
+        labelTextStyle: WidgetStatePropertyAll(TextStyle(
             fontFamily: AppFonts.body,
             fontSize: 12,
-            color: AppColors.textSecondary)),
-        iconTheme: const WidgetStatePropertyAll(
-            IconThemeData(color: AppColors.textPrimary)),
+            color: c.textSecondary)),
+        iconTheme:
+            WidgetStatePropertyAll(IconThemeData(color: c.textPrimary)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
-        hintStyle: const TextStyle(
-            fontFamily: AppFonts.body, color: AppColors.textSecondary),
+        fillColor: c.surface,
+        hintStyle:
+            TextStyle(fontFamily: AppFonts.body, color: c.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
         ),
       ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppColors.surfaceHigh,
-        contentTextStyle: const TextStyle(
-            fontFamily: AppFonts.body, color: AppColors.textPrimary),
+        backgroundColor: c.surfaceHigh,
+        contentTextStyle:
+            TextStyle(fontFamily: AppFonts.body, color: c.textPrimary),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      dividerTheme: const DividerThemeData(color: AppColors.surfaceHigh),
+      dividerTheme: DividerThemeData(color: c.surfaceHigh),
     );
   }
 }

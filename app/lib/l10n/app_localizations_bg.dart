@@ -513,6 +513,18 @@ class AppLocalizationsBg extends AppLocalizations {
   String get versionValue => '0.1.0 · прототип';
 
   @override
+  String get themeTitle => 'Тема';
+
+  @override
+  String get themeDark => 'Тъмна';
+
+  @override
+  String get themeLight => 'Светла';
+
+  @override
+  String get themeSystem => 'Според системата';
+
+  @override
   String get sectionPremium => 'INTIMA PREMIUM';
 
   @override

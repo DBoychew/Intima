@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/cycle_settings.dart';
@@ -199,8 +199,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   Icon(
                     Icons.bolt,
                     color: i < filledBolts
-                        ? AppColors.accent
-                        : AppColors.surfaceHigh,
+                        ? context.colors.accent
+                        : context.colors.surfaceHigh,
                     size: 18,
                   ),
               ],
@@ -321,7 +321,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       mainAxisSize: MainAxisSize.min,
       children: [
         heart
-            ? const Icon(Icons.favorite, color: AppColors.intimacy, size: 12)
+            ? Icon(Icons.favorite, color: context.colors.intimacy, size: 12)
             : Container(
                 width: 8,
                 height: 8,
@@ -339,10 +339,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       spacing: 16,
       runSpacing: 8,
       children: [
-        item(AppColors.period, _l10n.legendPeriod),
-        item(AppColors.period, _l10n.legendPredicted, hollow: true),
-        item(AppColors.intimacy, _l10n.legendIntimacy, heart: true),
-        item(AppColors.fertile, _l10n.legendFertile),
+        item(context.colors.period, _l10n.legendPeriod),
+        item(context.colors.period, _l10n.legendPredicted, hollow: true),
+        item(context.colors.intimacy, _l10n.legendIntimacy, heart: true),
+        item(context.colors.fertile, _l10n.legendFertile),
       ],
     );
   }
@@ -380,9 +380,9 @@ class _DayCell extends StatelessWidget {
           height: 40,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isFertile ? AppColors.fertile.withValues(alpha: 0.18) : null,
+            color: isFertile ? context.colors.fertile.withValues(alpha: 0.18) : null,
             border: isToday
-                ? Border.all(color: AppColors.primarySoft, width: 2)
+                ? Border.all(color: context.colors.primarySoft, width: 2)
                 : null,
           ),
           child: Stack(
@@ -395,8 +395,8 @@ class _DayCell extends StatelessWidget {
                   child: Container(
                     width: 6,
                     height: 6,
-                    decoration: const BoxDecoration(
-                      color: AppColors.period,
+                    decoration: BoxDecoration(
+                      color: context.colors.period,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -408,18 +408,18 @@ class _DayCell extends StatelessWidget {
                     width: 6,
                     height: 6,
                     decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.period, width: 1.2),
+                      border: Border.all(color: context.colors.period, width: 1.2),
                       shape: BoxShape.circle,
                     ),
                   ),
                 ),
               if (isIntimacy)
-                const Positioned(
+                Positioned(
                   top: 2,
                   right: 2,
                   child: Icon(
                     Icons.favorite,
-                    color: AppColors.intimacy,
+                    color: context.colors.intimacy,
                     size: 11,
                   ),
                 ),

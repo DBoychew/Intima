@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/dates.dart';
@@ -74,7 +74,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
             decoration: InputDecoration(
               hintText: _l10n.searchEntries,
               prefixIcon:
-                  const Icon(Icons.search, color: AppColors.textSecondary),
+                  Icon(Icons.search, color: context.colors.textSecondary),
             ),
           ),
           const SizedBox(height: 16),
@@ -95,7 +95,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         ? _l10n.diaryEmpty
                         : _l10n.nothingFoundFor(_query),
                     style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                          color: AppColors.textSecondary,
+                          color: context.colors.textSecondary,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -122,7 +122,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
                         style: Theme.of(context)
                             .textTheme
                             .bodyMedium!
-                            .copyWith(color: AppColors.textSecondary),
+                            .copyWith(color: context.colors.textSecondary),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -151,7 +151,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
 
   Widget _memoryCard(BuildContext context, DiaryEntryRow entry) {
     return Card(
-      color: AppColors.surfaceHigh,
+      color: context.colors.surfaceHigh,
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         leading: const Text('🕰️', style: TextStyle(fontSize: 28)),
@@ -159,7 +159,7 @@ class _DiaryScreenState extends State<DiaryScreen> {
             style: Theme.of(context)
                 .textTheme
                 .labelMedium!
-                .copyWith(color: AppColors.accentSoft, letterSpacing: 1.1)),
+                .copyWith(color: context.colors.accentSoft, letterSpacing: 1.1)),
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 6),
           child: Text(

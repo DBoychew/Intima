@@ -57,7 +57,7 @@ class _LockScreenState extends State<LockScreen> {
         child: Column(
           children: [
             const Spacer(),
-            const Icon(Icons.lock_outline, color: AppColors.accent, size: 44),
+            Icon(Icons.lock_outline, color: context.colors.accent, size: 44),
             const SizedBox(height: 16),
             Text(AppLocalizations.of(context)!.appName, style: Theme.of(context).textTheme.displaySmall),
             const SizedBox(height: 8),
@@ -65,8 +65,8 @@ class _LockScreenState extends State<LockScreen> {
               _error ?? AppLocalizations.of(context)!.lockEnterPin,
               style: Theme.of(context).textTheme.labelMedium!.copyWith(
                     color: _error != null
-                        ? AppColors.error
-                        : AppColors.textSecondary,
+                        ? context.colors.error
+                        : context.colors.textSecondary,
                   ),
             ),
             const SizedBox(height: 24),
@@ -83,10 +83,10 @@ class _LockScreenState extends State<LockScreen> {
                   ? InkWell(
                       onTap: appLock.tryBiometricUnlock,
                       customBorder: const CircleBorder(),
-                      child: const Center(
+                      child: Center(
                         child: Icon(
                           Icons.fingerprint,
-                          color: AppColors.accentSoft,
+                          color: context.colors.accentSoft,
                           size: 32,
                         ),
                       ),

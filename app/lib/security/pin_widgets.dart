@@ -26,9 +26,9 @@ class PinDots extends StatelessWidget {
           height: 16,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isFilled ? AppColors.accentSoft : null,
+            color: isFilled ? context.colors.accentSoft : null,
             border: Border.all(
-              color: isFilled ? AppColors.accentSoft : AppColors.textSecondary,
+              color: isFilled ? context.colors.accentSoft : context.colors.textSecondary,
               width: 1.5,
             ),
           ),
@@ -97,8 +97,8 @@ class PinPad extends StatelessWidget {
             digit(0),
             _key(
               context,
-              const Icon(Icons.backspace_outlined,
-                  color: AppColors.textSecondary),
+              Icon(Icons.backspace_outlined,
+                  color: context.colors.textSecondary),
               onBackspace,
             ),
           ],
@@ -171,7 +171,7 @@ class _PinCreateSheetState extends State<_PinCreateSheet> {
             _error ?? AppLocalizations.of(context)!.pinHint,
             style: Theme.of(context).textTheme.labelMedium!.copyWith(
                   color:
-                      _error != null ? AppColors.error : AppColors.textSecondary,
+                      _error != null ? context.colors.error : context.colors.textSecondary,
                 ),
           ),
           const SizedBox(height: 20),
@@ -253,7 +253,7 @@ class _PinVerifySheetState extends State<_PinVerifySheet> {
               style: Theme.of(context)
                   .textTheme
                   .labelMedium!
-                  .copyWith(color: AppColors.error),
+                  .copyWith(color: context.colors.error),
             ),
           ],
           const SizedBox(height: 20),

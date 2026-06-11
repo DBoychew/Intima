@@ -986,6 +986,30 @@ abstract class AppLocalizations {
   /// **'0.1.0 · прототип'**
   String get versionValue;
 
+  /// No description provided for @themeTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Тема'**
+  String get themeTitle;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In bg, this message translates to:
+  /// **'Тъмна'**
+  String get themeDark;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In bg, this message translates to:
+  /// **'Светла'**
+  String get themeLight;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In bg, this message translates to:
+  /// **'Според системата'**
+  String get themeSystem;
+
   /// No description provided for @sectionPremium.
   ///
   /// In bg, this message translates to:

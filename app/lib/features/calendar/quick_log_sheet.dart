@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../data/calendar_repository.dart';
@@ -210,7 +210,7 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         color: selected
-                            ? AppColors.primary.withValues(alpha: 0.25)
+                            ? context.colors.primary.withValues(alpha: 0.25)
                             : null,
                       ),
                       child: Text(_moods[i],
@@ -228,13 +228,13 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
                 FilterChip(
                   label: Text(_l10n.intimateMoment),
                   selected: _intimacyOn,
-                  selectedColor: AppColors.intimacy.withValues(alpha: 0.25),
+                  selectedColor: context.colors.intimacy.withValues(alpha: 0.25),
                   onSelected: _toggleIntimacy,
                 ),
                 FilterChip(
                   label: Text(_l10n.tagPeriod),
                   selected: _period,
-                  selectedColor: AppColors.period.withValues(alpha: 0.25),
+                  selectedColor: context.colors.period.withValues(alpha: 0.25),
                   onSelected: (v) {
                     HapticFeedback.selectionClick();
                     setState(() => _period = v);
@@ -267,9 +267,9 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
                 child: TextButton.icon(
                   onPressed: () =>
                       setState(() => _sessions.add(_IntimateSession())),
-                  icon: const Icon(Icons.add, color: AppColors.accentSoft),
+                  icon: Icon(Icons.add, color: context.colors.accentSoft),
                   label: Text(_l10n.addAnotherMoment,
-                      style: const TextStyle(color: AppColors.accentSoft)),
+                      style: TextStyle(color: context.colors.accentSoft)),
                 ),
               ),
             ],
@@ -295,7 +295,7 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
           child: Slider(
             value: value,
             onChanged: onChanged,
-            activeColor: AppColors.primarySoft,
+            activeColor: context.colors.primarySoft,
           ),
         ),
       ],
@@ -325,24 +325,24 @@ class _SessionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.colors.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-            color: AppColors.intimacy.withValues(alpha: 0.35)),
+            color: context.colors.intimacy.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.favorite, color: AppColors.intimacy, size: 18),
+              Icon(Icons.favorite, color: context.colors.intimacy, size: 18),
               const SizedBox(width: 8),
               Text(l10n.momentN(index + 1),
                   style: Theme.of(context).textTheme.titleLarge),
               const Spacer(),
               IconButton(
-                icon: const Icon(Icons.close,
-                    color: AppColors.textSecondary, size: 20),
+                icon: Icon(Icons.close,
+                    color: context.colors.textSecondary, size: 20),
                 onPressed: onRemove,
               ),
             ],
@@ -355,7 +355,7 @@ class _SessionCard extends StatelessWidget {
               Expanded(
                 child: Slider(
                   value: session.arousal,
-                  activeColor: AppColors.intimacy,
+                  activeColor: context.colors.intimacy,
                   onChanged: (v) {
                     session.arousal = v;
                     onChanged();
@@ -369,8 +369,8 @@ class _SessionCard extends StatelessWidget {
               SizedBox(
                   width: 72, child: Text(l10n.orgasms, style: labelStyle)),
               IconButton(
-                icon: const Icon(Icons.remove_circle_outline,
-                    color: AppColors.textSecondary),
+                icon: Icon(Icons.remove_circle_outline,
+                    color: context.colors.textSecondary),
                 onPressed: session.orgasms > 0
                     ? () {
                         session.orgasms--;
@@ -382,10 +382,10 @@ class _SessionCard extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .titleLarge!
-                      .copyWith(color: AppColors.accentSoft)),
+                      .copyWith(color: context.colors.accentSoft)),
               IconButton(
-                icon: const Icon(Icons.add_circle_outline,
-                    color: AppColors.textSecondary),
+                icon: Icon(Icons.add_circle_outline,
+                    color: context.colors.textSecondary),
                 onPressed: () {
                   session.orgasms++;
                   onChanged();
@@ -405,7 +405,7 @@ class _SessionCard extends StatelessWidget {
                   label: Text(p),
                   selected: session.positions.contains(p),
                   selectedColor:
-                      AppColors.intimacy.withValues(alpha: 0.25),
+                      context.colors.intimacy.withValues(alpha: 0.25),
                   onSelected: (v) {
                     v
                         ? session.positions.add(p)

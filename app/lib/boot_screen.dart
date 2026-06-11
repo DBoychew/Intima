@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'l10n/app_localizations.dart';
@@ -69,12 +69,12 @@ class _BootScreenState extends State<BootScreen> {
                   style: Theme.of(context).textTheme.displaySmall),
               const SizedBox(height: 32),
               if (_error == null) ...[
-                const SizedBox(
+                SizedBox(
                   width: 28,
                   height: 28,
                   child: CircularProgressIndicator(
                     strokeWidth: 3,
-                    color: AppColors.accentSoft,
+                    color: context.colors.accentSoft,
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -87,7 +87,7 @@ class _BootScreenState extends State<BootScreen> {
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
-                      .copyWith(color: AppColors.error),
+                      .copyWith(color: context.colors.error),
                 ),
                 const SizedBox(height: 16),
                 FilledButton(

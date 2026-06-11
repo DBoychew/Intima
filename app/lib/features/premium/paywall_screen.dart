@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/premium.dart';
@@ -73,13 +73,13 @@ class PaywallScreen extends StatelessWidget {
                 style: Theme.of(context)
                     .textTheme
                     .bodyMedium!
-                    .copyWith(color: AppColors.textSecondary)),
+                    .copyWith(color: context.colors.textSecondary)),
           ),
           const SizedBox(height: 24),
           for (final f in features) ...[
             Card(
               child: ListTile(
-                leading: Icon(f.icon, color: AppColors.accentSoft),
+                leading: Icon(f.icon, color: context.colors.accentSoft),
                 title: Row(
                   children: [
                     Flexible(child: Text(f.title)),
@@ -89,7 +89,7 @@ class PaywallScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.25),
+                          color: context.colors.primary.withValues(alpha: 0.25),
                           borderRadius: BorderRadius.circular(999),
                         ),
                         child: Text(l10n.comingSoon,
@@ -114,7 +114,7 @@ class PaywallScreen extends StatelessWidget {
                   style: Theme.of(context)
                       .textTheme
                       .bodyMedium!
-                      .copyWith(color: AppColors.accentSoft)),
+                      .copyWith(color: context.colors.accentSoft)),
             )
           else ...[
             FilledButton(

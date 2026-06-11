@@ -1,4 +1,4 @@
-import 'dart:async';
+﻿import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import '../../core/cycle_settings.dart';
 import '../../core/dates.dart';
 import '../../core/notifications.dart';
 import '../../core/premium.dart';
+import '../../core/theme_controller.dart';
 import '../../data/db_manager.dart';
 import '../../data/diary_pdf.dart';
 import '../../data/diary_repository.dart';
@@ -166,7 +167,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: Theme.of(ctx)
                       .textTheme
                       .displaySmall!
-                      .copyWith(color: AppColors.accentSoft),
+                      .copyWith(color: context.colors.accentSoft),
                 ),
               ),
               Slider(
@@ -174,7 +175,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 min: min.toDouble(),
                 max: max.toDouble(),
                 divisions: max - min,
-                activeColor: AppColors.primarySoft,
+                activeColor: context.colors.primarySoft,
                 onChanged: (v) => setSheetState(() => current = v.round()),
               ),
               const SizedBox(height: 8),
@@ -200,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.surfaceHigh,
+        backgroundColor: context.colors.surfaceHigh,
         title: Text(_l10n.exportTitle),
         content: Text(_l10n.exportBody),
         actions: [
@@ -238,6 +239,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
       MaterialPageRoute(builder: (_) => const PaywallScreen()),
     );
     return premium.active;
+  }
+
+  String _themeLabel(ThemeMode mode) => switch (mode) {
+        ThemeMode.light => _l10n.themeLight,
+        ThemeMode.system => _l10n.themeSystem,
+        _ => _l10n.themeDark,
+      };
+
+  Future<void> _pickTheme() async {
+    const modes = [ThemeMode.dark, ThemeMode.light, ThemeMode.system];
+    final selected = await showModalBottomSheet<ThemeMode>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final mode in modes)
+              ListTile(
+                title: Text(_themeLabel(mode)),
+                leading: Icon(switch (mode) {
+                  ThemeMode.light => Icons.light_mode_outlined,
+                  ThemeMode.system => Icons.brightness_auto_outlined,
+                  _ => Icons.dark_mode_outlined,
+                }),
+                trailing: themeController.mode == mode
+                    ? Icon(Icons.check, color: ctx.colors.accentSoft)
+                    : mode != ThemeMode.dark && !premium.active
+                        ? Icon(Icons.lock_outline,
+                            size: 20, color: ctx.colors.textSecondary)
+                        : null,
+                onTap: () => Navigator.pop(ctx, mode),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (selected == null || selected == themeController.mode || !mounted) {
+      return;
+    }
+    // Светлата/системната тема са Premium.
+    if (selected != ThemeMode.dark && !await _requirePremium()) return;
+    await themeController.set(selected);
+    if (mounted) setState(() {});
   }
 
   Future<void> _exportPdf() async {
@@ -288,7 +333,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final accent = Theme.of(context)
         .textTheme
         .bodyMedium!
-        .copyWith(color: AppColors.accentSoft);
+        .copyWith(color: context.colors.accentSoft);
     return Scaffold(
       appBar: AppBar(title: Text(_l10n.settingsTitle)),
       body: ListView(
@@ -392,8 +437,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ? _l10n.premiumActive
                     : _l10n.premiumSettingsSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
-            trailing: const Icon(Icons.chevron_right,
-                color: AppColors.textSecondary),
+            trailing: Icon(Icons.chevron_right,
+                color: context.colors.textSecondary),
             onTap: () async {
               await Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const PaywallScreen()),
@@ -404,28 +449,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ListTile(
             title: Text(_l10n.pdfExportTitle),
             trailing: premium.active
-                ? const Icon(Icons.chevron_right,
-                    color: AppColors.textSecondary)
-                : const Icon(Icons.lock_outline,
-                    color: AppColors.textSecondary, size: 20),
+                ? Icon(Icons.chevron_right,
+                    color: context.colors.textSecondary)
+                : Icon(Icons.lock_outline,
+                    color: context.colors.textSecondary, size: 20),
             onTap: _exportPdf,
+          ),
+          ListTile(
+            title: Text(_l10n.themeTitle),
+            trailing: Text(_themeLabel(themeController.mode), style: accent),
+            onTap: _pickTheme,
           ),
           _section(_l10n.sectionData),
           ListTile(
             title: Text(_l10n.exportData),
-            trailing: const Icon(Icons.chevron_right,
-                color: AppColors.textSecondary),
+            trailing: Icon(Icons.chevron_right,
+                color: context.colors.textSecondary),
             onTap: _export,
           ),
           ListTile(
             title: Text(_l10n.deleteAll,
-                style: const TextStyle(color: AppColors.error)),
+                style: TextStyle(color: context.colors.error)),
             trailing:
-                const Icon(Icons.chevron_right, color: AppColors.error),
+                Icon(Icons.chevron_right, color: context.colors.error),
             onTap: () => showDialog<void>(
               context: context,
               builder: (ctx) => AlertDialog(
-                backgroundColor: AppColors.surfaceHigh,
+                backgroundColor: context.colors.surfaceHigh,
                 title: Text(_l10n.deleteAllTitle),
                 content: Text(_l10n.deleteAllBody),
                 actions: [
@@ -438,7 +488,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         _deleteEverything();
                       },
                       child: Text(_l10n.delete,
-                          style: const TextStyle(color: AppColors.error))),
+                          style: TextStyle(color: context.colors.error))),
                 ],
               ),
             ),
@@ -458,6 +508,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             style: Theme.of(context)
                 .textTheme
                 .labelMedium!
-                .copyWith(color: AppColors.accent, letterSpacing: 1.2)),
+                .copyWith(color: context.colors.accent, letterSpacing: 1.2)),
       );
 }

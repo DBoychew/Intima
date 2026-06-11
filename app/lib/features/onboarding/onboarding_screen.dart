@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/app_localizations.dart';
@@ -61,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyMedium!
-                                .copyWith(color: AppColors.textSecondary),
+                                .copyWith(color: context.colors.textSecondary),
                             textAlign: TextAlign.center),
                       ],
                     ),
@@ -79,7 +79,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   width: i == _page ? 24 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: i == _page ? AppColors.accent : AppColors.surfaceHigh,
+                    color: i == _page ? context.colors.accent : context.colors.surfaceHigh,
                     borderRadius: BorderRadius.circular(999),
                   ),
                 ),
