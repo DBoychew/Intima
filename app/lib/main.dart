@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import 'boot_screen.dart';
 import 'core/cycle_settings.dart';
+import 'core/demo_seed.dart';
 import 'core/notifications.dart';
 import 'core/premium.dart';
 import 'core/theme_controller.dart';
@@ -24,10 +25,17 @@ import 'theme/app_theme.dart';
 /// Език за тестове — null означава езика на устройството.
 Locale? localeOverride;
 
+/// За скрийншоти на конкретен език:
+///   --dart-define=INTIMA_SCREENSHOTS=true --dart-define=INTIMA_LOCALE=bg
+const _screenshotLocale = String.fromEnvironment('INTIMA_LOCALE');
+
 /// UI-ят тръгва веднага; инициализацията върви на BootScreen с видим
 /// прогрес — замръзнал нативен splash вече не е възможен.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  if (screenshotMode && _screenshotLocale.isNotEmpty) {
+    localeOverride = Locale(_screenshotLocale);
+  }
   bootSteps = [
     (label: (l) => l.bootDb, run: dbManager.open),
     (
@@ -50,6 +58,15 @@ void main() {
         cycleSettings.addListener(Notifications.syncCycleReminders);
       },
     ),
+    if (screenshotMode)
+      (
+        label: (l) => l.bootStarting,
+        run: () async {
+          // Само за Play скрийншоти: снимки разрешени + demo данни.
+          await SecureFlag.set(false);
+          await seedDemoData();
+        },
+      ),
   ];
   runApp(const IntimaApp());
 }
