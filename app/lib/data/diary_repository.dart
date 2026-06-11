@@ -23,7 +23,7 @@ class DiaryRepository {
     required DateTime date,
     required int? mood,
     required List<String> tags,
-    required String? photoPath,
+    required List<String> photos,
   }) =>
       _manager.db.insertDiaryEntry(DiaryEntriesCompanion.insert(
         title: title,
@@ -31,15 +31,17 @@ class DiaryRepository {
         date: date,
         mood: Value(mood),
         tags: Value(jsonEncode(tags)),
-        hasPhoto: Value(photoPath != null),
-        photoPath: Value(photoPath),
+        hasPhoto: Value(photos.isNotEmpty),
+        photos: Value(jsonEncode(photos)),
       ));
 
   Future<void> update(DiaryEntryRow row) =>
       _manager.db.updateDiaryEntry(row);
 
   Future<void> delete(DiaryEntryRow row) async {
-    await deletePhotoFile(row.photoPath);
+    for (final path in decodeStringList(row.photos)) {
+      await deletePhotoFile(path);
+    }
     await _manager.db.deleteDiaryEntry(row.id);
   }
 

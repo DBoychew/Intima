@@ -99,6 +99,80 @@ void main() {
     expect(cycleSettings.lastPeriodStart, isNull);
   });
 
+  test('начален ден на менструация авто-маркира следващите дни', () async {
+    cycleSettings.periodLength = 5;
+    final autoFilled = await repo.saveQuickLog(
+      date: DateTime(2026, 6, 10),
+      mood: null,
+      period: true,
+      libido: 0.5,
+      energy: 0.5,
+      symptoms: const [],
+      moments: const [],
+    );
+    expect(autoFilled, 4);
+
+    final june = await repo.month(2026, 6);
+    for (final day in [10, 11, 12, 13, 14]) {
+      expect(june.isPeriod(day), isTrue, reason: 'ден $day');
+    }
+    expect(june.isPeriod(15), isFalse);
+    expect(cycleSettings.lastPeriodStart, DateTime(2026, 6, 10));
+  });
+
+  test('ден в средата на серия не разширява авто-маркирането', () async {
+    await repo.saveQuickLog(
+      date: DateTime(2026, 6, 10),
+      mood: null,
+      period: true,
+      libido: 0.5,
+      energy: 0.5,
+      symptoms: const [],
+      moments: const [],
+    );
+    // Редакция на ден 12 (вече маркиран) — не трябва да добави нови дни.
+    final autoFilled = await repo.saveQuickLog(
+      date: DateTime(2026, 6, 12),
+      mood: 3,
+      period: true,
+      libido: 0.5,
+      energy: 0.5,
+      symptoms: const [],
+      moments: const [],
+    );
+    expect(autoFilled, 0);
+    final june = await repo.month(2026, 6);
+    expect(june.isPeriod(15), isFalse);
+  });
+
+  test('авто-маркирането пази данните на съществуващ ден', () async {
+    // Ден 12 вече има настроение, без менструация.
+    await repo.saveQuickLog(
+      date: DateTime(2026, 6, 12),
+      mood: 4,
+      period: false,
+      libido: 0.7,
+      energy: 0.5,
+      symptoms: const ['ПМС'],
+      moments: const [],
+    );
+    // Начален ден 10 → 11–14 стават менструация, но ден 12 пази всичко.
+    await repo.saveQuickLog(
+      date: DateTime(2026, 6, 10),
+      mood: null,
+      period: true,
+      libido: 0.5,
+      energy: 0.5,
+      symptoms: const [],
+      moments: const [],
+    );
+    final day12 = (await repo.month(2026, 6)).logs[12]!;
+    expect(day12.isPeriod, isTrue);
+    expect(day12.mood, 4);
+    expect(day12.libido, 0.7);
+    expect(decodeStringList(day12.symptoms), ['ПМС']);
+  });
+
   test('границата между месеци не чупи серията (28–31 май + 1 юни)',
       () async {
     for (final date in [

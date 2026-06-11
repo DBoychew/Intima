@@ -85,7 +85,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
     if (result == null || !mounted) return;
 
-    await calendarRepository.saveQuickLog(
+    final autoFilled = await calendarRepository.saveQuickLog(
       date: date,
       mood: result.mood,
       period: result.period,
@@ -96,9 +96,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
     await _load();
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Записано ✨')));
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(
+        autoFilled > 0
+            ? 'Записано ✨ Отбелязахме още $autoFilled дни от менструацията'
+            : 'Записано ✨',
+      ),
+    ));
   }
 
   void _changeMonth(int delta) {

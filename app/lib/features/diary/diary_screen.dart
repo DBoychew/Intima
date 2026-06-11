@@ -123,7 +123,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
                       Text(
                         [
                           bgDate(e.date),
-                          if (e.photoPath != null) '📷',
+                          if (decodeStringList(e.photos).isNotEmpty)
+                            '📷 ${decodeStringList(e.photos).length > 1 ? decodeStringList(e.photos).length : ''}'
+                                .trim(),
                           ...decodeStringList(e.tags).map((t) => '#$t'),
                         ].join(' · '),
                         style: Theme.of(context).textTheme.labelMedium,

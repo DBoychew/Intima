@@ -21,7 +21,11 @@ class DiaryEntries extends Table {
   BoolColumn get hasPhoto => boolean().withDefault(const Constant(false))();
 
   /// Път до снимката в private storage на приложението (v2).
+  /// Заменена от [photos] във v3 — пазим я само заради миграцията.
   TextColumn get photoPath => text().nullable()();
+
+  /// JSON списък с пътища до снимките в private storage (v3).
+  TextColumn get photos => text().withDefault(const Constant('[]'))();
 }
 
 /// Дневен запис от календара — най-много един на дата.
@@ -74,13 +78,21 @@ class IntimaDatabase extends _$IntimaDatabase {
   IntimaDatabase(super.e);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onUpgrade: (m, from, to) async {
           if (from < 2) {
             await m.addColumn(diaryEntries, diaryEntries.photoPath);
+          }
+          if (from < 3) {
+            await m.addColumn(diaryEntries, diaryEntries.photos);
+            // Единичната снимка от v2 става списък с един елемент.
+            await customStatement(
+              'UPDATE diary_entries SET photos = json_array(photo_path) '
+              'WHERE photo_path IS NOT NULL',
+            );
           }
         },
       );
@@ -109,6 +121,20 @@ class IntimaDatabase extends _$IntimaDatabase {
 
   Future<void> upsertDayLog(DayLogsCompanion log) =>
       into(dayLogs).insertOnConflictUpdate(log);
+
+  /// Маркира само менструалния флаг за [date], без да пипа
+  /// останалите полета на евентуален съществуващ запис.
+  Future<void> setPeriodFlag(String date, bool value) async {
+    final existing = await dayLog(date);
+    if (existing != null) {
+      await (update(dayLogs)..where((t) => t.date.equals(date)))
+          .write(DayLogsCompanion(isPeriod: Value(value)));
+    } else if (value) {
+      await into(dayLogs).insert(
+        DayLogsCompanion.insert(date: date, isPeriod: const Value(true)),
+      );
+    }
+  }
 
   /// Всички менструални дни, най-новите първи — за извличане на
   /// началото на последния цикъл.

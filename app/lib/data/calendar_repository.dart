@@ -71,7 +71,11 @@ class CalendarRepository {
   }
 
   /// Записва целия бърз лог за деня и преизчислява предикциите.
-  Future<void> saveQuickLog({
+  ///
+  /// Ако [period] е true и денят започва нова менструация (предишният не е
+  /// отбелязан), автоматично маркира следващите дни според „Дължина на
+  /// менструацията" от настройките. Връща броя автоматично добавени дни.
+  Future<int> saveQuickLog({
     required DateTime date,
     required int? mood,
     required bool period,
@@ -81,6 +85,8 @@ class CalendarRepository {
     required List<MomentDraft> moments,
   }) async {
     final key = dateKey(date);
+    final wasPeriodStart = period && !await _isPeriodDay(date, delta: -1);
+
     await _manager.db.upsertDayLog(DayLogsCompanion.insert(
       date: key,
       mood: Value(mood),
@@ -99,7 +105,26 @@ class CalendarRepository {
           note: Value(m.note),
         ),
     ]);
+
+    var autoFilled = 0;
+    if (wasPeriodStart) {
+      for (var i = 1; i < cycleSettings.periodLength; i++) {
+        await _manager.db.setPeriodFlag(
+          dateKey(date.add(Duration(days: i))),
+          true,
+        );
+        autoFilled++;
+      }
+    }
+
     await refreshLastPeriodStart();
+    return autoFilled;
+  }
+
+  Future<bool> _isPeriodDay(DateTime date, {required int delta}) async {
+    final log =
+        await _manager.db.dayLog(dateKey(date.add(Duration(days: delta))));
+    return log?.isPeriod ?? false;
   }
 
   /// Намира първия ден на най-скорошната непрекъсната серия от

@@ -53,7 +53,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
   int _template = 0;
   int? _mood;
   late List<String> _tags;
-  String? _photoPath;
+  late List<String> _photos;
   bool _saving = false;
 
   @override
@@ -62,7 +62,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     _text = TextEditingController(text: widget.initial?.body ?? '');
     _mood = widget.initial?.mood;
     _tags = [...decodeStringList(widget.initial?.tags)];
-    _photoPath = widget.initial?.photoPath;
+    _photos = [...decodeStringList(widget.initial?.photos)];
   }
 
   @override
@@ -103,7 +103,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         date: DateTime.now(),
         mood: _mood,
         tags: _tags,
-        photoPath: _photoPath,
+        photos: _photos,
       );
     } else {
       await diaryRepository.update(initial.copyWith(
@@ -111,8 +111,8 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         body: _text.text.trim(),
         mood: Value(_mood),
         tags: jsonEncode(_tags),
-        hasPhoto: _photoPath != null,
-        photoPath: Value(_photoPath),
+        hasPhoto: _photos.isNotEmpty,
+        photos: jsonEncode(_photos),
       ));
     }
     if (mounted) Navigator.pop(context, true);
@@ -143,17 +143,19 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     if (mounted) Navigator.pop(context, true);
   }
 
-  Future<void> _pickPhoto() async {
+  Future<void> _pickPhotos() async {
     HapticFeedback.selectionClick();
     try {
-      final picked = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
+      final picked = await ImagePicker().pickMultiImage(
         maxWidth: 1920,
         imageQuality: 85,
       );
-      if (picked == null || !mounted) return;
-      final path = await diaryRepository.importPhoto(picked.path);
-      setState(() => _photoPath = path);
+      if (picked.isEmpty || !mounted) return;
+      final paths = <String>[];
+      for (final image in picked) {
+        paths.add(await diaryRepository.importPhoto(image.path));
+      }
+      setState(() => _photos.addAll(paths));
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -163,10 +165,49 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     }
   }
 
-  Future<void> _removePhoto() async {
+  Future<void> _removePhoto(int index) async {
     HapticFeedback.selectionClick();
-    await diaryRepository.deletePhotoFile(_photoPath);
-    if (mounted) setState(() => _photoPath = null);
+    await diaryRepository.deletePhotoFile(_photos[index]);
+    if (mounted) setState(() => _photos.removeAt(index));
+  }
+
+  Widget _photoThumb(int index) {
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(14),
+          child: Image.file(
+            File(_photos[index]),
+            width: 104,
+            height: 104,
+            fit: BoxFit.cover,
+            errorBuilder: (_, _, _) => Container(
+              width: 104,
+              height: 104,
+              color: AppColors.surface,
+              alignment: Alignment.center,
+              child: const Text('📷'),
+            ),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: InkWell(
+            onTap: () => _removePhoto(index),
+            customBorder: const CircleBorder(),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, size: 16, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Future<void> _addTag() async {
@@ -205,116 +246,103 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           ),
         ],
       ),
-      body: Padding(
+      // Целият редактор скролва — снимките и таговете се виждат винаги.
+      body: ListView(
         padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+        children: [
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: List.generate(
+              _templates.length,
+              (i) => ChoiceChip(
+                label: Text(_templates[i].name),
+                selected: _template == i,
+                onSelected: (_) => _applyTemplate(i),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: List.generate(moodEmojis.length, (i) {
+              final selected = _mood == i;
+              return GestureDetector(
+                onTap: () => setState(() => _mood = i),
+                child: Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: selected
+                        ? AppColors.primary.withValues(alpha: 0.25)
+                        : null,
+                  ),
+                  child: Text(
+                    moodEmojis[i],
+                    style: const TextStyle(fontSize: 26),
+                  ),
+                ),
+              );
+            }),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _text,
+            maxLines: null,
+            minLines: 8,
+            textAlignVertical: TextAlignVertical.top,
+            decoration: InputDecoration(
+              hintText: _templates[_template].hint,
+            ),
+          ),
+          if (_photos.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 104,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _photos.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 8),
+                itemBuilder: (_, i) => _photoThumb(i),
+              ),
+            ),
+          ],
+          if (_tags.isNotEmpty) ...[
+            const SizedBox(height: 12),
             Wrap(
               spacing: 8,
               runSpacing: 8,
-              children: List.generate(
-                _templates.length,
-                (i) => ChoiceChip(
-                  label: Text(_templates[i].name),
-                  selected: _template == i,
-                  onSelected: (_) => _applyTemplate(i),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: List.generate(moodEmojis.length, (i) {
-                final selected = _mood == i;
-                return GestureDetector(
-                  onTap: () => setState(() => _mood = i),
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: selected
-                          ? AppColors.primary.withValues(alpha: 0.25)
-                          : null,
-                    ),
-                    child: Text(
-                      moodEmojis[i],
-                      style: const TextStyle(fontSize: 26),
-                    ),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: TextField(
-                controller: _text,
-                maxLines: null,
-                expands: true,
-                textAlignVertical: TextAlignVertical.top,
-                decoration: InputDecoration(
-                  hintText: _templates[_template].hint,
-                ),
-              ),
-            ),
-            if (_photoPath != null) ...[
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Image.file(
-                  File(_photoPath!),
-                  height: 96,
-                  width: double.infinity,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Container(
-                    height: 96,
-                    color: AppColors.surface,
-                    alignment: Alignment.center,
-                    child: const Text('Снимката липсва 📷'),
-                  ),
-                ),
-              ),
-            ],
-            if (_tags.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final t in _tags)
-                    InputChip(
-                      label: Text('#$t'),
-                      onDeleted: () => setState(() => _tags.remove(t)),
-                    ),
-                ],
-              ),
-            ],
-            const SizedBox(height: 12),
-            Row(
               children: [
-                Expanded(
-                  child: _ActionButton(
-                    icon: _photoPath != null
-                        ? Icons.delete_outline
-                        : Icons.photo_camera_outlined,
-                    label:
-                        _photoPath != null ? 'Премахни снимка' : 'Добави снимка',
-                    highlighted: _photoPath != null,
-                    onTap: _photoPath != null ? _removePhoto : _pickPhoto,
+                for (final t in _tags)
+                  InputChip(
+                    label: Text('#$t'),
+                    onDeleted: () => setState(() => _tags.remove(t)),
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _ActionButton(
-                    icon: Icons.tag,
-                    label: 'Нов таг',
-                    onTap: _addTag,
-                  ),
-                ),
               ],
             ),
           ],
-        ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: _ActionButton(
+                  icon: Icons.add_photo_alternate_outlined,
+                  label: 'Добави снимка',
+                  onTap: _pickPhotos,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _ActionButton(
+                  icon: Icons.tag,
+                  label: 'Нов таг',
+                  onTap: _addTag,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+        ],
       ),
     );
   }
@@ -327,17 +355,15 @@ class _ActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
-    this.highlighted = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final bool highlighted;
 
   @override
   Widget build(BuildContext context) {
-    final color = highlighted ? AppColors.accentSoft : AppColors.textSecondary;
+    const color = AppColors.textSecondary;
     return TextButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 20, color: color),

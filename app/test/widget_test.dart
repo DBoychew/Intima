@@ -102,7 +102,7 @@ void main() {
       date: DateTime(2026, 6, 8),
       mood: 4,
       tags: ['нас'],
-      photoPath: null,
+      photos: const [],
     );
     await diaryRepository.create(
       title: 'Стар спомен',
@@ -110,7 +110,7 @@ void main() {
       date: DateTime(2026, 3, 1),
       mood: 2,
       tags: const [],
-      photoPath: null,
+      photos: const [],
     );
 
     await tester.pumpWidget(
