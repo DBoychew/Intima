@@ -99,18 +99,23 @@ void main() {
     expect(cycleSettings.lastPeriodStart, isNull);
   });
 
-  test('начален ден на менструация авто-маркира следващите дни', () async {
-    cycleSettings.periodLength = 5;
-    final autoFilled = await repo.saveQuickLog(
-      date: DateTime(2026, 6, 10),
+  /// Кратък запис само с менструален маркер.
+  Future<QuickLogOutcome> savePeriod(DateTime date, {required bool period}) {
+    return repo.saveQuickLog(
+      date: date,
       mood: null,
-      period: true,
+      period: period,
       libido: 0.5,
       energy: 0.5,
       symptoms: const [],
       moments: const [],
     );
-    expect(autoFilled, 4);
+  }
+
+  test('начален ден на менструация авто-маркира следващите дни', () async {
+    cycleSettings.periodLength = 5;
+    final outcome = await savePeriod(DateTime(2026, 6, 10), period: true);
+    expect(outcome.autoFilledDays, 4);
 
     final june = await repo.month(2026, 6);
     for (final day in [10, 11, 12, 13, 14]) {
@@ -121,28 +126,40 @@ void main() {
   });
 
   test('ден в средата на серия не разширява авто-маркирането', () async {
-    await repo.saveQuickLog(
-      date: DateTime(2026, 6, 10),
-      mood: null,
-      period: true,
-      libido: 0.5,
-      energy: 0.5,
-      symptoms: const [],
-      moments: const [],
-    );
+    await savePeriod(DateTime(2026, 6, 10), period: true);
     // Редакция на ден 12 (вече маркиран) — не трябва да добави нови дни.
-    final autoFilled = await repo.saveQuickLog(
-      date: DateTime(2026, 6, 12),
-      mood: 3,
-      period: true,
-      libido: 0.5,
-      energy: 0.5,
-      symptoms: const [],
-      moments: const [],
-    );
-    expect(autoFilled, 0);
+    final outcome = await savePeriod(DateTime(2026, 6, 12), period: true);
+    expect(outcome.autoFilledDays, 0);
     final june = await repo.month(2026, 6);
     expect(june.isPeriod(15), isFalse);
+  });
+
+  test('махане на ден в началото/средата чисти цялата серия', () async {
+    // Серия 10–14 (5 дни). Махаме ден 11 → всичко изчезва.
+    await savePeriod(DateTime(2026, 6, 10), period: true);
+    final outcome = await savePeriod(DateTime(2026, 6, 11), period: false);
+    expect(outcome.clearedDays, 4); // 10, 12, 13, 14
+
+    final june = await repo.month(2026, 6);
+    for (final day in [10, 11, 12, 13, 14]) {
+      expect(june.isPeriod(day), isFalse, reason: 'ден $day');
+    }
+    expect(cycleSettings.lastPeriodStart, isNull);
+  });
+
+  test('махане на ден от последните 3 само съкращава края', () async {
+    // Серия 10–14. Махаме ден 13 (предпоследен) → остават 10–12.
+    await savePeriod(DateTime(2026, 6, 10), period: true);
+    final outcome = await savePeriod(DateTime(2026, 6, 13), period: false);
+    expect(outcome.clearedDays, 1); // само ден 14
+
+    final june = await repo.month(2026, 6);
+    for (final day in [10, 11, 12]) {
+      expect(june.isPeriod(day), isTrue, reason: 'ден $day');
+    }
+    expect(june.isPeriod(13), isFalse);
+    expect(june.isPeriod(14), isFalse);
+    expect(cycleSettings.lastPeriodStart, DateTime(2026, 6, 10));
   });
 
   test('авто-маркирането пази данните на съществуващ ден', () async {

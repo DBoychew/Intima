@@ -92,6 +92,40 @@ void main() {
     expect(find.text('#пътуване'), findsOneWidget);
   });
 
+  testWidgets('Editor: тап отваря viewer, X иска потвърждение', (
+    WidgetTester tester,
+  ) async {
+    final row = DiaryEntryRow(
+      id: 1,
+      title: 'Тест',
+      body: 'Текст',
+      date: DateTime(2026, 6, 10),
+      mood: 3,
+      tags: '[]',
+      hasPhoto: true,
+      photos: '["/няма/такава.png"]',
+    );
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.dark, home: DiaryEditorScreen(initial: row)),
+    );
+    await tester.pumpAndSettle();
+
+    // Тап върху thumbnail-а отваря пълноекранния viewer.
+    await tester.tap(find.byType(Image).first);
+    await tester.pumpAndSettle();
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    // X иска потвърждение; „Отказ" запазва снимката.
+    await tester.tap(find.byIcon(Icons.close));
+    await tester.pumpAndSettle();
+    expect(find.text('Премахване на снимката?'), findsOneWidget);
+    await tester.tap(find.text('Отказ'));
+    await tester.pumpAndSettle();
+    expect(find.byType(Image), findsOneWidget);
+  });
+
   testWidgets('Diary списък: записи от базата, търсене и спомен', (
     WidgetTester tester,
   ) async {

@@ -165,28 +165,59 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     }
   }
 
-  Future<void> _removePhoto(int index) async {
+  Future<void> _confirmRemovePhoto(int index) async {
     HapticFeedback.selectionClick();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.surfaceHigh,
+        title: const Text('Премахване на снимката?'),
+        content: const Text('Снимката ще бъде изтрита от записа завинаги.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Отказ'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Премахни',
+                style: TextStyle(color: AppColors.error)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
     await diaryRepository.deletePhotoFile(_photos[index]);
     if (mounted) setState(() => _photos.removeAt(index));
+  }
+
+  void _viewPhoto(int index) {
+    HapticFeedback.selectionClick();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => _PhotoViewerScreen(path: _photos[index]),
+    ));
   }
 
   Widget _photoThumb(int index) {
     return Stack(
       children: [
-        ClipRRect(
+        InkWell(
+          onTap: () => _viewPhoto(index),
           borderRadius: BorderRadius.circular(14),
-          child: Image.file(
-            File(_photos[index]),
-            width: 104,
-            height: 104,
-            fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(14),
+            child: Image.file(
+              File(_photos[index]),
               width: 104,
               height: 104,
-              color: AppColors.surface,
-              alignment: Alignment.center,
-              child: const Text('📷'),
+              fit: BoxFit.cover,
+              errorBuilder: (_, _, _) => Container(
+                width: 104,
+                height: 104,
+                color: AppColors.surface,
+                alignment: Alignment.center,
+                child: const Text('📷'),
+              ),
             ),
           ),
         ),
@@ -194,7 +225,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           top: 4,
           right: 4,
           child: InkWell(
-            onTap: () => _removePhoto(index),
+            onTap: () => _confirmRemovePhoto(index),
             customBorder: const CircleBorder(),
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -343,6 +374,33 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           ),
           const SizedBox(height: 32),
         ],
+      ),
+    );
+  }
+}
+
+/// Снимка на цял екран — pinch zoom, затваряне със стрелката или тап.
+class _PhotoViewerScreen extends StatelessWidget {
+  const _PhotoViewerScreen({required this.path});
+
+  final String path;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Center(
+          child: InteractiveViewer(
+            maxScale: 5,
+            child: Image.file(
+              File(path),
+              errorBuilder: (_, _, _) => const Text('Снимката липсва 📷'),
+            ),
+          ),
+        ),
       ),
     );
   }

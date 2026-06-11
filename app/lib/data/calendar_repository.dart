@@ -21,6 +21,14 @@ List<String> decodeStringList(String? json) => json == null
     ? const []
     : (jsonDecode(json) as List).cast<String>();
 
+/// Какво направи записът с менструалните маркери — за обратната връзка.
+class QuickLogOutcome {
+  const QuickLogOutcome({this.autoFilledDays = 0, this.clearedDays = 0});
+
+  final int autoFilledDays;
+  final int clearedDays;
+}
+
 /// Чернова на интимен момент — мостът между бързия запис и базата.
 class MomentDraft {
   const MomentDraft({
@@ -72,10 +80,12 @@ class CalendarRepository {
 
   /// Записва целия бърз лог за деня и преизчислява предикциите.
   ///
-  /// Ако [period] е true и денят започва нова менструация (предишният не е
-  /// отбелязан), автоматично маркира следващите дни според „Дължина на
-  /// менструацията" от настройките. Връща броя автоматично добавени дни.
-  Future<int> saveQuickLog({
+  /// Менструалната логика е „умна":
+  /// - Маркиране на начален ден → следващите дни се маркират автоматично
+  ///   според „Дължина на менструацията" от настройките.
+  /// - Махане на ден от серия → чисти цялата серия (грешно отбелязана),
+  ///   освен ако денят е в последните 3 дни — тогава само съкращава края.
+  Future<QuickLogOutcome> saveQuickLog({
     required DateTime date,
     required int? mood,
     required bool period,
@@ -85,7 +95,10 @@ class CalendarRepository {
     required List<MomentDraft> moments,
   }) async {
     final key = dateKey(date);
-    final wasPeriodStart = period && !await _isPeriodDay(date, delta: -1);
+    final wasPeriod =
+        (await _manager.db.dayLog(key))?.isPeriod ?? false;
+    final startsNewRun =
+        period && !wasPeriod && !await _isPeriodDay(date, delta: -1);
 
     await _manager.db.upsertDayLog(DayLogsCompanion.insert(
       date: key,
@@ -107,7 +120,8 @@ class CalendarRepository {
     ]);
 
     var autoFilled = 0;
-    if (wasPeriodStart) {
+    var cleared = 0;
+    if (startsNewRun) {
       for (var i = 1; i < cycleSettings.periodLength; i++) {
         await _manager.db.setPeriodFlag(
           dateKey(date.add(Duration(days: i))),
@@ -115,10 +129,45 @@ class CalendarRepository {
         );
         autoFilled++;
       }
+    } else if (wasPeriod && !period) {
+      cleared = await _clearRunAround(date);
     }
 
     await refreshLastPeriodStart();
-    return autoFilled;
+    return QuickLogOutcome(autoFilledDays: autoFilled, clearedDays: cleared);
+  }
+
+  /// Маханият ден [date] вече е без маркер; чисти останалата част от
+  /// серията му. Връща броя допълнително изчистени дни.
+  Future<int> _clearRunAround(DateTime date) async {
+    var before = 0;
+    while (await _isPeriodDay(date, delta: -(before + 1))) {
+      before++;
+    }
+    var after = 0;
+    while (await _isPeriodDay(date, delta: after + 1)) {
+      after++;
+    }
+
+    Future<void> clear(int delta) => _manager.db.setPeriodFlag(
+          dateKey(date.add(Duration(days: delta))),
+          false,
+        );
+
+    var cleared = 0;
+    // В последните 3 дни на серията → само съкращаваме края.
+    final shortensTail = after <= 2;
+    if (!shortensTail) {
+      for (var i = 1; i <= before; i++) {
+        await clear(-i);
+        cleared++;
+      }
+    }
+    for (var i = 1; i <= after; i++) {
+      await clear(i);
+      cleared++;
+    }
+    return cleared;
   }
 
   Future<bool> _isPeriodDay(DateTime date, {required int delta}) async {
