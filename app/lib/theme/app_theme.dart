@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Източник на истината за дизайн токените — виж docs/design/DESIGN-SYSTEM.md
 abstract class AppColors {
@@ -18,11 +17,19 @@ abstract class AppColors {
   static const error = Color(0xFFEF5366);
 }
 
+/// Вградени шрифтове (assets/fonts) — без runtime fetch, приложението
+/// е изцяло офлайн.
+abstract class AppFonts {
+  static const body = 'Inter';
+  static const display = 'PlayfairDisplay';
+}
+
 abstract class AppTheme {
   static ThemeData get dark {
     final base = ThemeData(
       brightness: Brightness.dark,
       useMaterial3: true,
+      fontFamily: AppFonts.body,
       scaffoldBackgroundColor: AppColors.background,
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primary,
@@ -36,19 +43,35 @@ abstract class AppTheme {
       ),
     );
 
-    final body = GoogleFonts.interTextTheme(base.textTheme).apply(
+    final body = base.textTheme.apply(
+      fontFamily: AppFonts.body,
       bodyColor: AppColors.textPrimary,
       displayColor: AppColors.textPrimary,
     );
     final textTheme = body.copyWith(
-      displaySmall: GoogleFonts.playfairDisplay(
-          fontSize: 32, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-      headlineSmall: GoogleFonts.playfairDisplay(
-          fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-      titleLarge: GoogleFonts.playfairDisplay(
-          fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-      bodyMedium: GoogleFonts.inter(fontSize: 15, color: AppColors.textPrimary),
-      labelMedium: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary),
+      displaySmall: const TextStyle(
+          fontFamily: AppFonts.display,
+          fontSize: 32,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary),
+      headlineSmall: const TextStyle(
+          fontFamily: AppFonts.display,
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary),
+      titleLarge: const TextStyle(
+          fontFamily: AppFonts.display,
+          fontSize: 20,
+          fontWeight: FontWeight.w600,
+          color: AppColors.textPrimary),
+      bodyMedium: const TextStyle(
+          fontFamily: AppFonts.body,
+          fontSize: 15,
+          color: AppColors.textPrimary),
+      labelMedium: const TextStyle(
+          fontFamily: AppFonts.body,
+          fontSize: 13,
+          color: AppColors.textSecondary),
     );
 
     return base.copyWith(
@@ -64,7 +87,10 @@ abstract class AppTheme {
           backgroundColor: AppColors.primary,
           minimumSize: const Size.fromHeight(52),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          textStyle: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w600),
+          textStyle: const TextStyle(
+              fontFamily: AppFonts.body,
+              fontSize: 16,
+              fontWeight: FontWeight.w600),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -81,7 +107,10 @@ abstract class AppTheme {
         backgroundColor: Colors.transparent,
         selectedColor: AppColors.primary.withValues(alpha: 0.22),
         side: const BorderSide(color: AppColors.surfaceHigh),
-        labelStyle: GoogleFonts.inter(fontSize: 13, color: AppColors.textPrimary),
+        labelStyle: const TextStyle(
+            fontFamily: AppFonts.body,
+            fontSize: 13,
+            color: AppColors.textPrimary),
         shape: const StadiumBorder(),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
@@ -94,15 +123,18 @@ abstract class AppTheme {
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
         indicatorColor: AppColors.primary.withValues(alpha: 0.25),
-        labelTextStyle: WidgetStatePropertyAll(
-            GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary)),
+        labelTextStyle: const WidgetStatePropertyAll(TextStyle(
+            fontFamily: AppFonts.body,
+            fontSize: 12,
+            color: AppColors.textSecondary)),
         iconTheme: const WidgetStatePropertyAll(
             IconThemeData(color: AppColors.textPrimary)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        hintStyle: GoogleFonts.inter(color: AppColors.textSecondary),
+        hintStyle: const TextStyle(
+            fontFamily: AppFonts.body, color: AppColors.textSecondary),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide.none,
@@ -110,7 +142,8 @@ abstract class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceHigh,
-        contentTextStyle: GoogleFonts.inter(color: AppColors.textPrimary),
+        contentTextStyle: const TextStyle(
+            fontFamily: AppFonts.body, color: AppColors.textPrimary),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
