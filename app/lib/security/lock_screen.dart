@@ -37,10 +37,14 @@ class _LockScreenState extends State<LockScreen> {
     });
     if (_entered.length < pinLength) return;
     final ok = await appLock.checkPin(_entered);
+    final decoy = !ok && await appLock.checkDecoyPin(_entered);
     if (!mounted) return;
     if (ok) {
       HapticFeedback.lightImpact();
       appLock.unlock(); // router-ът ни праща към календара
+    } else if (decoy) {
+      HapticFeedback.lightImpact();
+      appLock.unlockDecoy(); // празното stealth копие
     } else {
       HapticFeedback.heavyImpact();
       setState(() {

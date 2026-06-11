@@ -439,6 +439,38 @@ class AppLocalizationsBg extends AppLocalizations {
       'Биометрията не е налична на това устройство';
 
   @override
+  String get stealthPin => 'Фалшив PIN (Stealth)';
+
+  @override
+  String get stealthSubtitle =>
+      'Втори PIN, който отваря празно копие на Intima';
+
+  @override
+  String get stealthNeedPin => 'Първо активирай PIN заключването';
+
+  @override
+  String get stealthSameAsMain =>
+      'Този PIN съвпада с основния — избери различен';
+
+  @override
+  String get stealthEnabled => 'Фалшивият PIN е активен 🕶️';
+
+  @override
+  String get stealthDisabled => 'Фалшивият PIN е изключен';
+
+  @override
+  String get stealthChange => 'Промени PIN-а';
+
+  @override
+  String get stealthTurnOff => 'Изключи';
+
+  @override
+  String get statusOn => 'Вкл.';
+
+  @override
+  String get statusOff => 'Изкл.';
+
+  @override
   String get hideInRecents => 'Скрий в скорошни приложения';
 
   @override

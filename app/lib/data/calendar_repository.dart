@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../core/cycle_settings.dart';
+import '../security/app_lock.dart';
 import 'database.dart';
 import 'db_manager.dart';
 
@@ -63,6 +64,8 @@ class CalendarRepository {
   final DbManager _manager;
 
   Future<MonthData> month(int year, int monthNum) async {
+    // Stealth копието е празно.
+    if (appLock.decoyActive) return MonthData.empty;
     final prefix = '$year-${monthNum.toString().padLeft(2, '0')}-';
     final logs = await _manager.db.monthLogs(prefix);
     final moments = await _manager.db.monthMoments(prefix);
@@ -94,6 +97,8 @@ class CalendarRepository {
     required List<String> symptoms,
     required List<MomentDraft> moments,
   }) async {
+    // В stealth копието нищо не се записва (но UI-ят се държи нормално).
+    if (appLock.decoyActive) return const QuickLogOutcome();
     final key = dateKey(date);
     final wasPeriod =
         (await _manager.db.dayLog(key))?.isPeriod ?? false;
@@ -179,6 +184,10 @@ class CalendarRepository {
   /// Намира първия ден на най-скорошната непрекъсната серия от
   /// менструални дни и обновява [CycleSettings.lastPeriodStart].
   Future<void> refreshLastPeriodStart() async {
+    if (appLock.decoyActive) {
+      cycleSettings.lastPeriodStart = null; // само в паметта
+      return;
+    }
     final rows = await _manager.db.allPeriodLogs();
     if (rows.isEmpty) {
       cycleSettings.lastPeriodStart = null;

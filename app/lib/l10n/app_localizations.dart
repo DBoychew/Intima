@@ -848,6 +848,66 @@ abstract class AppLocalizations {
   /// **'Биометрията не е налична на това устройство'**
   String get biometricsUnavailable;
 
+  /// No description provided for @stealthPin.
+  ///
+  /// In bg, this message translates to:
+  /// **'Фалшив PIN (Stealth)'**
+  String get stealthPin;
+
+  /// No description provided for @stealthSubtitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Втори PIN, който отваря празно копие на Intima'**
+  String get stealthSubtitle;
+
+  /// No description provided for @stealthNeedPin.
+  ///
+  /// In bg, this message translates to:
+  /// **'Първо активирай PIN заключването'**
+  String get stealthNeedPin;
+
+  /// No description provided for @stealthSameAsMain.
+  ///
+  /// In bg, this message translates to:
+  /// **'Този PIN съвпада с основния — избери различен'**
+  String get stealthSameAsMain;
+
+  /// No description provided for @stealthEnabled.
+  ///
+  /// In bg, this message translates to:
+  /// **'Фалшивият PIN е активен 🕶️'**
+  String get stealthEnabled;
+
+  /// No description provided for @stealthDisabled.
+  ///
+  /// In bg, this message translates to:
+  /// **'Фалшивият PIN е изключен'**
+  String get stealthDisabled;
+
+  /// No description provided for @stealthChange.
+  ///
+  /// In bg, this message translates to:
+  /// **'Промени PIN-а'**
+  String get stealthChange;
+
+  /// No description provided for @stealthTurnOff.
+  ///
+  /// In bg, this message translates to:
+  /// **'Изключи'**
+  String get stealthTurnOff;
+
+  /// No description provided for @statusOn.
+  ///
+  /// In bg, this message translates to:
+  /// **'Вкл.'**
+  String get statusOn;
+
+  /// No description provided for @statusOff.
+  ///
+  /// In bg, this message translates to:
+  /// **'Изкл.'**
+  String get statusOff;
+
   /// No description provided for @hideInRecents.
   ///
   /// In bg, this message translates to:

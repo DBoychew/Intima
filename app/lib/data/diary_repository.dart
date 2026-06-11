@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../security/app_lock.dart';
 import 'calendar_repository.dart' show decodeStringList;
 import 'database.dart';
 import 'db_manager.dart';
@@ -15,7 +16,11 @@ class DiaryRepository {
 
   final DbManager _manager;
 
-  Future<List<DiaryEntryRow>> all() => _manager.db.allDiaryEntries();
+  Future<List<DiaryEntryRow>> all() async {
+    // Stealth копието е празно.
+    if (appLock.decoyActive) return const [];
+    return _manager.db.allDiaryEntries();
+  }
 
   Future<void> create({
     required String title,
@@ -24,21 +29,27 @@ class DiaryRepository {
     required int? mood,
     required List<String> tags,
     required List<String> photos,
-  }) =>
-      _manager.db.insertDiaryEntry(DiaryEntriesCompanion.insert(
-        title: title,
-        body: body,
-        date: date,
-        mood: Value(mood),
-        tags: Value(jsonEncode(tags)),
-        hasPhoto: Value(photos.isNotEmpty),
-        photos: Value(jsonEncode(photos)),
-      ));
+  }) async {
+    // В stealth копието нищо не се записва.
+    if (appLock.decoyActive) return;
+    await _manager.db.insertDiaryEntry(DiaryEntriesCompanion.insert(
+      title: title,
+      body: body,
+      date: date,
+      mood: Value(mood),
+      tags: Value(jsonEncode(tags)),
+      hasPhoto: Value(photos.isNotEmpty),
+      photos: Value(jsonEncode(photos)),
+    ));
+  }
 
-  Future<void> update(DiaryEntryRow row) =>
-      _manager.db.updateDiaryEntry(row);
+  Future<void> update(DiaryEntryRow row) async {
+    if (appLock.decoyActive) return;
+    await _manager.db.updateDiaryEntry(row);
+  }
 
   Future<void> delete(DiaryEntryRow row) async {
+    if (appLock.decoyActive) return;
     for (final path in decodeStringList(row.photos)) {
       await deletePhotoFile(path);
     }
@@ -48,6 +59,8 @@ class DiaryRepository {
   /// Копира снимка в private storage (никога в общата галерия)
   /// и връща пътя до копието.
   Future<String> importPhoto(String sourcePath) async {
+    // В stealth копието не копираме нищо — показваме оригинала.
+    if (appLock.decoyActive) return sourcePath;
     final dir = await getApplicationDocumentsDirectory();
     final photos = Directory(p.join(dir.path, 'photos'));
     await photos.create(recursive: true);
@@ -58,7 +71,8 @@ class DiaryRepository {
   }
 
   Future<void> deletePhotoFile(String? path) async {
-    if (path == null) return;
+    // В stealth никога не пипаме файлове (пътят може да е чужд оригинал).
+    if (path == null || appLock.decoyActive) return;
     final file = File(path);
     if (await file.exists()) await file.delete();
   }

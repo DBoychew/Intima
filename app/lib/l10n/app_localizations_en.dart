@@ -441,6 +441,38 @@ class AppLocalizationsEn extends AppLocalizations {
       'Biometrics are not available on this device';
 
   @override
+  String get stealthPin => 'Decoy PIN (Stealth)';
+
+  @override
+  String get stealthSubtitle =>
+      'A second PIN that opens an empty copy of Intima';
+
+  @override
+  String get stealthNeedPin => 'Enable the PIN lock first';
+
+  @override
+  String get stealthSameAsMain =>
+      'That PIN matches your main one — choose a different one';
+
+  @override
+  String get stealthEnabled => 'Decoy PIN is on 🕶️';
+
+  @override
+  String get stealthDisabled => 'Decoy PIN is off';
+
+  @override
+  String get stealthChange => 'Change PIN';
+
+  @override
+  String get stealthTurnOff => 'Turn off';
+
+  @override
+  String get statusOn => 'On';
+
+  @override
+  String get statusOff => 'Off';
+
+  @override
   String get hideInRecents => 'Hide in recent apps';
 
   @override

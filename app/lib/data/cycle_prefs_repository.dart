@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../core/cycle_settings.dart';
+import '../security/app_lock.dart';
 import 'database.dart';
 import 'db_manager.dart';
 
@@ -30,7 +31,13 @@ class CyclePrefsRepository {
     }
   }
 
-  Future<void> _persist() => _manager.db.saveCyclePrefs(
+  Future<void> _persist() async {
+    // Stealth: промените в празното копие не пипат реалните настройки.
+    if (appLock.decoyActive) return;
+    return _persistNow();
+  }
+
+  Future<void> _persistNow() => _manager.db.saveCyclePrefs(
         CyclePrefsCompanion.insert(
           id: const Value(1),
           cycleLength: Value(cycleSettings.cycleLength),

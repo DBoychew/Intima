@@ -241,6 +241,60 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return premium.active;
   }
 
+  Future<void> _configureStealth() async {
+    if (!_pin) {
+      _toast(_l10n.stealthNeedPin);
+      return;
+    }
+    if (!await _requirePremium() || !mounted) return;
+
+    if (appLock.decoyEnabled) {
+      // Вече е активен → промяна или изключване.
+      final action = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          backgroundColor: ctx.colors.surfaceHigh,
+          title: Text(_l10n.stealthPin),
+          content: Text(_l10n.stealthSubtitle),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, 'off'),
+              child: Text(_l10n.stealthTurnOff,
+                  style: TextStyle(color: ctx.colors.error)),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, 'change'),
+              child: Text(_l10n.stealthChange),
+            ),
+          ],
+        ),
+      );
+      if (!mounted) return;
+      if (action == 'off') {
+        await appLock.disableDecoyPin();
+        if (mounted) {
+          setState(() {});
+          _toast(_l10n.stealthDisabled);
+        }
+        return;
+      }
+      if (action != 'change') return;
+    }
+
+    final pin = await showPinCreateSheet(context);
+    if (pin == null || !mounted) return;
+    // Фалшивият PIN не бива да съвпада с истинския.
+    if (await appLock.checkPin(pin)) {
+      if (mounted) _toast(_l10n.stealthSameAsMain);
+      return;
+    }
+    await appLock.setDecoyPin(pin);
+    if (mounted) {
+      setState(() {});
+      _toast(_l10n.stealthEnabled);
+    }
+  }
+
   String _themeLabel(ThemeMode mode) => switch (mode) {
         ThemeMode.light => _l10n.themeLight,
         ThemeMode.system => _l10n.themeSystem,
@@ -402,6 +456,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
             value: _hideRecents,
             onChanged: _toggleHideRecents,
           ),
+          // В stealth копието не издаваме, че stealth съществува.
+          if (!appLock.decoyActive)
+            ListTile(
+              title: Text(_l10n.stealthPin),
+              subtitle: Text(_l10n.stealthSubtitle,
+                  style: Theme.of(context).textTheme.labelMedium),
+              trailing: premium.active
+                  ? Text(
+                      appLock.decoyEnabled
+                          ? _l10n.statusOn
+                          : _l10n.statusOff,
+                      style: accent)
+                  : Icon(Icons.lock_outline,
+                      size: 20, color: context.colors.textSecondary),
+              onTap: _configureStealth,
+            ),
           _section(_l10n.sectionReminders),
           SwitchListTile(
             title: Text(_l10n.eveningReminder),
@@ -460,6 +530,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Text(_themeLabel(themeController.mode), style: accent),
             onTap: _pickTheme,
           ),
+          // Експорт/изтриване пипат РЕАЛНИТЕ данни — скрити в stealth.
+          if (!appLock.decoyActive) ...[
           _section(_l10n.sectionData),
           ListTile(
             title: Text(_l10n.exportData),
@@ -493,6 +565,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
+          ],
           _section(_l10n.sectionAbout),
           ListTile(
               title: Text(_l10n.version),
