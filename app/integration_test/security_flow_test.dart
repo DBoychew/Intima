@@ -28,8 +28,14 @@ void main() {
     final dbFile = await databaseFile();
     if (await dbFile.exists()) await dbFile.delete();
 
-    await app.main();
-    await tester.pumpAndSettle();
+    app.main();
+    // Boot екранът има безкраен spinner — pumpAndSettle би висял; чакаме
+    // стъпките да минат и onboarding-ът да се появи.
+    for (var i = 0;
+        i < 120 && !tester.any(find.text('Само твое.'));
+        i++) {
+      await tester.pump(const Duration(milliseconds: 250));
+    }
 
     // --- Onboarding → календар ---
     expect(find.text('Само твое.'), findsOneWidget);

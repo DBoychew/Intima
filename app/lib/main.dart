@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'boot_screen.dart';
 import 'data/cycle_prefs_repository.dart';
 import 'data/database.dart';
 import 'data/db_manager.dart';
@@ -15,26 +16,39 @@ import 'security/secure_flag.dart';
 import 'shell.dart';
 import 'theme/app_theme.dart';
 
-Future<void> main() async {
+/// UI-ят тръгва веднага; инициализацията върви на BootScreen с видим
+/// прогрес — замръзнал нативен splash вече не е възможен.
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  await dbManager.open();
-  await CyclePrefsRepository(dbManager).hydrate();
-  await appLock.init();
-  await SecureFlag.applyAtStartup();
+  bootSteps = [
+    (label: 'Отключваме базата…', run: dbManager.open),
+    (
+      label: 'Зареждаме настройките…',
+      run: () => CyclePrefsRepository(dbManager).hydrate(),
+    ),
+    (label: 'Проверяваме защитата…', run: appLock.init),
+    (label: 'Скриваме следите…', run: SecureFlag.applyAtStartup),
+  ];
   runApp(const IntimaApp());
 }
 
 final _router = GoRouter(
-  initialLocation: '/onboarding',
+  initialLocation: '/boot',
   // Превключва моментално между /lock и приложението при (от)заключване.
   refreshListenable: appLock,
   redirect: (context, state) {
+    // Boot екранът решава сам накъде да продължи.
+    if (state.matchedLocation == '/boot') return null;
     final atLock = state.matchedLocation == '/lock';
     if (appLock.locked && !atLock) return '/lock';
     if (!appLock.locked && atLock) return '/calendar';
     return null;
   },
   routes: [
+    GoRoute(
+      path: '/boot',
+      builder: (context, state) => const BootScreen(),
+    ),
     GoRoute(
       path: '/lock',
       builder: (context, state) => const LockScreen(),
