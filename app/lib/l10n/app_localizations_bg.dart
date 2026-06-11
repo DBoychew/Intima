@@ -513,6 +513,69 @@ class AppLocalizationsBg extends AppLocalizations {
   String get versionValue => '0.1.0 · прототип';
 
   @override
+  String get sectionPremium => 'INTIMA PREMIUM';
+
+  @override
+  String get premiumTitle => 'Intima Premium';
+
+  @override
+  String get premiumTagline => 'Повече пространство за близостта';
+
+  @override
+  String get premiumSettingsSubtitle => 'PDF експорт, нови теми и още';
+
+  @override
+  String get premiumFeaturePdf => 'PDF експорт на дневника';
+
+  @override
+  String get premiumFeaturePdfDesc =>
+      'Красив документ с всичките ти записи и снимки';
+
+  @override
+  String get premiumFeatureThemes => 'Светла тема и нови палитри';
+
+  @override
+  String get premiumFeatureStealth => 'Stealth режим и фалшив PIN';
+
+  @override
+  String get premiumFeaturePacks => 'Тематични пакети за двойки';
+
+  @override
+  String get comingSoon => 'скоро';
+
+  @override
+  String get premiumTrial => '7 дни безплатно — отказваш се по всяко време';
+
+  @override
+  String get premiumCta => 'Започни пробния период';
+
+  @override
+  String get premiumComingSoon => 'Покупките идват с първия ъпдейт ✨';
+
+  @override
+  String get premiumActive => 'Premium е активен 💜';
+
+  @override
+  String get pdfExportTitle => 'Експорт на дневника в PDF';
+
+  @override
+  String get pdfExporting => 'Подготвяме PDF…';
+
+  @override
+  String get pdfEmpty => 'Дневникът е празен — няма какво да експортираме.';
+
+  @override
+  String get pdfSubject => 'Intima — дневник (PDF)';
+
+  @override
+  String get pdfDocTitle => 'Моят дневник';
+
+  @override
+  String pdfFailed(Object error) {
+    return 'Експортът не успя: $error';
+  }
+
+  @override
   String get notifChannelName => 'Нежни напомняния';
 
   @override

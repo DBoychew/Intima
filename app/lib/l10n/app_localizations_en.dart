@@ -514,6 +514,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versionValue => '0.1.0 · prototype';
 
   @override
+  String get sectionPremium => 'INTIMA PREMIUM';
+
+  @override
+  String get premiumTitle => 'Intima Premium';
+
+  @override
+  String get premiumTagline => 'More room for intimacy';
+
+  @override
+  String get premiumSettingsSubtitle => 'PDF export, new themes and more';
+
+  @override
+  String get premiumFeaturePdf => 'Diary PDF export';
+
+  @override
+  String get premiumFeaturePdfDesc =>
+      'A beautiful document with all your entries and photos';
+
+  @override
+  String get premiumFeatureThemes => 'Light theme and new palettes';
+
+  @override
+  String get premiumFeatureStealth => 'Stealth mode and decoy PIN';
+
+  @override
+  String get premiumFeaturePacks => 'Themed packs for couples';
+
+  @override
+  String get comingSoon => 'soon';
+
+  @override
+  String get premiumTrial => '7 days free — cancel anytime';
+
+  @override
+  String get premiumCta => 'Start your free trial';
+
+  @override
+  String get premiumComingSoon => 'Purchases arrive with the first update ✨';
+
+  @override
+  String get premiumActive => 'Premium is active 💜';
+
+  @override
+  String get pdfExportTitle => 'Export diary to PDF';
+
+  @override
+  String get pdfExporting => 'Preparing your PDF…';
+
+  @override
+  String get pdfEmpty => 'Your diary is empty — nothing to export yet.';
+
+  @override
+  String get pdfSubject => 'Intima — diary (PDF)';
+
+  @override
+  String get pdfDocTitle => 'My diary';
+
+  @override
+  String pdfFailed(Object error) {
+    return 'Export failed: $error';
+  }
+
+  @override
   String get notifChannelName => 'Gentle reminders';
 
   @override

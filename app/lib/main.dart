@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'boot_screen.dart';
 import 'core/cycle_settings.dart';
 import 'core/notifications.dart';
+import 'core/premium.dart';
 import 'data/cycle_prefs_repository.dart';
 import 'l10n/app_localizations.dart';
 import 'data/database.dart';
@@ -30,7 +31,10 @@ void main() {
     (label: (l) => l.bootDb, run: dbManager.open),
     (
       label: (l) => l.bootPrefs,
-      run: () => CyclePrefsRepository(dbManager).hydrate(),
+      run: () async {
+        await CyclePrefsRepository(dbManager).hydrate();
+        await premium.init();
+      },
     ),
     (label: (l) => l.bootLock, run: appLock.init),
     (label: (l) => l.bootSecure, run: SecureFlag.applyAtStartup),

@@ -2,8 +2,11 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:intima/core/cycle_settings.dart';
+import 'package:intima/core/premium.dart';
 import 'package:intima/data/database.dart';
+import 'package:intima/features/premium/paywall_screen.dart';
 import 'package:intima/data/db_manager.dart';
 import 'package:intima/data/diary_repository.dart';
 import 'package:intima/features/calendar/calendar_screen.dart';
@@ -134,6 +137,32 @@ void main() {
     await tester.tap(find.text('Отказ'));
     await tester.pumpAndSettle();
     expect(find.byType(Image), findsOneWidget);
+  });
+
+  testWidgets('Paywall: функции, trial текст и debug unlock', (
+    WidgetTester tester,
+  ) async {
+    FlutterSecureStorage.setMockInitialValues({});
+    await premium.deactivate();
+    await tester.pumpWidget(bgApp(const PaywallScreen()));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Intima Premium'), findsOneWidget);
+    expect(find.text('PDF експорт на дневника'), findsOneWidget);
+
+    // CTA-то и trial текстът са под feature списъка — скролваме до тях.
+    await tester.scrollUntilVisible(
+      find.textContaining('7 дни безплатно'),
+      150,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Започни пробния период'), findsOneWidget);
+
+    // В тестове kDebugMode е true → CTA прави mock unlock.
+    await tester.tap(find.text('Започни пробния период'));
+    await tester.pumpAndSettle();
+    expect(premium.active, isTrue);
+    await premium.deactivate();
   });
 
   testWidgets('Diary списък: записи от базата, търсене и спомен', (

@@ -986,6 +986,126 @@ abstract class AppLocalizations {
   /// **'0.1.0 · прототип'**
   String get versionValue;
 
+  /// No description provided for @sectionPremium.
+  ///
+  /// In bg, this message translates to:
+  /// **'INTIMA PREMIUM'**
+  String get sectionPremium;
+
+  /// No description provided for @premiumTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Intima Premium'**
+  String get premiumTitle;
+
+  /// No description provided for @premiumTagline.
+  ///
+  /// In bg, this message translates to:
+  /// **'Повече пространство за близостта'**
+  String get premiumTagline;
+
+  /// No description provided for @premiumSettingsSubtitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'PDF експорт, нови теми и още'**
+  String get premiumSettingsSubtitle;
+
+  /// No description provided for @premiumFeaturePdf.
+  ///
+  /// In bg, this message translates to:
+  /// **'PDF експорт на дневника'**
+  String get premiumFeaturePdf;
+
+  /// No description provided for @premiumFeaturePdfDesc.
+  ///
+  /// In bg, this message translates to:
+  /// **'Красив документ с всичките ти записи и снимки'**
+  String get premiumFeaturePdfDesc;
+
+  /// No description provided for @premiumFeatureThemes.
+  ///
+  /// In bg, this message translates to:
+  /// **'Светла тема и нови палитри'**
+  String get premiumFeatureThemes;
+
+  /// No description provided for @premiumFeatureStealth.
+  ///
+  /// In bg, this message translates to:
+  /// **'Stealth режим и фалшив PIN'**
+  String get premiumFeatureStealth;
+
+  /// No description provided for @premiumFeaturePacks.
+  ///
+  /// In bg, this message translates to:
+  /// **'Тематични пакети за двойки'**
+  String get premiumFeaturePacks;
+
+  /// No description provided for @comingSoon.
+  ///
+  /// In bg, this message translates to:
+  /// **'скоро'**
+  String get comingSoon;
+
+  /// No description provided for @premiumTrial.
+  ///
+  /// In bg, this message translates to:
+  /// **'7 дни безплатно — отказваш се по всяко време'**
+  String get premiumTrial;
+
+  /// No description provided for @premiumCta.
+  ///
+  /// In bg, this message translates to:
+  /// **'Започни пробния период'**
+  String get premiumCta;
+
+  /// No description provided for @premiumComingSoon.
+  ///
+  /// In bg, this message translates to:
+  /// **'Покупките идват с първия ъпдейт ✨'**
+  String get premiumComingSoon;
+
+  /// No description provided for @premiumActive.
+  ///
+  /// In bg, this message translates to:
+  /// **'Premium е активен 💜'**
+  String get premiumActive;
+
+  /// No description provided for @pdfExportTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Експорт на дневника в PDF'**
+  String get pdfExportTitle;
+
+  /// No description provided for @pdfExporting.
+  ///
+  /// In bg, this message translates to:
+  /// **'Подготвяме PDF…'**
+  String get pdfExporting;
+
+  /// No description provided for @pdfEmpty.
+  ///
+  /// In bg, this message translates to:
+  /// **'Дневникът е празен — няма какво да експортираме.'**
+  String get pdfEmpty;
+
+  /// No description provided for @pdfSubject.
+  ///
+  /// In bg, this message translates to:
+  /// **'Intima — дневник (PDF)'**
+  String get pdfSubject;
+
+  /// No description provided for @pdfDocTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Моят дневник'**
+  String get pdfDocTitle;
+
+  /// No description provided for @pdfFailed.
+  ///
+  /// In bg, this message translates to:
+  /// **'Експортът не успя: {error}'**
+  String pdfFailed(Object error);
+
   /// No description provided for @notifChannelName.
   ///
   /// In bg, this message translates to:

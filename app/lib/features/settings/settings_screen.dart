@@ -1,18 +1,24 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/cycle_settings.dart';
 import '../../core/dates.dart';
 import '../../core/notifications.dart';
+import '../../core/premium.dart';
 import '../../data/db_manager.dart';
+import '../../data/diary_pdf.dart';
+import '../../data/diary_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../security/app_lock.dart';
 import '../../security/pin_widgets.dart';
 import '../../security/secure_flag.dart';
 import '../../theme/app_theme.dart';
+import '../premium/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -224,9 +230,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  /// Premium gate: без активен Premium отваря paywall-а; продължава само
+  /// ако след него Premium вече е активен (debug unlock / бъдещ billing).
+  Future<bool> _requirePremium() async {
+    if (premium.active) return true;
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const PaywallScreen()),
+    );
+    return premium.active;
+  }
+
+  Future<void> _exportPdf() async {
+    if (!await _requirePremium() || !mounted) return;
+    final entries = await diaryRepository.all();
+    if (!mounted) return;
+    if (entries.isEmpty) {
+      _toast(_l10n.pdfEmpty);
+      return;
+    }
+    _toast(_l10n.pdfExporting);
+    final title = _l10n.pdfDocTitle;
+    final locale = _locale;
+    try {
+      final bytes = await exportDiaryPdf(
+        entries,
+        title: title,
+        formatDate: (d) => dayMonthYear(d, locale),
+      );
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}${Platform.pathSeparator}intima-diary.pdf');
+      await file.writeAsBytes(bytes);
+      if (!mounted) return;
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile(file.path)], subject: _l10n.pdfSubject),
+      );
+    } catch (e) {
+      if (mounted) _toast(_l10n.pdfFailed('$e'));
+    }
+  }
+
   Future<void> _deleteEverything() async {
     await dbManager.wipeEverything();
     await appLock.reload();
+    await premium.deactivate();
     cycleSettings.resetToDefaults();
     if (!mounted) return;
     setState(() {
@@ -336,6 +382,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(_l10n.timeLabel),
             trailing: Text(_timeLabel, style: accent),
             onTap: _pickTime,
+          ),
+          _section(_l10n.sectionPremium),
+          ListTile(
+            leading: const Text('💜', style: TextStyle(fontSize: 22)),
+            title: Text(_l10n.premiumTitle),
+            subtitle: Text(
+                premium.active
+                    ? _l10n.premiumActive
+                    : _l10n.premiumSettingsSubtitle,
+                style: Theme.of(context).textTheme.labelMedium),
+            trailing: const Icon(Icons.chevron_right,
+                color: AppColors.textSecondary),
+            onTap: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PaywallScreen()),
+              );
+              if (mounted) setState(() {});
+            },
+          ),
+          ListTile(
+            title: Text(_l10n.pdfExportTitle),
+            trailing: premium.active
+                ? const Icon(Icons.chevron_right,
+                    color: AppColors.textSecondary)
+                : const Icon(Icons.lock_outline,
+                    color: AppColors.textSecondary, size: 20),
+            onTap: _exportPdf,
           ),
           _section(_l10n.sectionData),
           ListTile(
