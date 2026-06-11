@@ -62,9 +62,14 @@ void main() {
       (
         label: (l) => l.bootStarting,
         run: () async {
-          // Само за Play скрийншоти: снимки разрешени + demo данни.
+          // Само за Play скрийншоти: снимки разрешени + demo данни;
+          // INTIMA_THEME=light снима светлата тема (с Premium).
           await SecureFlag.set(false);
           await seedDemoData();
+          if (const String.fromEnvironment('INTIMA_THEME') == 'light') {
+            await premium.activate();
+            await themeController.set(ThemeMode.light);
+          }
         },
       ),
   ];

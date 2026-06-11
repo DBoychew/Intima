@@ -50,22 +50,23 @@ class IntimaColors extends ThemeExtension<IntimaColors> {
     error: Color(0xFFEF5366),
   );
 
-  /// Светла палитра — същият бранд (лилаво + злато), но злато и
-  /// вторичните цветове са потъмнени за контраст върху светло.
+  /// Светла палитра „лилава мъгла" — не бяла: тонирани лавандулови
+  /// повърхности, същият бранд (лилаво + злато), потъмнени акценти
+  /// за контраст върху светло.
   static const light = IntimaColors(
-    background: Color(0xFFF7F3FB),
-    surface: Color(0xFFFFFFFF),
-    surfaceHigh: Color(0xFFEFE7F8),
-    primary: Color(0xFF7C3AED),
-    primarySoft: Color(0xFF8B5CF6),
-    accent: Color(0xFFB8862F),
-    accentSoft: Color(0xFF9A7019),
-    textPrimary: Color(0xFF2A1F35),
-    textSecondary: Color(0xFF6E6285),
-    period: Color(0xFFD23A52),
-    intimacy: Color(0xFFB8862F),
-    fertile: Color(0xFF1F9D77),
-    error: Color(0xFFD93043),
+    background: Color(0xFFE9E2F3),
+    surface: Color(0xFFF4F0FA),
+    surfaceHigh: Color(0xFFDCD1EC),
+    primary: Color(0xFF6D2FD6),
+    primarySoft: Color(0xFF7C3AED),
+    accent: Color(0xFFA87B22),
+    accentSoft: Color(0xFF8F6914),
+    textPrimary: Color(0xFF241A33),
+    textSecondary: Color(0xFF5E5276),
+    period: Color(0xFFC93350),
+    intimacy: Color(0xFFA87B22),
+    fertile: Color(0xFF178F6C),
+    error: Color(0xFFC92B43),
   );
 
   @override
