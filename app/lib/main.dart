@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'boot_screen.dart';
+import 'core/cycle_settings.dart';
+import 'core/notifications.dart';
 import 'data/cycle_prefs_repository.dart';
 import 'data/database.dart';
 import 'data/db_manager.dart';
@@ -28,6 +30,16 @@ void main() {
     ),
     (label: 'Проверяваме защитата…', run: appLock.init),
     (label: 'Скриваме следите…', run: SecureFlag.applyAtStartup),
+    (
+      label: 'Подготвяме напомнянията…',
+      run: () async {
+        await Notifications.init();
+        await Notifications.syncCycleReminders();
+        // Прогнозата мръдне ли (нов запис, друга дължина на цикъла) —
+        // напомнянията се пренасрочват сами.
+        cycleSettings.addListener(Notifications.syncCycleReminders);
+      },
+    ),
   ];
   runApp(const IntimaApp());
 }

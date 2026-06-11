@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:intima/core/cycle_settings.dart';
+import 'package:intima/core/notifications.dart';
 import 'package:intima/data/calendar_repository.dart';
 import 'package:intima/data/database.dart';
 import 'package:intima/data/db_manager.dart';
@@ -168,5 +169,19 @@ void main() {
 
     expect(find.text('Интеграционен тест запис'), findsNothing);
     expect(await dbManager.db.allDiaryEntries(), isEmpty);
+
+    // --- Фаза 5: вечерното напомняне се насрочва ---
+    await tester.tap(find.text('Настройки'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Вечерно напомняне'),
+      150,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.drag(find.byType(ListView).first, const Offset(0, -120));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Вечерно напомняне'));
+    await tester.pumpAndSettle();
+    expect(await Notifications.pendingCount(), greaterThan(0));
   });
 }

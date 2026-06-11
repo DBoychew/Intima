@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../core/bg_dates.dart';
 import '../../core/cycle_settings.dart';
+import '../../core/notifications.dart';
 import '../../data/db_manager.dart';
 import '../../security/app_lock.dart';
 import '../../security/pin_widgets.dart';
@@ -21,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _pin = false;
   bool _biometric = false;
   bool _hideRecents = true;
-  bool _reminder = true;
+  bool _reminder = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 21, minute: 0);
 
   @override
@@ -32,6 +35,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     SecureFlag.enabled().then((v) {
       if (mounted) setState(() => _hideRecents = v);
     });
+    ReminderPrefs.load().then((value) {
+      if (!mounted) return;
+      setState(() {
+        _reminder = value.$1;
+        _reminderTime = value.$2;
+      });
+    });
+  }
+
+  Future<void> _toggleReminder(bool on) async {
+    if (on) {
+      // Системният диалог за разрешение — без да блокираме UI-я.
+      unawaited(Notifications.requestPermission());
+      await Notifications.scheduleEvening(_reminderTime);
+    } else {
+      await Notifications.cancelEvening();
+    }
+    await ReminderPrefs.save(on, _reminderTime);
+    if (mounted) setState(() => _reminder = on);
   }
 
   void _toast(String message) {
@@ -94,7 +116,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       initialTime: _reminderTime,
     );
-    if (picked != null) setState(() => _reminderTime = picked);
+    if (picked == null || !mounted) return;
+    setState(() => _reminderTime = picked);
+    await ReminderPrefs.save(_reminder, picked);
+    if (_reminder) await Notifications.scheduleEvening(picked);
   }
 
   /// Голям и ясен избор на брой дни — слайдер с числото отгоре.
@@ -300,8 +325,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _section('НАПОМНЯНИЯ'),
           SwitchListTile(
             title: const Text('Вечерно напомняне'),
+            subtitle: Text('Дискретно — без да издава съдържанието',
+                style: Theme.of(context).textTheme.labelMedium),
             value: _reminder,
-            onChanged: (v) => setState(() => _reminder = v),
+            onChanged: _toggleReminder,
           ),
           SwitchListTile(
             title: const Text('Преди менструация'),
