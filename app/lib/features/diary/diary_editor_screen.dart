@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' show Value;
@@ -10,6 +10,7 @@ import '../../core/moods.dart';
 import '../../data/calendar_repository.dart' show decodeStringList;
 import '../../data/database.dart';
 import '../../data/diary_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
 
 /// Шаблон със собствен журналинг промпт; [starter] се вмъква при празен текст.
@@ -26,28 +27,22 @@ class DiaryEditorScreen extends StatefulWidget {
 }
 
 class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
-  static const List<_Template> _templates = [
-    (
-      name: 'Свободен текст',
-      hint: 'Започни да пишеш…',
-      starter: null,
-    ),
-    (
-      name: 'Как се чувствам',
-      hint: 'Какво усещаш в момента? Какво го предизвика?',
-      starter: null,
-    ),
-    (
-      name: 'Благодарност',
-      hint: 'Малките неща също се броят.',
-      starter: 'Днес съм благодарна за ',
-    ),
-    (
-      name: 'За нас 💞',
-      hint: 'Момент, който искаш да запомните заедно.',
-      starter: 'Нещо, което искам да запомня за нас: ',
-    ),
-  ];
+  AppLocalizations get _l10n => AppLocalizations.of(context)!;
+
+  List<_Template> get _templates => [
+        (name: _l10n.tplFree, hint: _l10n.tplFreeHint, starter: null),
+        (name: _l10n.tplFeelings, hint: _l10n.tplFeelingsHint, starter: null),
+        (
+          name: _l10n.tplGratitude,
+          hint: _l10n.tplGratitudeHint,
+          starter: _l10n.tplGratitudeStarter,
+        ),
+        (
+          name: _l10n.tplUs,
+          hint: _l10n.tplUsHint,
+          starter: _l10n.tplUsStarter,
+        ),
+      ];
 
   late final TextEditingController _text;
   int _template = 0;
@@ -123,17 +118,17 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceHigh,
-        title: const Text('Изтриване на записа?'),
-        content: const Text('Записът и снимката му ще изчезнат завинаги.'),
+        title: Text(_l10n.deleteEntryTitle),
+        content: Text(_l10n.deleteEntryBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Отказ'),
+            child: Text(AppLocalizations.of(ctx)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
             child:
-                const Text('Изтрий', style: TextStyle(color: AppColors.error)),
+                Text(_l10n.delete, style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -159,7 +154,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Галерията не е достъпна')),
+          SnackBar(content: Text(_l10n.galleryUnavailable)),
         );
       }
     }
@@ -171,17 +166,17 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceHigh,
-        title: const Text('Премахване на снимката?'),
-        content: const Text('Снимката ще бъде изтрита от записа завинаги.'),
+        title: Text(_l10n.removePhotoTitle),
+        content: Text(_l10n.removePhotoBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Отказ'),
+            child: Text(AppLocalizations.of(ctx)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Премахни',
-                style: TextStyle(color: AppColors.error)),
+            child: Text(_l10n.remove,
+                style: const TextStyle(color: AppColors.error)),
           ),
         ],
       ),
@@ -260,19 +255,19 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context, false),
         ),
-        title: Text(widget.initial == null ? 'Нов запис' : 'Редакция'),
+        title: Text(widget.initial == null ? _l10n.newEntry : _l10n.editEntry),
         actions: [
           if (widget.initial != null)
             IconButton(
               icon: const Icon(Icons.delete_outline, color: AppColors.error),
-              tooltip: 'Изтрий записа',
+              tooltip: _l10n.deleteEntryTooltip,
               onPressed: _delete,
             ),
           TextButton(
             onPressed: _save,
-            child: const Text(
-              'Запази',
-              style: TextStyle(color: AppColors.accentSoft, fontSize: 16),
+            child: Text(
+              _l10n.save,
+              style: const TextStyle(color: AppColors.accentSoft, fontSize: 16),
             ),
           ),
         ],
@@ -358,7 +353,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               Expanded(
                 child: _ActionButton(
                   icon: Icons.add_photo_alternate_outlined,
-                  label: 'Добави снимка',
+                  label: _l10n.addPhoto,
                   onTap: _pickPhotos,
                 ),
               ),
@@ -366,7 +361,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               Expanded(
                 child: _ActionButton(
                   icon: Icons.tag,
-                  label: 'Нов таг',
+                  label: _l10n.newTag,
                   onTap: _addTag,
                 ),
               ),
@@ -397,7 +392,8 @@ class _PhotoViewerScreen extends StatelessWidget {
             maxScale: 5,
             child: Image.file(
               File(path),
-              errorBuilder: (_, _, _) => const Text('Снимката липсва 📷'),
+              errorBuilder: (_, _, _) =>
+                Text(AppLocalizations.of(context)!.photoMissing),
             ),
           ),
         ),
@@ -460,14 +456,14 @@ class _AddTagDialogState extends State<_AddTagDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       backgroundColor: AppColors.surfaceHigh,
-      title: const Text('Нов таг'),
+      title: Text(AppLocalizations.of(context)!.newTagTitle),
       content: TextField(
         controller: _controller,
         autofocus: true,
         textInputAction: TextInputAction.done,
-        decoration: const InputDecoration(
-          labelText: 'Име на тага',
-          hintText: 'напр. нас',
+        decoration: InputDecoration(
+          labelText: AppLocalizations.of(context)!.tagNameLabel,
+          hintText: AppLocalizations.of(context)!.tagNameHint,
           prefixText: '# ',
         ),
         onSubmitted: (_) => _submit(),
@@ -475,13 +471,13 @@ class _AddTagDialogState extends State<_AddTagDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Отказ'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: _submit,
-          child: const Text(
-            'Добави',
-            style: TextStyle(color: AppColors.accentSoft),
+          child: Text(
+            AppLocalizations.of(context)!.add,
+            style: const TextStyle(color: AppColors.accentSoft),
           ),
         ),
       ],

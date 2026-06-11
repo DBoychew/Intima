@@ -4,10 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../core/bg_dates.dart';
 import '../../core/cycle_settings.dart';
+import '../../core/dates.dart';
 import '../../core/notifications.dart';
 import '../../data/db_manager.dart';
+import '../../l10n/app_localizations.dart';
 import '../../security/app_lock.dart';
 import '../../security/pin_widgets.dart';
 import '../../security/secure_flag.dart';
@@ -27,6 +28,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _reminder = false;
   TimeOfDay _reminderTime = const TimeOfDay(hour: 21, minute: 0);
 
+  AppLocalizations get _l10n => AppLocalizations.of(context)!;
+  String get _locale => Localizations.localeOf(context).toString();
+
+  String get _timeLabel =>
+      '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}';
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +51,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
+  void _toast(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
+
   Future<void> _toggleReminder(bool on) async {
     if (on) {
       // Системният диалог за разрешение — без да блокираме UI-я.
@@ -56,9 +68,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) setState(() => _reminder = on);
   }
 
-  void _toast(String message) {
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text(message)));
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _reminderTime,
+    );
+    if (picked == null || !mounted) return;
+    setState(() => _reminderTime = picked);
+    await ReminderPrefs.save(_reminder, picked);
+    if (_reminder) await Notifications.scheduleEvening(picked);
   }
 
   Future<void> _togglePin(bool on) async {
@@ -68,11 +86,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       await appLock.setPin(pin);
       if (!mounted) return;
       setState(() => _pin = true);
-      _toast('PIN заключването е активно 🔒');
+      _toast(_l10n.pinEnabled);
     } else {
       final ok = await showPinVerifySheet(
         context,
-        title: 'Потвърди с PIN, за да изключиш',
+        title: _l10n.pinConfirmToDisable,
       );
       if (!ok) return;
       await appLock.disablePin();
@@ -82,20 +100,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _pin = false;
         _biometric = false;
       });
-      _toast('PIN заключването е изключено');
+      _toast(_l10n.pinDisabled);
     }
   }
 
   Future<void> _toggleBiometric(bool on) async {
     if (on) {
       if (!_pin) {
-        _toast('Първо активирай PIN — биометрията е допълнение към него');
+        _toast(_l10n.biometricsNeedPin);
         return;
       }
       if (!await appLock.canUseBiometrics()) {
-        if (mounted) {
-          _toast('Биометрията не е налична на това устройство');
-        }
+        if (mounted) _toast(_l10n.biometricsUnavailable);
         return;
       }
     }
@@ -106,20 +122,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Future<void> _toggleHideRecents(bool on) async {
     await SecureFlag.set(on);
     if (mounted) setState(() => _hideRecents = on);
-  }
-
-  String get _timeLabel =>
-      '${_reminderTime.hour.toString().padLeft(2, '0')}:${_reminderTime.minute.toString().padLeft(2, '0')}';
-
-  Future<void> _pickTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _reminderTime,
-    );
-    if (picked == null || !mounted) return;
-    setState(() => _reminderTime = picked);
-    await ReminderPrefs.save(_reminder, picked);
-    if (_reminder) await Notifications.scheduleEvening(picked);
   }
 
   /// Голям и ясен избор на брой дни — слайдер с числото отгоре.
@@ -142,7 +144,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
-                child: Text(title, style: Theme.of(ctx).textTheme.headlineSmall),
+                child:
+                    Text(title, style: Theme.of(ctx).textTheme.headlineSmall),
               ),
               const SizedBox(height: 8),
               Text(
@@ -153,7 +156,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 16),
               Center(
                 child: Text(
-                  '$current дни',
+                  _l10n.daysValue(current),
                   style: Theme.of(ctx)
                       .textTheme
                       .displaySmall!
@@ -171,7 +174,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               const SizedBox(height: 8),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, current),
-                child: const Text('Запази'),
+                child: Text(_l10n.save),
               ),
             ],
           ),
@@ -181,15 +184,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (result != null && mounted) {
       setState(() => onSave(result));
       final next = cycleSettings.nextPeriodStart;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            next == null
-                ? 'Записано ✨'
-                : 'Записано ✨ Следваща менструация — около ${bgDate(next)}',
-          ),
-        ),
-      );
+      _toast(next == null
+          ? _l10n.saved
+          : _l10n.savedNextPeriod(dayMonth(next, _locale)));
     }
   }
 
@@ -198,14 +195,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: AppColors.surfaceHigh,
-        title: const Text('Експорт на данните'),
-        content: const Text(
-            'Всички записи ще бъдат експортирани като криптиран файл (AES-256). '
-            'Без ключа от това устройство той не може да бъде прочетен.'),
+        title: Text(_l10n.exportTitle),
+        content: Text(_l10n.exportBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Отказ'),
+            child: Text(_l10n.cancel),
           ),
           TextButton(
             onPressed: () async {
@@ -215,14 +210,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 await SharePlus.instance.share(
                   ShareParams(
                     files: [XFile(file.path)],
-                    subject: 'Intima — криптиран архив',
+                    subject: _l10n.exportSubject,
                   ),
                 );
               } catch (e) {
-                if (mounted) _toast('Експортът не успя: $e');
+                if (mounted) _toast(_l10n.exportFailed('$e'));
               }
             },
-            child: const Text('Експортирай'),
+            child: Text(_l10n.exportAction),
           ),
         ],
       ),
@@ -238,31 +233,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
       _pin = false;
       _biometric = false;
     });
-    _toast('Всички данни са изтрити завинаги 🗑️');
+    _toast(_l10n.deletedAll);
     context.go('/onboarding');
   }
 
   @override
   Widget build(BuildContext context) {
+    final accent = Theme.of(context)
+        .textTheme
+        .bodyMedium!
+        .copyWith(color: AppColors.accentSoft);
     return Scaffold(
-      appBar: AppBar(title: const Text('Настройки')),
+      appBar: AppBar(title: Text(_l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _section('ЦИКЪЛ'),
+          _section(_l10n.sectionCycle),
           ListTile(
-            title: const Text('Дължина на цикъла'),
-            subtitle: Text('По нея предвиждаме следващата менструация',
+            title: Text(_l10n.cycleLength),
+            subtitle: Text(_l10n.cycleLengthSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
-            trailing: Text('${cycleSettings.cycleLength} дни',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(color: AppColors.accentSoft)),
+            trailing:
+                Text(_l10n.daysValue(cycleSettings.cycleLength), style: accent),
             onTap: () => _pickLength(
-              title: 'Дължина на цикъла',
-              hint:
-                  'От първия ден на една менструация до първия ден на следващата.',
+              title: _l10n.cycleLength,
+              hint: _l10n.cycleLengthHint,
               value: cycleSettings.cycleLength,
               min: 21,
               max: 40,
@@ -270,15 +265,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Дължина на менструацията'),
-            trailing: Text('${cycleSettings.periodLength} дни',
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(color: AppColors.accentSoft)),
+            title: Text(_l10n.periodLength),
+            trailing: Text(_l10n.daysValue(cycleSettings.periodLength),
+                style: accent),
             onTap: () => _pickLength(
-              title: 'Дължина на менструацията',
-              hint: 'Колко дни обикновено продължава менструацията ти.',
+              title: _l10n.periodLength,
+              hint: _l10n.periodLengthHint,
               value: cycleSettings.periodLength,
               min: 2,
               max: 10,
@@ -286,108 +278,102 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           ListTile(
-            title: const Text('Очаквана следваща менструация'),
+            title: Text(_l10n.expectedNextPeriod),
             subtitle: cycleSettings.nextPeriodStart == null
-                ? Text('Отбележи менструация в календара',
+                ? Text(_l10n.markPeriodInCalendar,
                     style: Theme.of(context).textTheme.labelMedium)
                 : null,
             trailing: Text(
                 cycleSettings.nextPeriodStart == null
                     ? '—'
-                    : bgDate(cycleSettings.nextPeriodStart!),
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(color: AppColors.accentSoft)),
+                    : dayMonth(cycleSettings.nextPeriodStart!, _locale),
+                style: accent),
           ),
-          _section('СИГУРНОСТ'),
+          _section(_l10n.sectionSecurity),
           SwitchListTile(
-            title: const Text('PIN заключване'),
-            subtitle: Text('Изисква PIN при всяко отваряне',
+            title: Text(_l10n.pinLock),
+            subtitle: Text(_l10n.pinLockSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
             value: _pin,
             onChanged: _togglePin,
           ),
           SwitchListTile(
-            title: const Text('Биометрия'),
-            subtitle: Text('Пръстов отпечатък или лице вместо PIN',
+            title: Text(_l10n.biometrics),
+            subtitle: Text(_l10n.biometricsSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
             value: _biometric,
             onChanged: _toggleBiometric,
           ),
           SwitchListTile(
-            title: const Text('Скрий в скорошни приложения'),
-            subtitle: Text('Блокира и скрийншотите',
+            title: Text(_l10n.hideInRecents),
+            subtitle: Text(_l10n.hideInRecentsSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
             value: _hideRecents,
             onChanged: _toggleHideRecents,
           ),
-          _section('НАПОМНЯНИЯ'),
+          _section(_l10n.sectionReminders),
           SwitchListTile(
-            title: const Text('Вечерно напомняне'),
-            subtitle: Text('Дискретно — без да издава съдържанието',
+            title: Text(_l10n.eveningReminder),
+            subtitle: Text(_l10n.eveningReminderSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
             value: _reminder,
             onChanged: _toggleReminder,
           ),
           SwitchListTile(
-            title: const Text('Преди менструация'),
-            subtitle: Text('Дискретно, 2 дни по-рано',
+            title: Text(_l10n.beforePeriod),
+            subtitle: Text(_l10n.beforePeriodSubtitle,
                 style: Theme.of(context).textTheme.labelMedium),
             value: cycleSettings.notifyPeriod,
             onChanged: (v) => setState(() => cycleSettings.notifyPeriod = v),
           ),
           SwitchListTile(
-            title: const Text('В деня на овулация'),
+            title: Text(_l10n.onOvulationDay),
             value: cycleSettings.notifyOvulation,
             onChanged: (v) =>
                 setState(() => cycleSettings.notifyOvulation = v),
           ),
           ListTile(
-            title: const Text('Час'),
-            trailing: Text(_timeLabel,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium!
-                    .copyWith(color: AppColors.accentSoft)),
+            title: Text(_l10n.timeLabel),
+            trailing: Text(_timeLabel, style: accent),
             onTap: _pickTime,
           ),
-          _section('ДАННИ'),
+          _section(_l10n.sectionData),
           ListTile(
-            title: const Text('Експортирай данните'),
+            title: Text(_l10n.exportData),
             trailing: const Icon(Icons.chevron_right,
                 color: AppColors.textSecondary),
             onTap: _export,
           ),
           ListTile(
-            title: const Text('Изтрий всичко',
-                style: TextStyle(color: AppColors.error)),
+            title: Text(_l10n.deleteAll,
+                style: const TextStyle(color: AppColors.error)),
             trailing:
                 const Icon(Icons.chevron_right, color: AppColors.error),
             onTap: () => showDialog<void>(
               context: context,
               builder: (ctx) => AlertDialog(
                 backgroundColor: AppColors.surfaceHigh,
-                title: const Text('Изтриване на всичко?'),
-                content: const Text(
-                    'Всички записи ще бъдат изтрити завинаги. Това не може да се отмени.'),
+                title: Text(_l10n.deleteAllTitle),
+                content: Text(_l10n.deleteAllBody),
                 actions: [
                   TextButton(
                       onPressed: () => Navigator.pop(ctx),
-                      child: const Text('Отказ')),
+                      child: Text(_l10n.cancel)),
                   TextButton(
                       onPressed: () {
                         Navigator.pop(ctx);
                         _deleteEverything();
                       },
-                      child: const Text('Изтрий',
-                          style: TextStyle(color: AppColors.error))),
+                      child: Text(_l10n.delete,
+                          style: const TextStyle(color: AppColors.error))),
                 ],
               ),
             ),
           ),
-          _section('ЗА ПРИЛОЖЕНИЕТО'),
-          const ListTile(title: Text('Версия'), trailing: Text('0.1.0 · прототип')),
+          _section(_l10n.sectionAbout),
+          ListTile(
+              title: Text(_l10n.version),
+              trailing: Text(_l10n.versionValue)),
         ],
       ),
     );

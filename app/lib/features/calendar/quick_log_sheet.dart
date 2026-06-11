@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../data/calendar_repository.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
 
 /// Резултатът от бързия запис — пише се директно в базата.
@@ -25,7 +26,7 @@ class QuickLogResult {
   bool get intimacy => moments.isNotEmpty;
 }
 
-/// [dateLabel] — null означава „днес"; иначе напр. „12 юни".
+/// [dateLabel] — null означава „днес"; иначе напр. „12 юни 2026".
 /// Връща null при затваряне без „Запази".
 Future<QuickLogResult?> showQuickLogSheet(
   BuildContext context, {
@@ -102,33 +103,25 @@ class _QuickLogSheet extends StatefulWidget {
 
 class _QuickLogSheetState extends State<_QuickLogSheet> {
   static const _moods = ['😞', '😐', '🙂', '😊', '🥰'];
-  static const _tags = ['Менструация', 'ПМС', 'Главоболие', 'Лош сън'];
-  static const _positions = [
-    'Мисионерска',
-    'Лъжички',
-    'Отгоре',
-    'Отзад',
-    'Права',
-    '69',
-    'Друга',
-  ];
 
   int? _mood;
-  final _selected = <String>{};
+  bool _period = false;
+  final _symptoms = <String>{};
   double _libido = 0.5;
   double _energy = 0.5;
   final _sessions = <_IntimateSession>[];
 
   bool get _intimacyOn => _sessions.isNotEmpty;
+  AppLocalizations get _l10n => AppLocalizations.of(context)!;
 
   @override
   void initState() {
     super.initState();
     _mood = widget.initialMood;
+    _period = widget.initialPeriod;
+    _symptoms.addAll(widget.initialSymptoms);
     _libido = widget.initialLibido;
     _energy = widget.initialEnergy;
-    if (widget.initialPeriod) _selected.add('Менструация');
-    _selected.addAll(widget.initialSymptoms.where(_tags.contains));
     _sessions.addAll(widget.initialMoments.map(_IntimateSession.from));
   }
 
@@ -157,9 +150,8 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
       context,
       QuickLogResult(
         mood: _mood,
-        period: _selected.contains('Менструация'),
-        symptoms:
-            _selected.where((t) => t != 'Менструация').toList(),
+        period: _period,
+        symptoms: _symptoms.toList(),
         libido: _libido,
         energy: _energy,
         moments: [for (final s in _sessions) s.toDraft()],
@@ -169,6 +161,16 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final symptomTags = [_l10n.tagPms, _l10n.tagHeadache, _l10n.tagBadSleep];
+    final positions = [
+      _l10n.posMissionary,
+      _l10n.posSpoons,
+      _l10n.posOnTop,
+      _l10n.posBehind,
+      _l10n.posStanding,
+      _l10n.pos69,
+      _l10n.posOther,
+    ];
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.88,
@@ -186,8 +188,8 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
             Center(
               child: Text(
                   widget.dateLabel == null
-                      ? 'Как си днес?'
-                      : 'Запис за ${widget.dateLabel}',
+                      ? _l10n.howAreYouToday
+                      : _l10n.logFor(widget.dateLabel!),
                   style: Theme.of(context).textTheme.headlineSmall),
             ),
             const SizedBox(height: 16),
@@ -224,17 +226,26 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
               runSpacing: 8,
               children: [
                 FilterChip(
-                  label: const Text('Интимен момент ♥'),
+                  label: Text(_l10n.intimateMoment),
                   selected: _intimacyOn,
                   selectedColor: AppColors.intimacy.withValues(alpha: 0.25),
                   onSelected: _toggleIntimacy,
                 ),
-                for (final tag in _tags)
+                FilterChip(
+                  label: Text(_l10n.tagPeriod),
+                  selected: _period,
+                  selectedColor: AppColors.period.withValues(alpha: 0.25),
+                  onSelected: (v) {
+                    HapticFeedback.selectionClick();
+                    setState(() => _period = v);
+                  },
+                ),
+                for (final tag in symptomTags)
                   FilterChip(
                     label: Text(tag),
-                    selected: _selected.contains(tag),
+                    selected: _symptoms.contains(tag),
                     onSelected: (v) => setState(
-                        () => v ? _selected.add(tag) : _selected.remove(tag)),
+                        () => v ? _symptoms.add(tag) : _symptoms.remove(tag)),
                   ),
               ],
             ),
@@ -244,7 +255,7 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
                 _SessionCard(
                   index: i,
                   session: _sessions[i],
-                  positions: _positions,
+                  positions: positions,
                   onChanged: () => setState(() {}),
                   onRemove: () => setState(() {
                     _sessions.removeAt(i).note.dispose();
@@ -257,16 +268,16 @@ class _QuickLogSheetState extends State<_QuickLogSheet> {
                   onPressed: () =>
                       setState(() => _sessions.add(_IntimateSession())),
                   icon: const Icon(Icons.add, color: AppColors.accentSoft),
-                  label: const Text('Добави още един момент',
-                      style: TextStyle(color: AppColors.accentSoft)),
+                  label: Text(_l10n.addAnotherMoment,
+                      style: const TextStyle(color: AppColors.accentSoft)),
                 ),
               ),
             ],
             const SizedBox(height: 16),
-            _slider('Либидо', _libido, (v) => setState(() => _libido = v)),
-            _slider('Енергия', _energy, (v) => setState(() => _energy = v)),
+            _slider(_l10n.libido, _libido, (v) => setState(() => _libido = v)),
+            _slider(_l10n.energy, _energy, (v) => setState(() => _energy = v)),
             const SizedBox(height: 16),
-            FilledButton(onPressed: _save, child: const Text('Запази ✨')),
+            FilledButton(onPressed: _save, child: Text(_l10n.saveSparkle)),
           ],
         ),
       ),
@@ -309,6 +320,7 @@ class _SessionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final labelStyle = Theme.of(context).textTheme.labelMedium;
     return Container(
       padding: const EdgeInsets.all(16),
@@ -325,7 +337,7 @@ class _SessionCard extends StatelessWidget {
             children: [
               const Icon(Icons.favorite, color: AppColors.intimacy, size: 18),
               const SizedBox(width: 8),
-              Text('Момент ${index + 1}',
+              Text(l10n.momentN(index + 1),
                   style: Theme.of(context).textTheme.titleLarge),
               const Spacer(),
               IconButton(
@@ -338,7 +350,8 @@ class _SessionCard extends StatelessWidget {
           const SizedBox(height: 4),
           Row(
             children: [
-              SizedBox(width: 72, child: Text('Възбуда', style: labelStyle)),
+              SizedBox(
+                  width: 72, child: Text(l10n.arousal, style: labelStyle)),
               Expanded(
                 child: Slider(
                   value: session.arousal,
@@ -353,7 +366,8 @@ class _SessionCard extends StatelessWidget {
           ),
           Row(
             children: [
-              SizedBox(width: 72, child: Text('Оргазми', style: labelStyle)),
+              SizedBox(
+                  width: 72, child: Text(l10n.orgasms, style: labelStyle)),
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline,
                     color: AppColors.textSecondary),
@@ -380,7 +394,7 @@ class _SessionCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Text('Пози', style: labelStyle),
+          Text(l10n.positions, style: labelStyle),
           const SizedBox(height: 8),
           Wrap(
             spacing: 8,
@@ -405,8 +419,8 @@ class _SessionCard extends StatelessWidget {
           TextField(
             controller: session.note,
             maxLines: 2,
-            decoration: const InputDecoration(
-              hintText: 'Опиши момента… (само за теб)',
+            decoration: InputDecoration(
+              hintText: l10n.momentNoteHint,
             ),
           ),
         ],

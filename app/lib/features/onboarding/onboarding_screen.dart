@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -14,29 +15,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _controller = PageController();
   int _page = 0;
 
-  static const _pages = [
-    (
-      emoji: '🔒',
-      title: 'Само твое.',
-      body:
-          'Всичко остава на телефона ти, криптирано.\nБез акаунт. Без облак. Без любопитни очи.',
-    ),
-    (
-      emoji: '📅',
-      title: 'Календар на близостта',
-      body:
-          'Цикъл, настроение, интимни моменти —\nвсичко на един дискретен екран.',
-    ),
-    (
-      emoji: '📔',
-      title: 'Дневник на близостта',
-      body:
-          'Записвай моментите, които искаш да запомниш.\nСамо за теб. Или за двама.',
-    ),
-  ];
+  static const _pageCount = 3;
 
   void _next() {
-    if (_page == _pages.length - 1) {
+    if (_page == _pageCount - 1) {
       context.go('/calendar');
     } else {
       _controller.nextPage(
@@ -46,7 +28,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final last = _page == _pages.length - 1;
+    final l10n = AppLocalizations.of(context)!;
+    final pages = [
+      (emoji: '🔒', title: l10n.onbPrivacyTitle, body: l10n.onbPrivacyBody),
+      (emoji: '📅', title: l10n.onbCalendarTitle, body: l10n.onbCalendarBody),
+      (emoji: '📔', title: l10n.onbDiaryTitle, body: l10n.onbDiaryBody),
+    ];
+    final last = _page == _pageCount - 1;
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -54,10 +42,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Expanded(
               child: PageView.builder(
                 controller: _controller,
-                itemCount: _pages.length,
+                itemCount: pages.length,
                 onPageChanged: (i) => setState(() => _page = i),
                 itemBuilder: (_, i) {
-                  final p = _pages[i];
+                  final p = pages[i];
                   return Padding(
                     padding: const EdgeInsets.all(32),
                     child: Column(
@@ -84,7 +72,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length,
+                _pageCount,
                 (i) => AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
                   margin: const EdgeInsets.symmetric(horizontal: 4),
@@ -101,7 +89,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               padding: const EdgeInsets.all(24),
               child: FilledButton(
                 onPressed: _next,
-                child: Text(last ? 'Започни' : 'Продължи'),
+                child: Text(last ? l10n.onbStart : l10n.onbNext),
               ),
             ),
           ],

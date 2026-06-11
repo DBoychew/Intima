@@ -1,9 +1,13 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../l10n/app_localizations.dart';
+import '../l10n/app_localizations_bg.dart';
 import '../security/secure_store.dart';
 import 'cycle_settings.dart';
 
@@ -17,15 +21,25 @@ abstract class Notifications {
   static const _periodId = 2;
   static const _ovulationId = 3;
 
-  static const _channel = AndroidNotificationDetails(
-    'intima_gentle',
-    'Нежни напомняния',
-    channelDescription: 'Дискретни напомняния от Intima',
-    importance: Importance.defaultImportance,
-    priority: Priority.defaultPriority,
-    // Без съдържание на заключен екран.
-    visibility: NotificationVisibility.secret,
-  );
+  /// Насрочваме без widget контекст — взимаме езика на системата.
+  static AppLocalizations get _strings {
+    try {
+      return lookupAppLocalizations(ui.PlatformDispatcher.instance.locale);
+    } catch (_) {
+      return AppLocalizationsBg();
+    }
+  }
+
+  static AndroidNotificationDetails get _channel =>
+      AndroidNotificationDetails(
+        'intima_gentle',
+        _strings.notifChannelName,
+        channelDescription: _strings.notifChannelDesc,
+        importance: Importance.defaultImportance,
+        priority: Priority.defaultPriority,
+        // Без съдържание на заключен екран.
+        visibility: NotificationVisibility.secret,
+      );
 
   static Future<void> init() async {
     tzdata.initializeTimeZones();
@@ -54,10 +68,10 @@ abstract class Notifications {
     if (!_ready) return;
     await _plugin.zonedSchedule(
       id: _eveningId,
-      title: 'Intima',
-      body: 'Малко време само за теб 💜',
+      title: _strings.appName,
+      body: _strings.notifEvening,
       scheduledDate: nextInstanceOf(time, tz.TZDateTime.now(tz.local)),
-      notificationDetails: const NotificationDetails(android: _channel),
+      notificationDetails: NotificationDetails(android: _channel),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
@@ -75,15 +89,15 @@ abstract class Notifications {
     if (cycleSettings.notifyPeriod) {
       final at = periodReminderAt(cycleSettings.nextPeriodStart, now);
       if (at != null) {
-        await _schedule(_periodId, 'Intima',
-            'Подготвили сме календара ти 🌸', at);
+        await _schedule(
+            _periodId, _strings.appName, _strings.notifPeriod, at);
       }
     }
     if (cycleSettings.notifyOvulation) {
       final at = ovulationReminderAt(cycleSettings.ovulation, now);
       if (at != null) {
         await _schedule(
-            _ovulationId, 'Intima', 'Специален ден от цикъла 💫', at);
+            _ovulationId, _strings.appName, _strings.notifOvulation, at);
       }
     }
   }
@@ -95,7 +109,7 @@ abstract class Notifications {
       title: title,
       body: body,
       scheduledDate: tz.TZDateTime.from(at, tz.local),
-      notificationDetails: const NotificationDetails(android: _channel),
+      notificationDetails: NotificationDetails(android: _channel),
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
   }

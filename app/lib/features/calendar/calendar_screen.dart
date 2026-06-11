@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/bg_dates.dart';
 import '../../core/cycle_settings.dart';
+import '../../core/dates.dart';
 import '../../data/calendar_repository.dart';
 import '../../data/db_manager.dart';
+import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
 import 'quick_log_sheet.dart';
 
@@ -28,8 +29,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   int get _daysInMonth => DateTime(_year, _month + 1, 0).day;
   int get _firstWeekday => DateTime(_year, _month, 1).weekday;
-  String get _monthTitle =>
-      '${bgMonths[_month - 1][0].toUpperCase()}${bgMonths[_month - 1].substring(1)} $_year';
+  AppLocalizations get _l10n => AppLocalizations.of(context)!;
+  String get _locale => Localizations.localeOf(context).toString();
+  String get _monthTitle => monthTitle(DateTime(_year, _month), _locale);
 
   bool get _viewingTodayMonth =>
       _year == _today.year && _month == _today.month;
@@ -67,7 +69,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     final result = await showQuickLogSheet(
       context,
-      dateLabel: isToday ? null : '$day ${bgMonths[_month - 1]} $_year',
+      dateLabel: isToday ? null : dayMonthYear(date, _locale),
       initialMood: log?.mood,
       initialPeriod: log?.isPeriod ?? false,
       initialSymptoms: decodeStringList(log?.symptoms),
@@ -97,10 +99,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     await _load();
     if (!mounted) return;
     final message = outcome.autoFilledDays > 0
-        ? 'Записано ✨ Отбелязахме още ${outcome.autoFilledDays} дни от менструацията'
+        ? _l10n.savedAutoFilled(outcome.autoFilledDays)
         : outcome.clearedDays > 0
-            ? 'Записано ✨ Премахнахме и още ${outcome.clearedDays} дни от менструацията'
-            : 'Записано ✨';
+            ? _l10n.savedCleared(outcome.clearedDays)
+            : _l10n.saved;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
   }
@@ -124,12 +126,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.chevron_left),
-            tooltip: 'Предишен месец',
+            tooltip: _l10n.prevMonth,
             onPressed: () => _changeMonth(-1),
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            tooltip: 'Следващ месец',
+            tooltip: _l10n.nextMonth,
             onPressed: () => _changeMonth(1),
           ),
         ],
@@ -176,7 +178,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Днес · ${bgDate(_today)}',
+              _l10n.todayCard(dayMonth(_today, _locale)),
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 8),
@@ -184,13 +186,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
               children: [
                 Text(
                   todayLog?.mood == null
-                      ? 'Все още няма запис за днес'
-                      : 'Настроение: ${_moods[todayLog!.mood!]}',
+                      ? _l10n.noLogToday
+                      : _l10n.moodLabel(_moods[todayLog!.mood!]),
                   style: const TextStyle(fontSize: 15),
                 ),
                 const Spacer(),
                 Text(
-                  'Енергия ',
+                  _l10n.energyLabel,
                   style: Theme.of(context).textTheme.labelMedium,
                 ),
                 for (var i = 0; i < 3; i++)
@@ -221,8 +223,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Отбележи първия ден от менструацията си и Intima ще '
-                  'предвижда следващия цикъл и фертилните дни.',
+                  _l10n.predictionHint,
                   style: Theme.of(context).textTheme.bodyMedium,
                 ),
               ),
@@ -233,9 +234,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
 
     final daysLeft = next.difference(DateTime(_today.year, _today.month, _today.day)).inDays;
-    final countdown = daysLeft <= 0
-        ? 'очаква се всеки момент'
-        : 'след $daysLeft ${daysLeft == 1 ? 'ден' : 'дни'}';
+    final countdown =
+        daysLeft <= 0 ? _l10n.anyMomentNow : _l10n.inDays(daysLeft);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -248,13 +248,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Следващ цикъл — около ${bgDate(next)} ($countdown)',
+                    _l10n.nextCycleAround(
+                        dayMonth(next, _locale), countdown),
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'При цикъл от ${cycleSettings.cycleLength} дни · '
-                    'настройва се от Настройки',
+                    _l10n.cycleOfDays(cycleSettings.cycleLength),
                     style: Theme.of(context).textTheme.labelMedium,
                   ),
                 ],
@@ -267,7 +267,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _weekdayHeader(BuildContext context) {
-    const days = ['П', 'В', 'С', 'Ч', 'П', 'С', 'Н'];
+    final days = _l10n.weekdaysNarrow.split(',');
     return Row(
       children: [
         for (final d in days)
@@ -339,10 +339,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       spacing: 16,
       runSpacing: 8,
       children: [
-        item(AppColors.period, 'Менструация'),
-        item(AppColors.period, 'Очаквана', hollow: true),
-        item(AppColors.intimacy, 'Интимност', heart: true),
-        item(AppColors.fertile, 'Фертилни дни'),
+        item(AppColors.period, _l10n.legendPeriod),
+        item(AppColors.period, _l10n.legendPredicted, hollow: true),
+        item(AppColors.intimacy, _l10n.legendIntimacy, heart: true),
+        item(AppColors.fertile, _l10n.legendFertile),
       ],
     );
   }

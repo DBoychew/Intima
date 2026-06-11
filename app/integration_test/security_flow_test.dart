@@ -29,6 +29,7 @@ void main() {
     final dbFile = await databaseFile();
     if (await dbFile.exists()) await dbFile.delete();
 
+    app.localeOverride = const Locale('bg'); // тестът проверява BG текстове
     app.main();
     // Boot екранът има безкраен spinner — pumpAndSettle би висял; чакаме
     // стъпките да минат и onboarding-ът да се появи.

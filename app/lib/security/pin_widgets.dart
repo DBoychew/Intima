@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'app_lock.dart';
 
@@ -149,7 +150,7 @@ class _PinCreateSheetState extends State<_PinCreateSheet> {
       setState(() {
         _first = '';
         _entered = '';
-        _error = 'PIN кодовете не съвпадат — опитай отново';
+        _error = AppLocalizations.of(context)!.pinMismatch;
       });
     }
   }
@@ -162,12 +163,12 @@ class _PinCreateSheetState extends State<_PinCreateSheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            _confirming ? 'Потвърди PIN кода' : 'Избери PIN код',
+            _confirming ? AppLocalizations.of(context)!.pinConfirm : AppLocalizations.of(context)!.pinChoose,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            _error ?? 'Ще го въвеждаш при всяко отваряне на Intima.',
+            _error ?? AppLocalizations.of(context)!.pinHint,
             style: Theme.of(context).textTheme.labelMedium!.copyWith(
                   color:
                       _error != null ? AppColors.error : AppColors.textSecondary,
@@ -229,7 +230,7 @@ class _PinVerifySheetState extends State<_PinVerifySheet> {
       HapticFeedback.heavyImpact();
       setState(() {
         _entered = '';
-        _error = 'Грешен PIN — опитай отново';
+        _error = AppLocalizations.of(context)!.lockWrongPin;
       });
     }
   }
@@ -242,7 +243,7 @@ class _PinVerifySheetState extends State<_PinVerifySheet> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
-            widget.title ?? 'Въведи текущия PIN',
+            widget.title ?? AppLocalizations.of(context)!.pinEnterCurrent,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           if (_error != null) ...[

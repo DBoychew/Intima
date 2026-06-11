@@ -5,6 +5,7 @@ import 'boot_screen.dart';
 import 'core/cycle_settings.dart';
 import 'core/notifications.dart';
 import 'data/cycle_prefs_repository.dart';
+import 'l10n/app_localizations.dart';
 import 'data/database.dart';
 import 'data/db_manager.dart';
 import 'features/calendar/calendar_screen.dart';
@@ -18,20 +19,23 @@ import 'security/secure_flag.dart';
 import 'shell.dart';
 import 'theme/app_theme.dart';
 
+/// Език за тестове — null означава езика на устройството.
+Locale? localeOverride;
+
 /// UI-ят тръгва веднага; инициализацията върви на BootScreen с видим
 /// прогрес — замръзнал нативен splash вече не е възможен.
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
   bootSteps = [
-    (label: 'Отключваме базата…', run: dbManager.open),
+    (label: (l) => l.bootDb, run: dbManager.open),
     (
-      label: 'Зареждаме настройките…',
+      label: (l) => l.bootPrefs,
       run: () => CyclePrefsRepository(dbManager).hydrate(),
     ),
-    (label: 'Проверяваме защитата…', run: appLock.init),
-    (label: 'Скриваме следите…', run: SecureFlag.applyAtStartup),
+    (label: (l) => l.bootLock, run: appLock.init),
+    (label: (l) => l.bootSecure, run: SecureFlag.applyAtStartup),
     (
-      label: 'Подготвяме напомнянията…',
+      label: (l) => l.bootNotifications,
       run: () async {
         await Notifications.init();
         await Notifications.syncCycleReminders();
@@ -131,6 +135,9 @@ class _IntimaAppState extends State<IntimaApp> with WidgetsBindingObserver {
       title: 'Intima',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
+      locale: localeOverride,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: _router,
     );
   }

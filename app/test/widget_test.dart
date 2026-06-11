@@ -1,4 +1,4 @@
-import 'package:drift/drift.dart' show Value;
+﻿import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,11 +9,22 @@ import 'package:intima/data/diary_repository.dart';
 import 'package:intima/features/calendar/calendar_screen.dart';
 import 'package:intima/features/diary/diary_editor_screen.dart';
 import 'package:intima/features/diary/diary_screen.dart';
+import 'package:intima/l10n/app_localizations.dart';
 import 'package:intima/main.dart';
 import 'package:intima/theme/app_theme.dart';
 
+/// Тестваме на български — текстовете в expect-ите са BG.
+Widget bgApp(Widget home) => MaterialApp(
+      theme: AppTheme.dark,
+      locale: const Locale('bg'),
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: home,
+    );
+
 void main() {
   testWidgets('Onboarding smoke test', (WidgetTester tester) async {
+    localeOverride = const Locale('bg');
     await tester.pumpWidget(const IntimaApp());
     await tester.pumpAndSettle();
 
@@ -34,9 +45,8 @@ void main() {
     }
 
     await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.dark,
-        home: CalendarScreen(todayOverride: DateTime(2026, 6, 30)),
+      bgApp(
+        CalendarScreen(todayOverride: DateTime(2026, 6, 30)),
       ),
     );
     await tester.pumpAndSettle();
@@ -71,7 +81,7 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(
-      MaterialApp(theme: AppTheme.dark, home: const DiaryEditorScreen()),
+      bgApp(const DiaryEditorScreen()),
     );
     await tester.pumpAndSettle();
 
@@ -106,7 +116,7 @@ void main() {
       photos: '["/няма/такава.png"]',
     );
     await tester.pumpWidget(
-      MaterialApp(theme: AppTheme.dark, home: DiaryEditorScreen(initial: row)),
+      bgApp(DiaryEditorScreen(initial: row)),
     );
     await tester.pumpAndSettle();
 
@@ -148,7 +158,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(theme: AppTheme.dark, home: const DiaryScreen()),
+      bgApp(const DiaryScreen()),
     );
     await tester.pumpAndSettle();
 

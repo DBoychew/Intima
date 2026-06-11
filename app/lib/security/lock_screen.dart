@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 import 'app_lock.dart';
 import 'pin_widgets.dart';
@@ -44,7 +45,7 @@ class _LockScreenState extends State<LockScreen> {
       HapticFeedback.heavyImpact();
       setState(() {
         _entered = '';
-        _error = 'Грешен PIN — опитай отново';
+        _error = AppLocalizations.of(context)!.lockWrongPin;
       });
     }
   }
@@ -58,10 +59,10 @@ class _LockScreenState extends State<LockScreen> {
             const Spacer(),
             const Icon(Icons.lock_outline, color: AppColors.accent, size: 44),
             const SizedBox(height: 16),
-            Text('Intima', style: Theme.of(context).textTheme.displaySmall),
+            Text(AppLocalizations.of(context)!.appName, style: Theme.of(context).textTheme.displaySmall),
             const SizedBox(height: 8),
             Text(
-              _error ?? 'Въведи своя PIN',
+              _error ?? AppLocalizations.of(context)!.lockEnterPin,
               style: Theme.of(context).textTheme.labelMedium!.copyWith(
                     color: _error != null
                         ? AppColors.error
