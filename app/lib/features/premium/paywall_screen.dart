@@ -61,6 +61,12 @@ class PaywallScreen extends StatelessWidget {
         soon: false,
       ),
       (
+        icon: Icons.mic_none,
+        title: l10n.premiumFeatureAudio,
+        subtitle: null,
+        soon: false,
+      ),
+      (
         icon: Icons.favorite_outline,
         title: l10n.premiumFeaturePacks,
         subtitle: null,

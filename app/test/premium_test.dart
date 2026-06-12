@@ -49,6 +49,7 @@ void main() {
         hasPhoto: false,
         photos: '[]',
         videos: '[]',
+        audios: '[]',
       ),
       DiaryEntryRow(
         id: 2,
@@ -60,6 +61,7 @@ void main() {
         hasPhoto: false,
         photos: '["/липсваща/снимка.jpg"]', // не трябва да чупи нищо
         videos: '[]',
+        audios: '[]',
       ),
     ];
 

@@ -114,6 +114,16 @@ class $DiaryEntriesTable extends DiaryEntries
     requiredDuringInsert: false,
     defaultValue: const Constant('[]'),
   );
+  static const VerificationMeta _audiosMeta = const VerificationMeta('audios');
+  @override
+  late final GeneratedColumn<String> audios = GeneratedColumn<String>(
+    'audios',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('[]'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -126,6 +136,7 @@ class $DiaryEntriesTable extends DiaryEntries
     photoPath,
     photos,
     videos,
+    audios,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -202,6 +213,12 @@ class $DiaryEntriesTable extends DiaryEntries
         videos.isAcceptableOrUnknown(data['videos']!, _videosMeta),
       );
     }
+    if (data.containsKey('audios')) {
+      context.handle(
+        _audiosMeta,
+        audios.isAcceptableOrUnknown(data['audios']!, _audiosMeta),
+      );
+    }
     return context;
   }
 
@@ -251,6 +268,10 @@ class $DiaryEntriesTable extends DiaryEntries
         DriftSqlType.string,
         data['${effectivePrefix}videos'],
       )!,
+      audios: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}audios'],
+      )!,
     );
   }
 
@@ -280,6 +301,10 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
 
   /// JSON списък с пътища до видеата в private storage (v4, Premium).
   final String videos;
+
+  /// JSON списък с пътища до аудио бележките в private storage
+  /// (v5, Premium).
+  final String audios;
   const DiaryEntryRow({
     required this.id,
     required this.title,
@@ -291,6 +316,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     this.photoPath,
     required this.photos,
     required this.videos,
+    required this.audios,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -309,6 +335,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     }
     map['photos'] = Variable<String>(photos);
     map['videos'] = Variable<String>(videos);
+    map['audios'] = Variable<String>(audios);
     return map;
   }
 
@@ -326,6 +353,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
           : Value(photoPath),
       photos: Value(photos),
       videos: Value(videos),
+      audios: Value(audios),
     );
   }
 
@@ -345,6 +373,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       photoPath: serializer.fromJson<String?>(json['photoPath']),
       photos: serializer.fromJson<String>(json['photos']),
       videos: serializer.fromJson<String>(json['videos']),
+      audios: serializer.fromJson<String>(json['audios']),
     );
   }
   @override
@@ -361,6 +390,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       'photoPath': serializer.toJson<String?>(photoPath),
       'photos': serializer.toJson<String>(photos),
       'videos': serializer.toJson<String>(videos),
+      'audios': serializer.toJson<String>(audios),
     };
   }
 
@@ -375,6 +405,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     Value<String?> photoPath = const Value.absent(),
     String? photos,
     String? videos,
+    String? audios,
   }) => DiaryEntryRow(
     id: id ?? this.id,
     title: title ?? this.title,
@@ -386,6 +417,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     photoPath: photoPath.present ? photoPath.value : this.photoPath,
     photos: photos ?? this.photos,
     videos: videos ?? this.videos,
+    audios: audios ?? this.audios,
   );
   DiaryEntryRow copyWithCompanion(DiaryEntriesCompanion data) {
     return DiaryEntryRow(
@@ -399,6 +431,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
       photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       photos: data.photos.present ? data.photos.value : this.photos,
       videos: data.videos.present ? data.videos.value : this.videos,
+      audios: data.audios.present ? data.audios.value : this.audios,
     );
   }
 
@@ -414,7 +447,8 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
           ..write('hasPhoto: $hasPhoto, ')
           ..write('photoPath: $photoPath, ')
           ..write('photos: $photos, ')
-          ..write('videos: $videos')
+          ..write('videos: $videos, ')
+          ..write('audios: $audios')
           ..write(')'))
         .toString();
   }
@@ -431,6 +465,7 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
     photoPath,
     photos,
     videos,
+    audios,
   );
   @override
   bool operator ==(Object other) =>
@@ -445,7 +480,8 @@ class DiaryEntryRow extends DataClass implements Insertable<DiaryEntryRow> {
           other.hasPhoto == this.hasPhoto &&
           other.photoPath == this.photoPath &&
           other.photos == this.photos &&
-          other.videos == this.videos);
+          other.videos == this.videos &&
+          other.audios == this.audios);
 }
 
 class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
@@ -459,6 +495,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
   final Value<String?> photoPath;
   final Value<String> photos;
   final Value<String> videos;
+  final Value<String> audios;
   const DiaryEntriesCompanion({
     this.id = const Value.absent(),
     this.title = const Value.absent(),
@@ -470,6 +507,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     this.photoPath = const Value.absent(),
     this.photos = const Value.absent(),
     this.videos = const Value.absent(),
+    this.audios = const Value.absent(),
   });
   DiaryEntriesCompanion.insert({
     this.id = const Value.absent(),
@@ -482,6 +520,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     this.photoPath = const Value.absent(),
     this.photos = const Value.absent(),
     this.videos = const Value.absent(),
+    this.audios = const Value.absent(),
   }) : title = Value(title),
        body = Value(body),
        date = Value(date);
@@ -496,6 +535,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     Expression<String>? photoPath,
     Expression<String>? photos,
     Expression<String>? videos,
+    Expression<String>? audios,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -508,6 +548,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
       if (photoPath != null) 'photo_path': photoPath,
       if (photos != null) 'photos': photos,
       if (videos != null) 'videos': videos,
+      if (audios != null) 'audios': audios,
     });
   }
 
@@ -522,6 +563,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     Value<String?>? photoPath,
     Value<String>? photos,
     Value<String>? videos,
+    Value<String>? audios,
   }) {
     return DiaryEntriesCompanion(
       id: id ?? this.id,
@@ -534,6 +576,7 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
       photoPath: photoPath ?? this.photoPath,
       photos: photos ?? this.photos,
       videos: videos ?? this.videos,
+      audios: audios ?? this.audios,
     );
   }
 
@@ -570,6 +613,9 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
     if (videos.present) {
       map['videos'] = Variable<String>(videos.value);
     }
+    if (audios.present) {
+      map['audios'] = Variable<String>(audios.value);
+    }
     return map;
   }
 
@@ -585,7 +631,8 @@ class DiaryEntriesCompanion extends UpdateCompanion<DiaryEntryRow> {
           ..write('hasPhoto: $hasPhoto, ')
           ..write('photoPath: $photoPath, ')
           ..write('photos: $photos, ')
-          ..write('videos: $videos')
+          ..write('videos: $videos, ')
+          ..write('audios: $audios')
           ..write(')'))
         .toString();
   }
@@ -1853,6 +1900,7 @@ typedef $$DiaryEntriesTableCreateCompanionBuilder =
       Value<String?> photoPath,
       Value<String> photos,
       Value<String> videos,
+      Value<String> audios,
     });
 typedef $$DiaryEntriesTableUpdateCompanionBuilder =
     DiaryEntriesCompanion Function({
@@ -1866,6 +1914,7 @@ typedef $$DiaryEntriesTableUpdateCompanionBuilder =
       Value<String?> photoPath,
       Value<String> photos,
       Value<String> videos,
+      Value<String> audios,
     });
 
 class $$DiaryEntriesTableFilterComposer
@@ -1924,6 +1973,11 @@ class $$DiaryEntriesTableFilterComposer
 
   ColumnFilters<String> get videos => $composableBuilder(
     column: $table.videos,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get audios => $composableBuilder(
+    column: $table.audios,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1986,6 +2040,11 @@ class $$DiaryEntriesTableOrderingComposer
     column: $table.videos,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get audios => $composableBuilder(
+    column: $table.audios,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$DiaryEntriesTableAnnotationComposer
@@ -2026,6 +2085,9 @@ class $$DiaryEntriesTableAnnotationComposer
 
   GeneratedColumn<String> get videos =>
       $composableBuilder(column: $table.videos, builder: (column) => column);
+
+  GeneratedColumn<String> get audios =>
+      $composableBuilder(column: $table.audios, builder: (column) => column);
 }
 
 class $$DiaryEntriesTableTableManager
@@ -2069,6 +2131,7 @@ class $$DiaryEntriesTableTableManager
                 Value<String?> photoPath = const Value.absent(),
                 Value<String> photos = const Value.absent(),
                 Value<String> videos = const Value.absent(),
+                Value<String> audios = const Value.absent(),
               }) => DiaryEntriesCompanion(
                 id: id,
                 title: title,
@@ -2080,6 +2143,7 @@ class $$DiaryEntriesTableTableManager
                 photoPath: photoPath,
                 photos: photos,
                 videos: videos,
+                audios: audios,
               ),
           createCompanionCallback:
               ({
@@ -2093,6 +2157,7 @@ class $$DiaryEntriesTableTableManager
                 Value<String?> photoPath = const Value.absent(),
                 Value<String> photos = const Value.absent(),
                 Value<String> videos = const Value.absent(),
+                Value<String> audios = const Value.absent(),
               }) => DiaryEntriesCompanion.insert(
                 id: id,
                 title: title,
@@ -2104,6 +2169,7 @@ class $$DiaryEntriesTableTableManager
                 photoPath: photoPath,
                 photos: photos,
                 videos: videos,
+                audios: audios,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

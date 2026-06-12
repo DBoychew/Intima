@@ -116,7 +116,17 @@ class AppLocalizationsBg extends AppLocalizations {
   String get legendIntimacy => 'Интимност';
 
   @override
-  String get legendFertile => 'Фертилни дни';
+  String get legendFertile => 'Овулация';
+
+  @override
+  String get ovulationInfoTitle => 'Овулация и фертилни дни';
+
+  @override
+  String get ovulationInfoBody =>
+      'Овулацията е моментът, в който яйцеклетката се освобождава — обикновено около 14 дни преди следващата менструация.\n\nНай-голяма е вероятността за забременяване в деня на овулацията и в петте дни преди нея: сперматозоидите оцеляват до 5 дни, а яйцеклетката живее около 24 часа. Затова Intima отбелязва в зелено овулацията и по 2 дни около нея, изчислени според твоя цикъл.\n\nПрогнозата е ориентировъчна — цикълът варира — и не е метод за контрацепция.';
+
+  @override
+  String get ovulationGotIt => 'Разбрах';
 
   @override
   String todayCard(Object date) {
@@ -136,7 +146,7 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get predictionHint =>
-      'Отбележи първия ден от менструацията си и Intima ще предвижда следващия цикъл и фертилните дни.';
+      'Отбележи първия ден от менструацията си и Intima ще предвижда следващия цикъл и овулацията.';
 
   @override
   String nextCycleAround(Object date, Object countdown) {
@@ -383,6 +393,28 @@ class AppLocalizationsBg extends AppLocalizations {
   String get videoMissing => 'Видеото не може да се възпроизведе 🎬';
 
   @override
+  String get addAudio => 'Аудио бележка';
+
+  @override
+  String get audioRecording => 'Записваме…';
+
+  @override
+  String get audioStopSave => 'Стоп и запази';
+
+  @override
+  String get audioPermissionDenied =>
+      'Нужен е достъп до микрофона, за да запишеш аудио бележка';
+
+  @override
+  String get removeAudioTitle => 'Премахване на аудиото?';
+
+  @override
+  String get removeAudioBody => 'Аудио бележката ще бъде изтрита завинаги.';
+
+  @override
+  String get audioMissing => 'Аудиото не може да се пусне 🎙️';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override
@@ -621,6 +653,9 @@ class AppLocalizationsBg extends AppLocalizations {
   String get premiumFeatureVideo => 'Видео в дневника';
 
   @override
+  String get premiumFeatureAudio => 'Аудио бележки в дневника';
+
+  @override
   String get premiumFeaturePacks => 'Тематични пакети за двойки';
 
   @override
@@ -663,6 +698,9 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get insightsPrivacyNote => 'Изчислено изцяло на устройството 🔒';
+
+  @override
+  String get insightsSampleBadge => 'Примерен изглед с демо данни';
 
   @override
   String get insightsTeaser =>

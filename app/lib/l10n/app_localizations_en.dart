@@ -116,7 +116,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get legendIntimacy => 'Intimacy';
 
   @override
-  String get legendFertile => 'Fertile days';
+  String get legendFertile => 'Ovulation';
+
+  @override
+  String get ovulationInfoTitle => 'Ovulation & fertile days';
+
+  @override
+  String get ovulationInfoBody =>
+      'Ovulation is the moment an egg is released — usually about 14 days before your next period.\n\nPregnancy is most likely on the day of ovulation and during the five days before it: sperm can survive up to 5 days, while the egg lives for about 24 hours. That\'s why Intima highlights ovulation plus 2 days around it in green, based on your cycle.\n\nThe prediction is an estimate — cycles vary — and is not a method of contraception.';
+
+  @override
+  String get ovulationGotIt => 'Got it';
 
   @override
   String todayCard(Object date) {
@@ -136,7 +146,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get predictionHint =>
-      'Mark the first day of your period and Intima will predict your next cycle and fertile days.';
+      'Mark the first day of your period and Intima will predict your next cycle and ovulation.';
 
   @override
   String nextCycleAround(Object date, Object countdown) {
@@ -387,6 +397,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String get videoMissing => 'This video can\'t be played 🎬';
 
   @override
+  String get addAudio => 'Audio note';
+
+  @override
+  String get audioRecording => 'Recording…';
+
+  @override
+  String get audioStopSave => 'Stop & save';
+
+  @override
+  String get audioPermissionDenied =>
+      'Microphone access is needed to record an audio note';
+
+  @override
+  String get removeAudioTitle => 'Remove this audio note?';
+
+  @override
+  String get removeAudioBody => 'The audio note will be deleted forever.';
+
+  @override
+  String get audioMissing => 'This audio can\'t be played 🎙️';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -623,6 +655,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get premiumFeatureVideo => 'Videos in your diary';
 
   @override
+  String get premiumFeatureAudio => 'Audio notes in your diary';
+
+  @override
   String get premiumFeaturePacks => 'Themed packs for couples';
 
   @override
@@ -665,6 +700,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insightsPrivacyNote => 'Computed entirely on your device 🔒';
+
+  @override
+  String get insightsSampleBadge => 'Sample view with demo data';
 
   @override
   String get insightsTeaser =>

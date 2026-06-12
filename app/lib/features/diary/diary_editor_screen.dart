@@ -1,10 +1,15 @@
-﻿import 'dart:convert';
+﻿import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:record/record.dart';
 import 'package:video_player/video_player.dart';
 
 import '../../core/moods.dart';
@@ -53,7 +58,12 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
   late List<String> _tags;
   late List<String> _photos;
   late List<String> _videos;
+  late List<String> _audios;
   bool _saving = false;
+
+  /// Плейърът за аудио бележките — една активна наведнъж.
+  final _audioPlayer = AudioPlayer();
+  int? _playingAudio;
 
   @override
   void initState() {
@@ -63,11 +73,16 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     _tags = [...decodeStringList(widget.initial?.tags)];
     _photos = [...decodeStringList(widget.initial?.photos)];
     _videos = [...decodeStringList(widget.initial?.videos)];
+    _audios = [...decodeStringList(widget.initial?.audios)];
+    _audioPlayer.onPlayerComplete.listen((_) {
+      if (mounted) setState(() => _playingAudio = null);
+    });
   }
 
   @override
   void dispose() {
     _text.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -105,6 +120,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         tags: _tags,
         photos: _photos,
         videos: _videos,
+        audios: _audios,
       );
     } else {
       await diaryRepository.update(initial.copyWith(
@@ -115,6 +131,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         hasPhoto: _photos.isNotEmpty,
         photos: jsonEncode(_photos),
         videos: jsonEncode(_videos),
+        audios: jsonEncode(_audios),
       ));
     }
     if (mounted) Navigator.pop(context, true);
@@ -231,6 +248,106 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     }
     await diaryRepository.deletePhotoFile(_videos[index]);
     if (mounted) setState(() => _videos.removeAt(index));
+  }
+
+  /// Записва аудио бележка (Premium) — отваря лист с микрофона.
+  Future<void> _recordAudio() async {
+    HapticFeedback.selectionClick();
+    if (!premium.active) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const PaywallScreen()),
+      );
+      if (!premium.active || !mounted) return;
+      setState(() {});
+    }
+    final temp = await showAudioRecordSheet(context);
+    if (temp == null || !mounted) return;
+    final saved = await diaryRepository.importAudio(temp);
+    // Временният файл от записа е копиран — чистим го.
+    if (saved != temp) {
+      try {
+        await File(temp).delete();
+      } catch (_) {}
+    }
+    if (mounted) setState(() => _audios.add(saved));
+  }
+
+  Future<void> _toggleAudio(int index) async {
+    HapticFeedback.selectionClick();
+    if (_playingAudio == index) {
+      await _audioPlayer.stop();
+      if (mounted) setState(() => _playingAudio = null);
+      return;
+    }
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(DeviceFileSource(_audios[index]));
+      if (mounted) setState(() => _playingAudio = index);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_l10n.audioMissing)),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmRemoveAudio(int index) async {
+    if (!await _confirmRemoval(_l10n.removeAudioTitle, _l10n.removeAudioBody)) {
+      return;
+    }
+    if (_playingAudio == index) {
+      await _audioPlayer.stop();
+      _playingAudio = null;
+    }
+    await diaryRepository.deletePhotoFile(_audios[index]);
+    if (mounted) setState(() => _audios.removeAt(index));
+  }
+
+  Widget _audioThumb(int index) {
+    final playing = _playingAudio == index;
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () => _toggleAudio(index),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            width: 104,
+            height: 104,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceHigh,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(playing ? Icons.stop_circle : Icons.play_circle_fill,
+                    size: 36, color: context.colors.accentSoft),
+                const SizedBox(height: 4),
+                const Text('🎙️', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: InkWell(
+            onTap: () => _confirmRemoveAudio(index),
+            customBorder: const CircleBorder(),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, size: 16, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   void _viewPhoto(int index) {
@@ -422,17 +539,19 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               hintText: _templates[_template].hint,
             ),
           ),
-          if (_photos.isNotEmpty || _videos.isNotEmpty) ...[
+          if (_photos.isNotEmpty || _videos.isNotEmpty || _audios.isNotEmpty) ...[
             const SizedBox(height: 12),
             SizedBox(
               height: 104,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: _photos.length + _videos.length,
+                itemCount: _photos.length + _videos.length + _audios.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
                 itemBuilder: (_, i) => i < _photos.length
                     ? _photoThumb(i)
-                    : _videoThumb(i - _photos.length),
+                    : i < _photos.length + _videos.length
+                        ? _videoThumb(i - _photos.length)
+                        : _audioThumb(i - _photos.length - _videos.length),
               ),
             ),
           ],
@@ -473,10 +592,25 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
             ],
           ),
           const SizedBox(height: 12),
-          _ActionButton(
-            icon: Icons.tag,
-            label: _l10n.newTag,
-            onTap: _addTag,
+          Row(
+            children: [
+              Expanded(
+                child: _ActionButton(
+                  icon: Icons.mic_none,
+                  label: _l10n.addAudio,
+                  onTap: _recordAudio,
+                  locked: !premium.active,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _ActionButton(
+                  icon: Icons.tag,
+                  label: _l10n.newTag,
+                  onTap: _addTag,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 32),
         ],
@@ -507,6 +641,148 @@ class _PhotoViewerScreen extends StatelessWidget {
                 Text(AppLocalizations.of(context)!.photoMissing),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Записва аудио бележка във временен файл; връща пътя или null при
+/// отказ. Записът тръгва веднага — намерението е ясно от бутона.
+Future<String?> showAudioRecordSheet(BuildContext context) =>
+    showModalBottomSheet<String>(
+      context: context,
+      isDismissible: false,
+      enableDrag: false,
+      builder: (_) => const _AudioRecordSheet(),
+    );
+
+class _AudioRecordSheet extends StatefulWidget {
+  const _AudioRecordSheet();
+
+  @override
+  State<_AudioRecordSheet> createState() => _AudioRecordSheetState();
+}
+
+class _AudioRecordSheetState extends State<_AudioRecordSheet> {
+  final _recorder = AudioRecorder();
+  Timer? _timer;
+  int _seconds = 0;
+  bool _recording = false;
+  bool _denied = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _start();
+  }
+
+  Future<void> _start() async {
+    if (!await _recorder.hasPermission()) {
+      if (mounted) setState(() => _denied = true);
+      return;
+    }
+    final dir = await getTemporaryDirectory();
+    final path = p.join(
+      dir.path,
+      'note_${DateTime.now().millisecondsSinceEpoch}.m4a',
+    );
+    await _recorder.start(
+      const RecordConfig(encoder: AudioEncoder.aacLc),
+      path: path,
+    );
+    if (!mounted) {
+      await _recorder.stop();
+      return;
+    }
+    setState(() => _recording = true);
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _seconds++);
+    });
+  }
+
+  Future<void> _stopAndSave() async {
+    _timer?.cancel();
+    final path = await _recorder.stop();
+    if (mounted) Navigator.pop(context, path);
+  }
+
+  Future<void> _cancel() async {
+    _timer?.cancel();
+    final path = await _recorder.stop();
+    if (path != null) {
+      try {
+        await File(path).delete();
+      } catch (_) {}
+    }
+    if (mounted) Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _recorder.dispose();
+    super.dispose();
+  }
+
+  String get _elapsed => '${(_seconds ~/ 60).toString().padLeft(2, '0')}:'
+      '${(_seconds % 60).toString().padLeft(2, '0')}';
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Center(
+                child: Text('🎙️', style: TextStyle(fontSize: 48))),
+            const SizedBox(height: 12),
+            Center(
+              child: _denied
+                  ? Text(l10n.audioPermissionDenied,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium)
+                  : Text(
+                      _recording
+                          ? '${l10n.audioRecording} $_elapsed'
+                          : l10n.audioRecording,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall!
+                          .copyWith(color: context.colors.accentSoft),
+                    ),
+            ),
+            const SizedBox(height: 20),
+            if (_denied)
+              FilledButton(
+                onPressed: _cancel,
+                child: Text(l10n.cancel),
+              )
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: _cancel,
+                      child: Text(l10n.cancel),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    flex: 2,
+                    child: FilledButton.icon(
+                      onPressed: _recording ? _stopAndSave : null,
+                      icon: const Icon(Icons.stop),
+                      label: Text(l10n.audioStopSave),
+                    ),
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );

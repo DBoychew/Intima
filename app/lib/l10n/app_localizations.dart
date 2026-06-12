@@ -305,8 +305,26 @@ abstract class AppLocalizations {
   /// No description provided for @legendFertile.
   ///
   /// In bg, this message translates to:
-  /// **'Фертилни дни'**
+  /// **'Овулация'**
   String get legendFertile;
+
+  /// No description provided for @ovulationInfoTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Овулация и фертилни дни'**
+  String get ovulationInfoTitle;
+
+  /// No description provided for @ovulationInfoBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Овулацията е моментът, в който яйцеклетката се освобождава — обикновено около 14 дни преди следващата менструация.\n\nНай-голяма е вероятността за забременяване в деня на овулацията и в петте дни преди нея: сперматозоидите оцеляват до 5 дни, а яйцеклетката живее около 24 часа. Затова Intima отбелязва в зелено овулацията и по 2 дни около нея, изчислени според твоя цикъл.\n\nПрогнозата е ориентировъчна — цикълът варира — и не е метод за контрацепция.'**
+  String get ovulationInfoBody;
+
+  /// No description provided for @ovulationGotIt.
+  ///
+  /// In bg, this message translates to:
+  /// **'Разбрах'**
+  String get ovulationGotIt;
 
   /// No description provided for @todayCard.
   ///
@@ -335,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @predictionHint.
   ///
   /// In bg, this message translates to:
-  /// **'Отбележи първия ден от менструацията си и Intima ще предвижда следващия цикъл и фертилните дни.'**
+  /// **'Отбележи първия ден от менструацията си и Intima ще предвижда следващия цикъл и овулацията.'**
   String get predictionHint;
 
   /// No description provided for @nextCycleAround.
@@ -751,6 +769,48 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Видеото не може да се възпроизведе 🎬'**
   String get videoMissing;
+
+  /// No description provided for @addAudio.
+  ///
+  /// In bg, this message translates to:
+  /// **'Аудио бележка'**
+  String get addAudio;
+
+  /// No description provided for @audioRecording.
+  ///
+  /// In bg, this message translates to:
+  /// **'Записваме…'**
+  String get audioRecording;
+
+  /// No description provided for @audioStopSave.
+  ///
+  /// In bg, this message translates to:
+  /// **'Стоп и запази'**
+  String get audioStopSave;
+
+  /// No description provided for @audioPermissionDenied.
+  ///
+  /// In bg, this message translates to:
+  /// **'Нужен е достъп до микрофона, за да запишеш аудио бележка'**
+  String get audioPermissionDenied;
+
+  /// No description provided for @removeAudioTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Премахване на аудиото?'**
+  String get removeAudioTitle;
+
+  /// No description provided for @removeAudioBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Аудио бележката ще бъде изтрита завинаги.'**
+  String get removeAudioBody;
+
+  /// No description provided for @audioMissing.
+  ///
+  /// In bg, this message translates to:
+  /// **'Аудиото не може да се пусне 🎙️'**
+  String get audioMissing;
 
   /// No description provided for @settingsTitle.
   ///
@@ -1196,6 +1256,12 @@ abstract class AppLocalizations {
   /// **'Видео в дневника'**
   String get premiumFeatureVideo;
 
+  /// No description provided for @premiumFeatureAudio.
+  ///
+  /// In bg, this message translates to:
+  /// **'Аудио бележки в дневника'**
+  String get premiumFeatureAudio;
+
   /// No description provided for @premiumFeaturePacks.
   ///
   /// In bg, this message translates to:
@@ -1279,6 +1345,12 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Изчислено изцяло на устройството 🔒'**
   String get insightsPrivacyNote;
+
+  /// No description provided for @insightsSampleBadge.
+  ///
+  /// In bg, this message translates to:
+  /// **'Примерен изглед с демо данни'**
+  String get insightsSampleBadge;
 
   /// No description provided for @insightsTeaser.
   ///

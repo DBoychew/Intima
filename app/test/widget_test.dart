@@ -119,6 +119,7 @@ void main() {
       hasPhoto: true,
       photos: '["/няма/такава.png"]',
       videos: '[]',
+      audios: '[]',
     );
     await tester.pumpWidget(
       bgApp(DiaryEditorScreen(initial: row)),

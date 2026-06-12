@@ -31,6 +31,7 @@ class DiaryRepository {
     required List<String> tags,
     required List<String> photos,
     List<String> videos = const [],
+    List<String> audios = const [],
   }) async {
     // В stealth копието нищо не се записва.
     if (appLock.decoyActive) return;
@@ -43,6 +44,7 @@ class DiaryRepository {
       hasPhoto: Value(photos.isNotEmpty),
       photos: Value(jsonEncode(photos)),
       videos: Value(jsonEncode(videos)),
+      audios: Value(jsonEncode(audios)),
     ));
     bumpDataVersion();
   }
@@ -58,6 +60,7 @@ class DiaryRepository {
     for (final path in [
       ...decodeStringList(row.photos),
       ...decodeStringList(row.videos),
+      ...decodeStringList(row.audios),
     ]) {
       await deletePhotoFile(path);
     }
@@ -73,6 +76,10 @@ class DiaryRepository {
   /// Копира видео в private storage (v4, Premium).
   Future<String> importVideo(String sourcePath) =>
       _importMedia(sourcePath, 'videos');
+
+  /// Копира аудио бележка в private storage (v5, Premium).
+  Future<String> importAudio(String sourcePath) =>
+      _importMedia(sourcePath, 'audios');
 
   Future<String> _importMedia(String sourcePath, String subdir) async {
     // В stealth копието не копираме нищо — показваме оригинала.

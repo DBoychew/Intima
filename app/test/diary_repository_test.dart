@@ -65,27 +65,30 @@ void main() {
     expect(await repo.all(), isEmpty);
   });
 
-  test('видеа (v4): пазят се отделно от снимките и се четат обратно',
+  test('видеа (v4) и аудио (v5): пазят се отделно и се четат обратно',
       () async {
     await repo.create(
-      title: 'С видео',
+      title: 'С видео и аудио',
       body: 'Текст',
       date: DateTime(2026, 6, 12),
       mood: 3,
       tags: const [],
       photos: const ['/p/a.jpg'],
       videos: const ['/v/clip.mp4'],
+      audios: const ['/a/note.m4a'],
     );
     final row = (await repo.all()).single;
     expect(decodeStringList(row.photos), ['/p/a.jpg']);
     expect(decodeStringList(row.videos), ['/v/clip.mp4']);
+    expect(decodeStringList(row.audios), ['/a/note.m4a']);
 
-    // Запис без подадени видеа получава празен списък по подразбиране.
-    await seed('Без видео', DateTime(2026, 6, 11));
+    // Запис без подадени видеа/аудио получава празни списъци.
+    await seed('Без медия', DateTime(2026, 6, 11));
     final plain = (await repo.all()).last;
     expect(decodeStringList(plain.videos), isEmpty);
+    expect(decodeStringList(plain.audios), isEmpty);
 
-    // Изтриването на запис с видеа не гърми при липсващи файлове.
+    // Изтриването на запис с медия не гърми при липсващи файлове.
     await repo.delete(row);
     expect(await repo.all(), hasLength(1));
   });

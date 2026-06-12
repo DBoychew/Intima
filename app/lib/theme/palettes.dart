@@ -4,15 +4,16 @@ import 'app_theme.dart';
 
 /// Цветовите палитри на Intima. Всяка дефинира пълните 13 токена за
 /// тъмен и светъл режим — темата (dark/light/system) и палитрата са
-/// независими избори. „Intima" е безплатната класика; останалите са
-/// Premium.
+/// независими избори. Класиката „Intima" и „Роуз голд" са безплатни
+/// (вкус от функцията); „Среднощно синьо" и „Океан" са Premium.
 enum AppPalette {
   intima,
   roseGold,
   midnightBlue,
   ocean;
 
-  bool get isPremium => this != AppPalette.intima;
+  bool get isPremium =>
+      this == AppPalette.midnightBlue || this == AppPalette.ocean;
 
   IntimaColors get dark => switch (this) {
         AppPalette.intima => IntimaColors.dark,

@@ -44,8 +44,11 @@ void main() {
         expect(c.textPrimary, isNot(c.background));
       }
     }
-    // Premium флагът: класиката е безплатна, останалите не са.
+    // Premium флагът: класиката и Роуз голд са безплатни (вкус от
+    // функцията); другите две са Premium — решение на собственика.
     expect(AppPalette.intima.isPremium, isFalse);
-    expect(AppPalette.values.where((p) => p.isPremium).length, 3);
+    expect(AppPalette.roseGold.isPremium, isFalse);
+    expect(AppPalette.values.where((p) => p.isPremium),
+        [AppPalette.midnightBlue, AppPalette.ocean]);
   });
 }

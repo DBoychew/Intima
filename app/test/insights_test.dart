@@ -135,6 +135,7 @@ void main() {
             hasPhoto: false,
             photos: '[]',
             videos: '[]',
+            audios: '[]',
           ),
         ],
         now: now,

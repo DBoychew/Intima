@@ -311,30 +311,77 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
+  /// Кога е най-вероятно забременяване — нежно обяснение на зеленото.
+  void _showOvulationInfo() {
+    HapticFeedback.selectionClick();
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Text(_l10n.ovulationInfoTitle,
+                    style: Theme.of(ctx).textTheme.headlineSmall),
+              ),
+              const SizedBox(height: 12),
+              Text(_l10n.ovulationInfoBody,
+                  style: Theme.of(ctx).textTheme.bodyMedium),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(_l10n.ovulationGotIt),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _legend(BuildContext context) {
     Widget item(
       Color color,
       String label, {
       bool heart = false,
       bool hollow = false,
-    }) => Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        heart
-            ? Icon(Icons.favorite, color: context.colors.intimacy, size: 12)
-            : Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: hollow ? null : color,
-                  border: hollow ? Border.all(color: color, width: 1.5) : null,
-                  shape: BoxShape.circle,
+      VoidCallback? onInfo,
+    }) {
+      final row = Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          heart
+              ? Icon(Icons.favorite, color: context.colors.intimacy, size: 12)
+              : Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: hollow ? null : color,
+                    border:
+                        hollow ? Border.all(color: color, width: 1.5) : null,
+                    shape: BoxShape.circle,
+                  ),
                 ),
-              ),
-        const SizedBox(width: 6),
-        Text(label, style: Theme.of(context).textTheme.labelMedium),
-      ],
-    );
+          const SizedBox(width: 6),
+          Text(label, style: Theme.of(context).textTheme.labelMedium),
+          if (onInfo != null) ...[
+            const SizedBox(width: 4),
+            Icon(Icons.info_outline,
+                size: 14, color: context.colors.textSecondary),
+          ],
+        ],
+      );
+      if (onInfo == null) return row;
+      return InkWell(
+        onTap: onInfo,
+        borderRadius: BorderRadius.circular(8),
+        child: row,
+      );
+    }
+
     return Wrap(
       spacing: 16,
       runSpacing: 8,
@@ -342,7 +389,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         item(context.colors.period, _l10n.legendPeriod),
         item(context.colors.period, _l10n.legendPredicted, hollow: true),
         item(context.colors.intimacy, _l10n.legendIntimacy, heart: true),
-        item(context.colors.fertile, _l10n.legendFertile),
+        item(context.colors.fertile, _l10n.legendFertile,
+            onInfo: _showOvulationInfo),
       ],
     );
   }

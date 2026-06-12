@@ -69,35 +69,96 @@ class _InsightsScreenState extends State<InsightsScreen> {
     );
   }
 
-  /// За free потребители — какво ги чака вътре + път към paywall-а.
-  Widget _teaser() => Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text('📊', textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 56)),
-            const SizedBox(height: 16),
-            Text(_l10n.insightsTeaser,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodyMedium),
-            const SizedBox(height: 8),
-            Text(_l10n.insightsPrivacyNote,
-                textAlign: TextAlign.center,
+  /// Демо данни за превюто на free потребителите — да видят какво
+  /// купуват, без да гадаят по празен екран.
+  InsightsData _demoData() {
+    final now = DateTime.now();
+    return InsightsData(
+      cycle: const CycleStats(count: 3, average: 28.4, min: 27, max: 30),
+      moodByPhase: const {
+        CyclePhase.menstrual: 1.8,
+        CyclePhase.follicular: 3.1,
+        CyclePhase.ovulation: 3.8,
+        CyclePhase.luteal: 2.6,
+      },
+      moodSamples: const {
+        CyclePhase.menstrual: 5,
+        CyclePhase.follicular: 6,
+        CyclePhase.ovulation: 3,
+        CyclePhase.luteal: 7,
+      },
+      trend: [
+        for (var i = 5; i >= 0; i--)
+          MonthTrend(
+            month: DateTime(now.year, now.month - i),
+            avgLibido: 0.45 + 0.07 * (5 - i),
+            avgEnergy: 0.55 + 0.05 * (5 - i),
+            moments: 2 + (5 - i) % 3,
+          ),
+      ],
+      recap: Recap(
+        diaryEntries: 8,
+        moments: 5,
+        orgasms: 7,
+        avgMood: 3.2,
+        topSymptom: _l10n.tagPms,
+        topPosition: _l10n.posSpoons,
+      ),
+    );
+  }
+
+  /// За free потребители — живо превю с демо данни + път към paywall-а.
+  Widget _teaser() => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Text(_l10n.insightsSampleBadge,
                 style: Theme.of(context).textTheme.labelMedium),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () async {
-                await Navigator.of(context).push(
-                  MaterialPageRoute(builder: (_) => const PaywallScreen()),
-                );
-                if (mounted) setState(() {});
-              },
-              child: Text(_l10n.insightsUnlock),
+          ),
+          Expanded(
+            child: IgnorePointer(
+              child: Opacity(
+                opacity: 0.45,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: _cards(_demoData()),
+                ),
+              ),
             ),
-          ],
-        ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+            decoration: BoxDecoration(
+              color: context.colors.surface,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text('🔒 ${_l10n.insightsTeaser}',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 6),
+                Text(_l10n.insightsPrivacyNote,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelMedium),
+                const SizedBox(height: 16),
+                FilledButton(
+                  onPressed: () async {
+                    await Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const PaywallScreen()),
+                    );
+                    if (mounted) setState(() {});
+                  },
+                  child: Text(_l10n.insightsUnlock),
+                ),
+              ],
+            ),
+          ),
+        ],
       );
 
   Widget _empty() => Padding(
@@ -109,26 +170,28 @@ class _InsightsScreenState extends State<InsightsScreen> {
         ),
       );
 
+  /// Картите за дадените данни — общи за реалния изглед и демо превюто.
+  List<Widget> _cards(InsightsData data) => [
+        _cycleCard(data.cycle),
+        const SizedBox(height: 12),
+        _moodCard(data),
+        if (data.trend.any((m) => m.hasData)) ...[
+          const SizedBox(height: 12),
+          _trendCard(data.trend),
+        ],
+        if (data.recap.hasData) ...[
+          const SizedBox(height: 12),
+          _recapCard(data.recap),
+        ],
+      ];
+
   Widget _content(InsightsData data) {
-    final trendMonths = data.trend.where((m) => m.hasData).isEmpty
-        ? null
-        : data.trend;
     return RefreshIndicator(
       onRefresh: _reload,
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _cycleCard(data.cycle),
-          const SizedBox(height: 12),
-          _moodCard(data),
-          if (trendMonths != null) ...[
-            const SizedBox(height: 12),
-            _trendCard(trendMonths),
-          ],
-          if (data.recap.hasData) ...[
-            const SizedBox(height: 12),
-            _recapCard(data.recap),
-          ],
+          ..._cards(data),
           const SizedBox(height: 16),
           Center(
             child: Text(_l10n.insightsPrivacyNote,

@@ -134,6 +134,9 @@ class _DiaryScreenState extends State<DiaryScreen> {
                           if (decodeStringList(e.videos).isNotEmpty)
                             '🎬 ${decodeStringList(e.videos).length > 1 ? decodeStringList(e.videos).length : ''}'
                                 .trim(),
+                          if (decodeStringList(e.audios).isNotEmpty)
+                            '🎙️ ${decodeStringList(e.audios).length > 1 ? decodeStringList(e.audios).length : ''}'
+                                .trim(),
                           ...decodeStringList(e.tags).map((t) => '#$t'),
                         ].join(' · '),
                         style: Theme.of(context).textTheme.labelMedium,

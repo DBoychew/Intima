@@ -29,6 +29,10 @@ class DiaryEntries extends Table {
 
   /// JSON списък с пътища до видеата в private storage (v4, Premium).
   TextColumn get videos => text().withDefault(const Constant('[]'))();
+
+  /// JSON списък с пътища до аудио бележките в private storage
+  /// (v5, Premium).
+  TextColumn get audios => text().withDefault(const Constant('[]'))();
 }
 
 /// Дневен запис от календара — най-много един на дата.
@@ -81,7 +85,7 @@ class IntimaDatabase extends _$IntimaDatabase {
   IntimaDatabase(super.e);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -99,6 +103,9 @@ class IntimaDatabase extends _$IntimaDatabase {
           }
           if (from < 4) {
             await m.addColumn(diaryEntries, diaryEntries.videos);
+          }
+          if (from < 5) {
+            await m.addColumn(diaryEntries, diaryEntries.audios);
           }
         },
       );
