@@ -728,6 +728,30 @@ abstract class AppLocalizations {
   /// **'Снимката липсва 📷'**
   String get photoMissing;
 
+  /// No description provided for @addVideo.
+  ///
+  /// In bg, this message translates to:
+  /// **'Добави видео'**
+  String get addVideo;
+
+  /// No description provided for @removeVideoTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Премахване на видеото?'**
+  String get removeVideoTitle;
+
+  /// No description provided for @removeVideoBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Видеото ще бъде изтрито от записа завинаги.'**
+  String get removeVideoBody;
+
+  /// No description provided for @videoMissing.
+  ///
+  /// In bg, this message translates to:
+  /// **'Видеото не може да се възпроизведе 🎬'**
+  String get videoMissing;
+
   /// No description provided for @settingsTitle.
   ///
   /// In bg, this message translates to:
@@ -1159,6 +1183,18 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Stealth режим и фалшив PIN'**
   String get premiumFeatureStealth;
+
+  /// No description provided for @premiumFeatureInsights.
+  ///
+  /// In bg, this message translates to:
+  /// **'Инсайти и статистики'**
+  String get premiumFeatureInsights;
+
+  /// No description provided for @premiumFeatureVideo.
+  ///
+  /// In bg, this message translates to:
+  /// **'Видео в дневника'**
+  String get premiumFeatureVideo;
 
   /// No description provided for @premiumFeaturePacks.
   ///

@@ -5,13 +5,16 @@ import 'package:drift/drift.dart' show Value;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../core/moods.dart';
+import '../../core/premium.dart';
 import '../../data/calendar_repository.dart' show decodeStringList;
 import '../../data/database.dart';
 import '../../data/diary_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme/app_theme.dart';
+import '../premium/paywall_screen.dart';
 
 /// Шаблон със собствен журналинг промпт; [starter] се вмъква при празен текст.
 typedef _Template = ({String name, String hint, String? starter});
@@ -49,6 +52,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
   int? _mood;
   late List<String> _tags;
   late List<String> _photos;
+  late List<String> _videos;
   bool _saving = false;
 
   @override
@@ -58,6 +62,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     _mood = widget.initial?.mood;
     _tags = [...decodeStringList(widget.initial?.tags)];
     _photos = [...decodeStringList(widget.initial?.photos)];
+    _videos = [...decodeStringList(widget.initial?.videos)];
   }
 
   @override
@@ -99,6 +104,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         mood: _mood,
         tags: _tags,
         photos: _photos,
+        videos: _videos,
       );
     } else {
       await diaryRepository.update(initial.copyWith(
@@ -108,6 +114,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         tags: jsonEncode(_tags),
         hasPhoto: _photos.isNotEmpty,
         photos: jsonEncode(_photos),
+        videos: jsonEncode(_videos),
       ));
     }
     if (mounted) Navigator.pop(context, true);
@@ -160,14 +167,40 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     }
   }
 
-  Future<void> _confirmRemovePhoto(int index) async {
+  /// Премиум gate за видеата: без активен Premium отваря paywall-а.
+  Future<void> _pickVideo() async {
+    HapticFeedback.selectionClick();
+    if (!premium.active) {
+      await Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => const PaywallScreen()),
+      );
+      if (!premium.active || !mounted) return;
+      setState(() {}); // катинарчето на бутона изчезва
+    }
+    try {
+      final picked = await ImagePicker().pickVideo(
+        source: ImageSource.gallery,
+      );
+      if (picked == null || !mounted) return;
+      final path = await diaryRepository.importVideo(picked.path);
+      setState(() => _videos.add(path));
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(_l10n.galleryUnavailable)),
+        );
+      }
+    }
+  }
+
+  Future<bool> _confirmRemoval(String title, String body) async {
     HapticFeedback.selectionClick();
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: context.colors.surfaceHigh,
-        title: Text(_l10n.removePhotoTitle),
-        content: Text(_l10n.removePhotoBody),
+        title: Text(title),
+        content: Text(body),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -181,9 +214,23 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
         ],
       ),
     );
-    if (confirmed != true || !mounted) return;
+    return confirmed == true && mounted;
+  }
+
+  Future<void> _confirmRemovePhoto(int index) async {
+    if (!await _confirmRemoval(_l10n.removePhotoTitle, _l10n.removePhotoBody)) {
+      return;
+    }
     await diaryRepository.deletePhotoFile(_photos[index]);
     if (mounted) setState(() => _photos.removeAt(index));
+  }
+
+  Future<void> _confirmRemoveVideo(int index) async {
+    if (!await _confirmRemoval(_l10n.removeVideoTitle, _l10n.removeVideoBody)) {
+      return;
+    }
+    await diaryRepository.deletePhotoFile(_videos[index]);
+    if (mounted) setState(() => _videos.removeAt(index));
   }
 
   void _viewPhoto(int index) {
@@ -221,6 +268,60 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
           right: 4,
           child: InkWell(
             onTap: () => _confirmRemovePhoto(index),
+            customBorder: const CircleBorder(),
+            child: Container(
+              padding: const EdgeInsets.all(4),
+              decoration: const BoxDecoration(
+                color: Colors.black54,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(Icons.close, size: 16, color: Colors.white),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _viewVideo(int index) {
+    HapticFeedback.selectionClick();
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (_) => _VideoViewerScreen(path: _videos[index]),
+    ));
+  }
+
+  /// Видео плочка — кадър няма (без тежки зависимости), но плочката
+  /// ясно казва какво е: лента + play бутон.
+  Widget _videoThumb(int index) {
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () => _viewVideo(index),
+          borderRadius: BorderRadius.circular(14),
+          child: Container(
+            width: 104,
+            height: 104,
+            decoration: BoxDecoration(
+              color: context.colors.surfaceHigh,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.play_circle_fill,
+                    size: 36, color: context.colors.primarySoft),
+                const SizedBox(height: 4),
+                const Text('🎬', style: TextStyle(fontSize: 16)),
+              ],
+            ),
+          ),
+        ),
+        Positioned(
+          top: 4,
+          right: 4,
+          child: InkWell(
+            onTap: () => _confirmRemoveVideo(index),
             customBorder: const CircleBorder(),
             child: Container(
               padding: const EdgeInsets.all(4),
@@ -321,15 +422,17 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               hintText: _templates[_template].hint,
             ),
           ),
-          if (_photos.isNotEmpty) ...[
+          if (_photos.isNotEmpty || _videos.isNotEmpty) ...[
             const SizedBox(height: 12),
             SizedBox(
               height: 104,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: _photos.length,
+                itemCount: _photos.length + _videos.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 8),
-                itemBuilder: (_, i) => _photoThumb(i),
+                itemBuilder: (_, i) => i < _photos.length
+                    ? _photoThumb(i)
+                    : _videoThumb(i - _photos.length),
               ),
             ),
           ],
@@ -360,12 +463,20 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _ActionButton(
-                  icon: Icons.tag,
-                  label: _l10n.newTag,
-                  onTap: _addTag,
+                  icon: Icons.video_library_outlined,
+                  label: _l10n.addVideo,
+                  onTap: _pickVideo,
+                  // Видеата са Premium — катинарче подсказва преди тап.
+                  locked: !premium.active,
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 12),
+          _ActionButton(
+            icon: Icons.tag,
+            label: _l10n.newTag,
+            onTap: _addTag,
           ),
           const SizedBox(height: 32),
         ],
@@ -402,6 +513,86 @@ class _PhotoViewerScreen extends StatelessWidget {
   }
 }
 
+/// Видео на цял екран — тап за пауза/пускане, скруб лента отдолу.
+class _VideoViewerScreen extends StatefulWidget {
+  const _VideoViewerScreen({required this.path});
+
+  final String path;
+
+  @override
+  State<_VideoViewerScreen> createState() => _VideoViewerScreenState();
+}
+
+class _VideoViewerScreenState extends State<_VideoViewerScreen> {
+  late final VideoPlayerController _controller;
+  bool _ready = false;
+  bool _failed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.file(File(widget.path));
+    _controller.initialize().then((_) {
+      if (!mounted) return;
+      setState(() => _ready = true);
+      _controller.play();
+    }).catchError((_) {
+      if (mounted) setState(() => _failed = true);
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _togglePlay() {
+    setState(() {
+      _controller.value.isPlaying ? _controller.pause() : _controller.play();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(backgroundColor: Colors.transparent),
+      body: _failed
+          ? Center(child: Text(AppLocalizations.of(context)!.videoMissing))
+          : !_ready
+              ? const Center(child: CircularProgressIndicator())
+              : GestureDetector(
+                  onTap: _togglePlay,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Center(
+                        child: AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: VideoPlayer(_controller),
+                        ),
+                      ),
+                      // Голям play бутон, когато е на пауза.
+                      if (!_controller.value.isPlaying)
+                        const Icon(Icons.play_circle_fill,
+                            size: 72, color: Colors.white70),
+                      Positioned(
+                        left: 16,
+                        right: 16,
+                        bottom: 24,
+                        child: VideoProgressIndicator(
+                          _controller,
+                          allowScrubbing: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+    );
+  }
+}
+
 /// Вторичен бутон в стила на полетата — мека повърхност без рамка,
 /// но с голяма зона за докосване.
 class _ActionButton extends StatelessWidget {
@@ -409,11 +600,16 @@ class _ActionButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.locked = false,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+
+  /// Premium функция без активен Premium — бутонът работи (отваря
+  /// paywall-а), но катинарчето подсказва предварително.
+  final bool locked;
 
   @override
   Widget build(BuildContext context) {
@@ -421,7 +617,16 @@ class _ActionButton extends StatelessWidget {
     return TextButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 20, color: color),
-      label: Text(label),
+      label: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+          if (locked) ...[
+            const SizedBox(width: 6),
+            Icon(Icons.lock_outline, size: 14, color: color),
+          ],
+        ],
+      ),
       style: TextButton.styleFrom(
         foregroundColor: color,
         backgroundColor: context.colors.surface,

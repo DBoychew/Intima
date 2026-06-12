@@ -49,6 +49,18 @@ class PaywallScreen extends StatelessWidget {
         soon: false,
       ),
       (
+        icon: Icons.insights_outlined,
+        title: l10n.premiumFeatureInsights,
+        subtitle: null,
+        soon: false,
+      ),
+      (
+        icon: Icons.video_library_outlined,
+        title: l10n.premiumFeatureVideo,
+        subtitle: null,
+        soon: false,
+      ),
+      (
         icon: Icons.favorite_outline,
         title: l10n.premiumFeaturePacks,
         subtitle: null,

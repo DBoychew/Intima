@@ -65,6 +65,31 @@ void main() {
     expect(await repo.all(), isEmpty);
   });
 
+  test('видеа (v4): пазят се отделно от снимките и се четат обратно',
+      () async {
+    await repo.create(
+      title: 'С видео',
+      body: 'Текст',
+      date: DateTime(2026, 6, 12),
+      mood: 3,
+      tags: const [],
+      photos: const ['/p/a.jpg'],
+      videos: const ['/v/clip.mp4'],
+    );
+    final row = (await repo.all()).single;
+    expect(decodeStringList(row.photos), ['/p/a.jpg']);
+    expect(decodeStringList(row.videos), ['/v/clip.mp4']);
+
+    // Запис без подадени видеа получава празен списък по подразбиране.
+    await seed('Без видео', DateTime(2026, 6, 11));
+    final plain = (await repo.all()).last;
+    expect(decodeStringList(plain.videos), isEmpty);
+
+    // Изтриването на запис с видеа не гърми при липсващи файлове.
+    await repo.delete(row);
+    expect(await repo.all(), hasLength(1));
+  });
+
   test('спомен: най-скорошният запис отпреди поне 30 дни', () async {
     final now = DateTime(2026, 6, 10);
     await seed('Вчера', DateTime(2026, 6, 9));

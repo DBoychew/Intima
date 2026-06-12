@@ -134,6 +134,7 @@ void main() {
             tags: '[]',
             hasPhoto: false,
             photos: '[]',
+            videos: '[]',
           ),
         ],
         now: now,

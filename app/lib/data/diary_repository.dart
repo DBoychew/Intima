@@ -30,6 +30,7 @@ class DiaryRepository {
     required int? mood,
     required List<String> tags,
     required List<String> photos,
+    List<String> videos = const [],
   }) async {
     // В stealth копието нищо не се записва.
     if (appLock.decoyActive) return;
@@ -41,6 +42,7 @@ class DiaryRepository {
       tags: Value(jsonEncode(tags)),
       hasPhoto: Value(photos.isNotEmpty),
       photos: Value(jsonEncode(photos)),
+      videos: Value(jsonEncode(videos)),
     ));
     bumpDataVersion();
   }
@@ -53,7 +55,10 @@ class DiaryRepository {
 
   Future<void> delete(DiaryEntryRow row) async {
     if (appLock.decoyActive) return;
-    for (final path in decodeStringList(row.photos)) {
+    for (final path in [
+      ...decodeStringList(row.photos),
+      ...decodeStringList(row.videos),
+    ]) {
       await deletePhotoFile(path);
     }
     await _manager.db.deleteDiaryEntry(row.id);
@@ -62,15 +67,22 @@ class DiaryRepository {
 
   /// Копира снимка в private storage (никога в общата галерия)
   /// и връща пътя до копието.
-  Future<String> importPhoto(String sourcePath) async {
+  Future<String> importPhoto(String sourcePath) =>
+      _importMedia(sourcePath, 'photos');
+
+  /// Копира видео в private storage (v4, Premium).
+  Future<String> importVideo(String sourcePath) =>
+      _importMedia(sourcePath, 'videos');
+
+  Future<String> _importMedia(String sourcePath, String subdir) async {
     // В stealth копието не копираме нищо — показваме оригинала.
     if (appLock.decoyActive) return sourcePath;
     final dir = await getApplicationDocumentsDirectory();
-    final photos = Directory(p.join(dir.path, 'photos'));
-    await photos.create(recursive: true);
+    final target = Directory(p.join(dir.path, subdir));
+    await target.create(recursive: true);
     final name = 'diary_${DateTime.now().millisecondsSinceEpoch}'
         '${p.extension(sourcePath)}';
-    final copy = await File(sourcePath).copy(p.join(photos.path, name));
+    final copy = await File(sourcePath).copy(p.join(target.path, name));
     return copy.path;
   }
 

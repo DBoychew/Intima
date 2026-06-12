@@ -118,6 +118,7 @@ void main() {
       tags: '[]',
       hasPhoto: true,
       photos: '["/няма/такава.png"]',
+      videos: '[]',
     );
     await tester.pumpWidget(
       bgApp(DiaryEditorScreen(initial: row)),

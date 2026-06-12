@@ -374,6 +374,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get photoMissing => 'Photo missing 📷';
 
   @override
+  String get addVideo => 'Add video';
+
+  @override
+  String get removeVideoTitle => 'Remove this video?';
+
+  @override
+  String get removeVideoBody =>
+      'The video will be deleted from the entry forever.';
+
+  @override
+  String get videoMissing => 'This video can\'t be played 🎬';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override
@@ -602,6 +615,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get premiumFeatureStealth => 'Stealth mode and decoy PIN';
+
+  @override
+  String get premiumFeatureInsights => 'Insights & statistics';
+
+  @override
+  String get premiumFeatureVideo => 'Videos in your diary';
 
   @override
   String get premiumFeaturePacks => 'Themed packs for couples';

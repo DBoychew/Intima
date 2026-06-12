@@ -48,6 +48,7 @@ void main() {
         tags: '["нас","вечеря"]',
         hasPhoto: false,
         photos: '[]',
+        videos: '[]',
       ),
       DiaryEntryRow(
         id: 2,
@@ -58,6 +59,7 @@ void main() {
         tags: '[]',
         hasPhoto: false,
         photos: '["/липсваща/снимка.jpg"]', // не трябва да чупи нищо
+        videos: '[]',
       ),
     ];
 

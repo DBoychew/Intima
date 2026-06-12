@@ -26,6 +26,9 @@ class DiaryEntries extends Table {
 
   /// JSON списък с пътища до снимките в private storage (v3).
   TextColumn get photos => text().withDefault(const Constant('[]'))();
+
+  /// JSON списък с пътища до видеата в private storage (v4, Premium).
+  TextColumn get videos => text().withDefault(const Constant('[]'))();
 }
 
 /// Дневен запис от календара — най-много един на дата.
@@ -78,7 +81,7 @@ class IntimaDatabase extends _$IntimaDatabase {
   IntimaDatabase(super.e);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -93,6 +96,9 @@ class IntimaDatabase extends _$IntimaDatabase {
               'UPDATE diary_entries SET photos = json_array(photo_path) '
               'WHERE photo_path IS NOT NULL',
             );
+          }
+          if (from < 4) {
+            await m.addColumn(diaryEntries, diaryEntries.videos);
           }
         },
       );

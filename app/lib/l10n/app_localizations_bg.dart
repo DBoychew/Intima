@@ -371,6 +371,18 @@ class AppLocalizationsBg extends AppLocalizations {
   String get photoMissing => 'Снимката липсва 📷';
 
   @override
+  String get addVideo => 'Добави видео';
+
+  @override
+  String get removeVideoTitle => 'Премахване на видеото?';
+
+  @override
+  String get removeVideoBody => 'Видеото ще бъде изтрито от записа завинаги.';
+
+  @override
+  String get videoMissing => 'Видеото не може да се възпроизведе 🎬';
+
+  @override
   String get settingsTitle => 'Настройки';
 
   @override
@@ -601,6 +613,12 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get premiumFeatureStealth => 'Stealth режим и фалшив PIN';
+
+  @override
+  String get premiumFeatureInsights => 'Инсайти и статистики';
+
+  @override
+  String get premiumFeatureVideo => 'Видео в дневника';
 
   @override
   String get premiumFeaturePacks => 'Тематични пакети за двойки';
