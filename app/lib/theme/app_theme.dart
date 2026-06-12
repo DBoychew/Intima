@@ -137,8 +137,10 @@ abstract class AppFonts {
 }
 
 abstract class AppTheme {
-  static ThemeData get dark => _build(IntimaColors.dark, Brightness.dark);
-  static ThemeData get light => _build(IntimaColors.light, Brightness.light);
+  static ThemeData dark(IntimaColors colors) =>
+      _build(colors, Brightness.dark);
+  static ThemeData light(IntimaColors colors) =>
+      _build(colors, Brightness.light);
 
   static ThemeData _build(IntimaColors c, Brightness brightness) {
     final onAccent =

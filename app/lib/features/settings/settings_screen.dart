@@ -19,6 +19,7 @@ import '../../security/app_lock.dart';
 import '../../security/pin_widgets.dart';
 import '../../security/secure_flag.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/palettes.dart';
 import '../premium/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -339,6 +340,50 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) setState(() {});
   }
 
+  String _paletteLabel(AppPalette p) => switch (p) {
+        AppPalette.roseGold => _l10n.paletteRoseGold,
+        AppPalette.midnightBlue => _l10n.paletteMidnightBlue,
+        AppPalette.ocean => _l10n.paletteOcean,
+        _ => _l10n.paletteIntima,
+      };
+
+  Future<void> _pickPalette() async {
+    final selected = await showModalBottomSheet<AppPalette>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (final p in AppPalette.values)
+              ListTile(
+                title: Text(_paletteLabel(p)),
+                leading: _PaletteSwatch(palette: p),
+                trailing: themeController.palette == p
+                    ? Icon(Icons.check, color: ctx.colors.accentSoft)
+                    : p.isPremium && !premium.active
+                        ? Icon(Icons.lock_outline,
+                            size: 20, color: ctx.colors.textSecondary)
+                        : null,
+                onTap: () => Navigator.pop(ctx, p),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (selected == null ||
+        selected == themeController.palette ||
+        !mounted) {
+      return;
+    }
+    if (selected.isPremium && !await _requirePremium()) return;
+    await themeController.setPalette(selected);
+    if (mounted) {
+      setState(() {});
+      _toast(_l10n.paletteApplied);
+    }
+  }
+
   Future<void> _exportPdf() async {
     if (!await _requirePremium() || !mounted) return;
     final entries = await diaryRepository.all();
@@ -530,6 +575,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             trailing: Text(_themeLabel(themeController.mode), style: accent),
             onTap: _pickTheme,
           ),
+          ListTile(
+            title: Text(_l10n.paletteTitle),
+            trailing:
+                Text(_paletteLabel(themeController.palette), style: accent),
+            onTap: _pickPalette,
+          ),
           // Експорт/изтриване пипат РЕАЛНИТЕ данни — скрити в stealth.
           if (!appLock.decoyActive) ...[
           _section(_l10n.sectionData),
@@ -583,4 +634,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 .labelMedium!
                 .copyWith(color: context.colors.accent, letterSpacing: 1.2)),
       );
+}
+
+/// Мини превю на палитра — четирите ѝ ключови цвята в текущия режим.
+class _PaletteSwatch extends StatelessWidget {
+  const _PaletteSwatch({required this.palette});
+
+  final AppPalette palette;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = Theme.of(context).brightness == Brightness.dark
+        ? palette.dark
+        : palette.light;
+    return SizedBox(
+      width: 68,
+      child: Row(
+        children: [
+          for (final color in [c.primary, c.accent, c.period, c.fertile])
+            Container(
+              width: 14,
+              height: 14,
+              margin: const EdgeInsets.only(right: 3),
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+        ],
+      ),
+    );
+  }
 }

@@ -15,10 +15,11 @@ import 'package:intima/features/diary/diary_screen.dart';
 import 'package:intima/l10n/app_localizations.dart';
 import 'package:intima/main.dart';
 import 'package:intima/theme/app_theme.dart';
+import 'package:intima/theme/palettes.dart';
 
 /// Тестваме на български — текстовете в expect-ите са BG.
 Widget bgApp(Widget home) => MaterialApp(
-      theme: AppTheme.dark,
+      theme: AppTheme.dark(AppPalette.intima.dark),
       locale: const Locale('bg'),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

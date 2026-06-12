@@ -164,8 +164,8 @@ class _IntimaAppState extends State<IntimaApp> with WidgetsBindingObserver {
       builder: (context, _) => MaterialApp.router(
         title: 'Intima',
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.light,
-        darkTheme: AppTheme.dark,
+        theme: AppTheme.light(themeController.palette.light),
+        darkTheme: AppTheme.dark(themeController.palette.dark),
         themeMode: themeController.mode,
         locale: localeOverride,
         localizationsDelegates: AppLocalizations.localizationsDelegates,

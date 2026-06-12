@@ -558,6 +558,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeSystem => 'Follow system';
 
   @override
+  String get paletteTitle => 'Palette';
+
+  @override
+  String get paletteIntima => 'Intima · purple & gold';
+
+  @override
+  String get paletteRoseGold => 'Rose gold';
+
+  @override
+  String get paletteMidnightBlue => 'Midnight blue';
+
+  @override
+  String get paletteOcean => 'Ocean';
+
+  @override
+  String get paletteApplied => 'Palette changed 🎨';
+
+  @override
   String get sectionPremium => 'INTIMA PREMIUM';
 
   @override

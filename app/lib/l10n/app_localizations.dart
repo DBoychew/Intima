@@ -1070,6 +1070,42 @@ abstract class AppLocalizations {
   /// **'Според системата'**
   String get themeSystem;
 
+  /// No description provided for @paletteTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Палитра'**
+  String get paletteTitle;
+
+  /// No description provided for @paletteIntima.
+  ///
+  /// In bg, this message translates to:
+  /// **'Intima · лилаво и злато'**
+  String get paletteIntima;
+
+  /// No description provided for @paletteRoseGold.
+  ///
+  /// In bg, this message translates to:
+  /// **'Роуз голд'**
+  String get paletteRoseGold;
+
+  /// No description provided for @paletteMidnightBlue.
+  ///
+  /// In bg, this message translates to:
+  /// **'Среднощно синьо'**
+  String get paletteMidnightBlue;
+
+  /// No description provided for @paletteOcean.
+  ///
+  /// In bg, this message translates to:
+  /// **'Океан'**
+  String get paletteOcean;
+
+  /// No description provided for @paletteApplied.
+  ///
+  /// In bg, this message translates to:
+  /// **'Палитрата е сменена 🎨'**
+  String get paletteApplied;
+
   /// No description provided for @sectionPremium.
   ///
   /// In bg, this message translates to:

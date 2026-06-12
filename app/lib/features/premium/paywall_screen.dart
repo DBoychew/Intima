@@ -40,13 +40,13 @@ class PaywallScreen extends StatelessWidget {
         icon: Icons.palette_outlined,
         title: l10n.premiumFeatureThemes,
         subtitle: null,
-        soon: true,
+        soon: false,
       ),
       (
         icon: Icons.visibility_off_outlined,
         title: l10n.premiumFeatureStealth,
         subtitle: null,
-        soon: true,
+        soon: false,
       ),
       (
         icon: Icons.favorite_outline,

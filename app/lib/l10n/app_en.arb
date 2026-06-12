@@ -189,6 +189,13 @@
   "themeLight": "Light",
   "themeSystem": "Follow system",
 
+  "paletteTitle": "Palette",
+  "paletteIntima": "Intima · purple & gold",
+  "paletteRoseGold": "Rose gold",
+  "paletteMidnightBlue": "Midnight blue",
+  "paletteOcean": "Ocean",
+  "paletteApplied": "Palette changed 🎨",
+
   "sectionPremium": "INTIMA PREMIUM",
   "premiumTitle": "Intima Premium",
   "premiumTagline": "More room for intimacy",

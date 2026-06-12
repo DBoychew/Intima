@@ -557,6 +557,24 @@ class AppLocalizationsBg extends AppLocalizations {
   String get themeSystem => 'Според системата';
 
   @override
+  String get paletteTitle => 'Палитра';
+
+  @override
+  String get paletteIntima => 'Intima · лилаво и злато';
+
+  @override
+  String get paletteRoseGold => 'Роуз голд';
+
+  @override
+  String get paletteMidnightBlue => 'Среднощно синьо';
+
+  @override
+  String get paletteOcean => 'Океан';
+
+  @override
+  String get paletteApplied => 'Палитрата е сменена 🎨';
+
+  @override
   String get sectionPremium => 'INTIMA PREMIUM';
 
   @override
