@@ -1,57 +1,81 @@
 import 'dart:convert';
 import 'dart:math';
 
-import 'package:cryptography/cryptography.dart';
-
 import '../security/secure_store.dart';
-import 'couple_crypto.dart';
 import 'sync_backend.dart';
 
-enum PartnerStatus { none, inviting, linked }
+/// Един партньор (двойка) от гледна точка на този потребител.
+class Partner {
+  const Partner({required this.coupleId, this.nickname});
 
-/// Текуща покана при канещия — кодът за казване + SAS, щом другата
-/// страна приеме.
-class PendingInvite {
-  const PendingInvite(this.code);
-
-  final String code;
+  final String coupleId;
+  final String? nickname;
 }
 
-/// Оркестрира Partner Mode от двете страни на сдвояването и пази
-/// състоянието в защитеното хранилище. Бекендът е абстракция —
-/// тестовете ползват InMemorySyncBackend, продукцията Supabase.
+/// Едно съобщение, готово за показване в чата.
+class ChatMessage {
+  const ChatMessage({
+    required this.author,
+    required this.mine,
+    required this.createdAt,
+    this.body,
+    this.mediaUrl,
+    this.mediaKind = MediaKind.none,
+  });
+
+  final String author;
+  final bool mine;
+  final String? body;
+  final String? mediaUrl;
+  final MediaKind mediaKind;
+  final DateTime createdAt;
+}
+
+/// Оркестрира Partner Mode: сдвояване с код, няколко партньора и чат
+/// със снимки/видео. БЕЗ E2E криптиране — съдържанието се пази на
+/// сървъра в явен вид (оповестено в Privacy Policy; виж PARTNER_MODE.md).
 class PartnerRepository {
   PartnerRepository(this._backend, {String? deviceIdOverride})
       : _deviceIdOverride = deviceIdOverride;
 
-  static const _keyKey = 'partner_couple_key';
-  static const _idKey = 'partner_couple_id';
   static const _deviceKey = 'partner_device_id';
+  static const _nicknamesKey = 'partner_nicknames';
 
-  final SyncBackend _backend;
+  final PartnerBackend _backend;
 
   /// За тестове: две „устройства" в един процес делят едно хранилище.
   final String? _deviceIdOverride;
 
-  PartnerStatus _status = PartnerStatus.none;
-  PartnerStatus get status => _status;
+  List<Partner> _partners = const [];
+  List<Partner> get partners => _partners;
+  bool get hasPartners => _partners.isNotEmpty;
 
-  SecretKey? _coupleKey;
-  String? _coupleId;
-  String? get coupleId => _coupleId;
-
-  // Живее само по време на сдвояване.
-  SimpleKeyPair? _pendingPair;
+  // Текуща покана при канещия.
   String? _pendingCode;
+  String? get pendingCode => _pendingCode;
 
+  Map<String, String> _nicknames = const {};
+
+  /// Зарежда партньорите от сървъра (мрежата се пипа само тук, когато
+  /// потребителката отвори екрана „Партньор").
   Future<void> init() async {
-    final stored = await SecureStore.read(_keyKey);
-    _coupleId = await SecureStore.read(_idKey);
-    if (stored != null && _coupleId != null) {
-      _coupleKey = SecretKey(base64Decode(stored));
-      _status = PartnerStatus.linked;
-    }
+    _nicknames = _readNicknames(await SecureStore.read(_nicknamesKey));
+    await refreshPartners();
   }
+
+  Future<void> refreshPartners() async {
+    final ids = await _backend.myCouples();
+    _partners = [
+      for (final id in ids) Partner(coupleId: id, nickname: _nicknames[id]),
+    ];
+  }
+
+  Map<String, String> _readNicknames(String? json) => json == null
+      ? {}
+      : (jsonDecode(json) as Map).map((k, v) => MapEntry('$k', '$v'));
+
+  Future<String> _author() async =>
+      (await _backend.identity()) ?? await _deviceId();
 
   Future<String> _deviceId() async {
     if (_deviceIdOverride != null) return _deviceIdOverride;
@@ -64,133 +88,102 @@ class PartnerRepository {
     return id;
   }
 
-  /// Авторът, който се записва на сървъра: auth идентичността на
-  /// бекенда (нужна за RLS) или локалното id при тестовия mock.
-  Future<String> _author() async =>
-      (await _backend.identity()) ?? await _deviceId();
-
-  /// Страна А: създава покана и връща кода, който се казва на глас.
-  Future<PendingInvite> invite() async {
-    _pendingPair = await CoupleCrypto.newKeyPair();
-    _pendingCode = CoupleCrypto.inviteCode();
-    await _backend.createPairing(
-      _pendingCode!,
-      await CoupleCrypto.publicKeyBytes(_pendingPair!),
-    );
-    _status = PartnerStatus.inviting;
-    return PendingInvite(_pendingCode!);
+  /// 8-знаков еднократен код от недвусмислена азбука (без 0/O, 1/I/l).
+  static String _inviteCode({Random? random}) {
+    const alphabet = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+    final rng = random ?? Random.secure();
+    return List.generate(8, (_) => alphabet[rng.nextInt(alphabet.length)])
+        .join();
   }
 
-  /// Страна А: проверява дали поканата е приета; при да — връща SAS
-  /// емоджитата за гласовата проверка.
-  Future<List<String>?> inviteAccepted() async {
+  /// Страна А: създава покана; връща кода, който се казва на партньора.
+  Future<String> invite() async {
+    _pendingCode = _inviteCode();
+    await _backend.createPairing(_pendingCode!);
+    return _pendingCode!;
+  }
+
+  /// Страна А: проверява дали поканата е приета → новата двойка или null.
+  Future<Partner?> pollInvite() async {
     final code = _pendingCode;
-    final pair = _pendingPair;
-    if (code == null || pair == null) return null;
-    final state = await _backend.pairingState(code);
-    final pubB = state?.pubB;
-    if (pubB == null) return null;
-    _coupleKey = await CoupleCrypto.sharedKey(pair, pubB);
-    return CoupleCrypto.verificationEmojis(_coupleKey!);
-  }
-
-  /// Страна Б: приема покана по код; връща SAS емоджитата или null
-  /// при непознат/изтекъл код.
-  Future<List<String>?> accept(String code) async {
-    _pendingPair = await CoupleCrypto.newKeyPair();
-    _pendingCode = code.toUpperCase().trim();
-    final pubA = await _backend.joinPairing(
-      _pendingCode!,
-      await CoupleCrypto.publicKeyBytes(_pendingPair!),
-    );
-    if (pubA == null) return null;
-    _coupleKey = await CoupleCrypto.sharedKey(_pendingPair!, pubA);
-    return CoupleCrypto.verificationEmojis(_coupleKey!);
-  }
-
-  /// И двете страни: емоджитата съвпаднаха → връзката е официална.
-  Future<void> confirm() async {
-    final key = _coupleKey;
-    final code = _pendingCode;
-    if (key == null || code == null) {
-      throw StateError('Няма активно сдвояване');
-    }
-    _coupleId = await _backend.completePairing(code);
-    await SecureStore.write(
-        _keyKey, base64Encode(await key.extractBytes()));
-    await SecureStore.write(_idKey, _coupleId!);
-    _status = PartnerStatus.linked;
-    _pendingPair = null;
+    if (code == null) return null;
+    final coupleId = await _backend.pairingCouple(code);
+    if (coupleId == null) return null;
     _pendingCode = null;
+    await refreshPartners();
+    return _partners.firstWhere((p) => p.coupleId == coupleId,
+        orElse: () => Partner(coupleId: coupleId));
   }
 
-  /// Отказ от текущото сдвояване (емоджитата не съвпаднаха / отказ).
-  /// Поканата на сървъра изтича сама след 15 минути.
-  void cancelPending() {
-    _pendingPair = null;
-    _pendingCode = null;
-    if (_status != PartnerStatus.linked) {
-      _coupleKey = null;
-      _status = PartnerStatus.none;
+  void cancelInvite() => _pendingCode = null;
+
+  /// Страна Б: приема покана по код → новата двойка или null при
+  /// невалиден/изтекъл код.
+  Future<Partner?> accept(String code) async {
+    final coupleId = await _backend.joinPairing(code.toUpperCase().trim());
+    if (coupleId == null) return null;
+    await refreshPartners();
+    return _partners.firstWhere((p) => p.coupleId == coupleId,
+        orElse: () => Partner(coupleId: coupleId));
+  }
+
+  Future<void> setNickname(String coupleId, String nickname) async {
+    final next = Map<String, String>.from(_nicknames);
+    if (nickname.trim().isEmpty) {
+      next.remove(coupleId);
+    } else {
+      next[coupleId] = nickname.trim();
     }
+    _nicknames = next;
+    await SecureStore.write(_nicknamesKey, jsonEncode(next));
+    await refreshPartners();
   }
 
-  /// Споделя бележка — на сървъра пристига само шифрован блок.
-  Future<void> shareNote(String text, {DateTime? at}) async {
-    final key = _requireLinked();
-    final sealed = await CoupleCrypto.seal({
-      'text': text,
-      'at': (at ?? DateTime.now()).toIso8601String(),
-    }, key);
-    await _backend.push(SharedItem(
-      id: '${DateTime.now().microsecondsSinceEpoch}',
-      coupleId: _coupleId!,
+  Future<void> sendText(String coupleId, String text) =>
+      _send(coupleId, body: text);
+
+  Future<void> sendImage(String coupleId, String path) =>
+      _send(coupleId, mediaLocalPath: path, mediaKind: MediaKind.image);
+
+  Future<void> sendVideo(String coupleId, String path) =>
+      _send(coupleId, mediaLocalPath: path, mediaKind: MediaKind.video);
+
+  Future<void> _send(
+    String coupleId, {
+    String? body,
+    String? mediaLocalPath,
+    MediaKind mediaKind = MediaKind.none,
+  }) async {
+    await _backend.sendMessage(
+      coupleId: coupleId,
       author: await _author(),
-      kind: SharedKind.note,
-      sealed: sealed,
-      createdAt: DateTime.now(),
-    ));
+      body: body,
+      mediaLocalPath: mediaLocalPath,
+      mediaKind: mediaKind,
+    );
   }
 
-  /// Изтегля и декриптира споделеното; чужди/повредени блокове се
-  /// пропускат тихо (по-добре липсваща бележка от крив текст).
-  Future<List<({String author, bool mine, dynamic payload, SharedKind kind})>>
-      inbox({DateTime? since}) async {
-    final key = _requireLinked();
+  /// Чат историята на двойката, хронологично, с готови URL-и за медията.
+  Future<List<ChatMessage>> chat(String coupleId, {DateTime? since}) async {
     final me = await _author();
-    final items = await _backend.pull(_coupleId!, since: since);
-    final result =
-        <({String author, bool mine, dynamic payload, SharedKind kind})>[];
-    for (final item in items) {
-      try {
-        result.add((
-          author: item.author,
-          mine: item.author == me,
-          payload: await CoupleCrypto.open(item.sealed, key),
-          kind: item.kind,
-        ));
-      } catch (_) {
-        // Невалиден блок — игнорираме.
-      }
-    }
-    return result;
+    final raw = await _backend.messages(coupleId, since: since);
+    return [
+      for (final m in raw)
+        ChatMessage(
+          author: m.author,
+          mine: m.author == me,
+          body: m.body,
+          mediaUrl: await _backend.mediaUrl(m.mediaPath),
+          mediaKind: m.mediaKind,
+          createdAt: m.createdAt,
+        ),
+    ];
   }
 
-  /// Едностранно прекъсване: спира канала и чисти локалните ключове.
-  Future<void> unlink() async {
-    if (_coupleId != null) await _backend.dissolve(_coupleId!);
-    await SecureStore.delete(_keyKey);
-    await SecureStore.delete(_idKey);
-    _coupleKey = null;
-    _coupleId = null;
-    _status = PartnerStatus.none;
-  }
-
-  SecretKey _requireLinked() {
-    final key = _coupleKey;
-    if (key == null || _coupleId == null) {
-      throw StateError('Няма свързан партньор');
-    }
-    return key;
+  /// Прекъсва връзката с конкретен партньор.
+  Future<void> unlink(String coupleId) async {
+    await _backend.dissolve(coupleId);
+    await setNickname(coupleId, '');
+    await refreshPartners();
   }
 }

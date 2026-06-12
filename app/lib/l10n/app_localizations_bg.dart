@@ -12,11 +12,11 @@ class AppLocalizationsBg extends AppLocalizations {
   String get appName => 'Intima';
 
   @override
-  String get onbPrivacyTitle => 'Само твое.';
+  String get onbPrivacyTitle => 'Дискретно и лично';
 
   @override
   String get onbPrivacyBody =>
-      'Всичко остава на телефона ти, криптирано.\nБез акаунт. Без облак. Без любопитни очи.';
+      'Дневникът и календарът ти живеят на телефона, заключени с PIN.\nСподеляш с партньор само когато ти решиш.';
 
   @override
   String get onbCalendarTitle => 'Календар на близостта';
@@ -830,26 +830,34 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get partnerSettingsSubtitle =>
-      'Свържи се с половинката си — шифровано от край до край';
+      'Свържи се с партньор и си пишете със снимки и видео';
 
   @override
   String get partnerIntro =>
-      'Свържете двете приложения и споделяйте само това, което изберете. Всичко пътува шифровано — дори ние не можем да го прочетем. 🔒';
+      'Свържете двете приложения с код и си пишете — текст, снимки и видео. Можете да имате повече от един партньор.';
+
+  @override
+  String get partnerStorageNotice =>
+      'Споделените съобщения, снимки и видеа се пазят на нашите сървъри, за да стигат до партньора, и може да бъдат преглеждани за сигурност.';
 
   @override
   String get partnerStatusLinked => 'Свързани сте 💜';
 
   @override
-  String get partnerInvite => 'Покани партньора';
+  String get partnerInvite => 'Покани партньор';
 
   @override
-  String get partnerHaveCode => 'Имам код от партньора';
+  String get partnerAddAnother => 'Добави още партньор';
+
+  @override
+  String get partnerHaveCode => 'Имам код от партньор';
 
   @override
   String get partnerSayCode => 'Кажи този код на партньора си. Важи 15 минути.';
 
   @override
-  String get partnerWaiting => 'Чакаме партньора да въведе кода…';
+  String get partnerWaiting =>
+      'Още никой не е въвел кода. Опитай пак след малко.';
 
   @override
   String get partnerCheck => 'Провери';
@@ -867,17 +875,7 @@ class AppLocalizationsBg extends AppLocalizations {
   String get partnerCodeInvalid => 'Непознат, зает или изтекъл код';
 
   @override
-  String get partnerCompareTitle => 'Еднакви ли са емоджитата?';
-
-  @override
-  String get partnerCompareBody =>
-      'Сравнете на глас емоджитата на двата екрана. Еднакви ли са — връзката е сигурна и никой не подслушва.';
-
-  @override
-  String get partnerMatch => 'Да, еднакви са';
-
-  @override
-  String get partnerNoMatch => 'Различни са';
+  String get partnerLinked => 'Партньорът е свързан 💜';
 
   @override
   String get partnerUnlink => 'Прекъсни връзката';
@@ -887,16 +885,13 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get partnerUnlinkBody =>
-      'Споделеният канал спира и за двамата. Локалните записи на всеки остават при него.';
+      'Чатът спира и за двамата и споделеното съдържание се изтрива от сървъра.';
 
   @override
   String get partnerUnlinked => 'Връзката е прекъсната';
 
   @override
-  String get partnerNotes => 'Споделени бележки';
-
-  @override
-  String get partnerNoteHint => 'Кратка бележка за двама…';
+  String get partnerNoteHint => 'Съобщение…';
 
   @override
   String get partnerSend => 'Изпрати';
@@ -905,10 +900,21 @@ class AppLocalizationsBg extends AppLocalizations {
   String get partnerSent => 'Изпратено 💌';
 
   @override
-  String get partnerEmpty => 'Още няма споделени бележки.\nНапиши първата 💜';
+  String get partnerEmpty => 'Още няма съобщения.\nНапиши първото 💜';
 
   @override
   String get partnerYou => 'Ти';
+
+  @override
+  String partnerUnnamed(Object n) {
+    return 'Партньор $n';
+  }
+
+  @override
+  String get partnerNickname => 'Име на партньора';
+
+  @override
+  String get partnerNicknameHint => 'напр. Н.';
 
   @override
   String get partnerError =>

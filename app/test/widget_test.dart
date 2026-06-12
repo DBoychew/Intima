@@ -32,7 +32,7 @@ void main() {
     await tester.pumpWidget(const IntimaApp());
     await tester.pumpAndSettle();
 
-    expect(find.text('Само твое.'), findsOneWidget);
+    expect(find.text('Дискретно и лично'), findsOneWidget);
     expect(find.text('Продължи'), findsOneWidget);
   });
 

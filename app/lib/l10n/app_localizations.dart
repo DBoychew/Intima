@@ -107,13 +107,13 @@ abstract class AppLocalizations {
   /// No description provided for @onbPrivacyTitle.
   ///
   /// In bg, this message translates to:
-  /// **'Само твое.'**
+  /// **'Дискретно и лично'**
   String get onbPrivacyTitle;
 
   /// No description provided for @onbPrivacyBody.
   ///
   /// In bg, this message translates to:
-  /// **'Всичко остава на телефона ти, криптирано.\nБез акаунт. Без облак. Без любопитни очи.'**
+  /// **'Дневникът и календарът ти живеят на телефона, заключени с PIN.\nСподеляш с партньор само когато ти решиш.'**
   String get onbPrivacyBody;
 
   /// No description provided for @onbCalendarTitle.
@@ -1523,14 +1523,20 @@ abstract class AppLocalizations {
   /// No description provided for @partnerSettingsSubtitle.
   ///
   /// In bg, this message translates to:
-  /// **'Свържи се с половинката си — шифровано от край до край'**
+  /// **'Свържи се с партньор и си пишете със снимки и видео'**
   String get partnerSettingsSubtitle;
 
   /// No description provided for @partnerIntro.
   ///
   /// In bg, this message translates to:
-  /// **'Свържете двете приложения и споделяйте само това, което изберете. Всичко пътува шифровано — дори ние не можем да го прочетем. 🔒'**
+  /// **'Свържете двете приложения с код и си пишете — текст, снимки и видео. Можете да имате повече от един партньор.'**
   String get partnerIntro;
+
+  /// No description provided for @partnerStorageNotice.
+  ///
+  /// In bg, this message translates to:
+  /// **'Споделените съобщения, снимки и видеа се пазят на нашите сървъри, за да стигат до партньора, и може да бъдат преглеждани за сигурност.'**
+  String get partnerStorageNotice;
 
   /// No description provided for @partnerStatusLinked.
   ///
@@ -1541,13 +1547,19 @@ abstract class AppLocalizations {
   /// No description provided for @partnerInvite.
   ///
   /// In bg, this message translates to:
-  /// **'Покани партньора'**
+  /// **'Покани партньор'**
   String get partnerInvite;
+
+  /// No description provided for @partnerAddAnother.
+  ///
+  /// In bg, this message translates to:
+  /// **'Добави още партньор'**
+  String get partnerAddAnother;
 
   /// No description provided for @partnerHaveCode.
   ///
   /// In bg, this message translates to:
-  /// **'Имам код от партньора'**
+  /// **'Имам код от партньор'**
   String get partnerHaveCode;
 
   /// No description provided for @partnerSayCode.
@@ -1559,7 +1571,7 @@ abstract class AppLocalizations {
   /// No description provided for @partnerWaiting.
   ///
   /// In bg, this message translates to:
-  /// **'Чакаме партньора да въведе кода…'**
+  /// **'Още никой не е въвел кода. Опитай пак след малко.'**
   String get partnerWaiting;
 
   /// No description provided for @partnerCheck.
@@ -1592,29 +1604,11 @@ abstract class AppLocalizations {
   /// **'Непознат, зает или изтекъл код'**
   String get partnerCodeInvalid;
 
-  /// No description provided for @partnerCompareTitle.
+  /// No description provided for @partnerLinked.
   ///
   /// In bg, this message translates to:
-  /// **'Еднакви ли са емоджитата?'**
-  String get partnerCompareTitle;
-
-  /// No description provided for @partnerCompareBody.
-  ///
-  /// In bg, this message translates to:
-  /// **'Сравнете на глас емоджитата на двата екрана. Еднакви ли са — връзката е сигурна и никой не подслушва.'**
-  String get partnerCompareBody;
-
-  /// No description provided for @partnerMatch.
-  ///
-  /// In bg, this message translates to:
-  /// **'Да, еднакви са'**
-  String get partnerMatch;
-
-  /// No description provided for @partnerNoMatch.
-  ///
-  /// In bg, this message translates to:
-  /// **'Различни са'**
-  String get partnerNoMatch;
+  /// **'Партньорът е свързан 💜'**
+  String get partnerLinked;
 
   /// No description provided for @partnerUnlink.
   ///
@@ -1631,7 +1625,7 @@ abstract class AppLocalizations {
   /// No description provided for @partnerUnlinkBody.
   ///
   /// In bg, this message translates to:
-  /// **'Споделеният канал спира и за двамата. Локалните записи на всеки остават при него.'**
+  /// **'Чатът спира и за двамата и споделеното съдържание се изтрива от сървъра.'**
   String get partnerUnlinkBody;
 
   /// No description provided for @partnerUnlinked.
@@ -1640,16 +1634,10 @@ abstract class AppLocalizations {
   /// **'Връзката е прекъсната'**
   String get partnerUnlinked;
 
-  /// No description provided for @partnerNotes.
-  ///
-  /// In bg, this message translates to:
-  /// **'Споделени бележки'**
-  String get partnerNotes;
-
   /// No description provided for @partnerNoteHint.
   ///
   /// In bg, this message translates to:
-  /// **'Кратка бележка за двама…'**
+  /// **'Съобщение…'**
   String get partnerNoteHint;
 
   /// No description provided for @partnerSend.
@@ -1667,7 +1655,7 @@ abstract class AppLocalizations {
   /// No description provided for @partnerEmpty.
   ///
   /// In bg, this message translates to:
-  /// **'Още няма споделени бележки.\nНапиши първата 💜'**
+  /// **'Още няма съобщения.\nНапиши първото 💜'**
   String get partnerEmpty;
 
   /// No description provided for @partnerYou.
@@ -1675,6 +1663,24 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Ти'**
   String get partnerYou;
+
+  /// No description provided for @partnerUnnamed.
+  ///
+  /// In bg, this message translates to:
+  /// **'Партньор {n}'**
+  String partnerUnnamed(Object n);
+
+  /// No description provided for @partnerNickname.
+  ///
+  /// In bg, this message translates to:
+  /// **'Име на партньора'**
+  String get partnerNickname;
+
+  /// No description provided for @partnerNicknameHint.
+  ///
+  /// In bg, this message translates to:
+  /// **'напр. Н.'**
+  String get partnerNicknameHint;
 
   /// No description provided for @partnerError.
   ///

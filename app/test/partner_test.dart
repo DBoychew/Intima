@@ -1,160 +1,146 @@
-import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:intima/partner/couple_crypto.dart';
 import 'package:intima/partner/partner_repository.dart';
 import 'package:intima/partner/sync_backend.dart';
 
+/// Помощник: изпълнява действие „като" дадено устройство (mock-ът
+/// определя идентичността по currentDevice).
+Future<T> as<T>(
+  InMemoryPartnerBackend server,
+  String device,
+  Future<T> Function() op,
+) {
+  server.currentDevice = device;
+  return op();
+}
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-
   setUp(() => FlutterSecureStorage.setMockInitialValues({}));
 
-  group('CoupleCrypto', () {
-    test('двете страни извличат еднакъв общ ключ (ECDH)', () async {
-      final ana = await CoupleCrypto.newKeyPair();
-      final boris = await CoupleCrypto.newKeyPair();
+  Future<String> link(
+    InMemoryPartnerBackend server,
+    PartnerRepository ana,
+    PartnerRepository boris, {
+    String a = 'ana',
+    String b = 'boris',
+  }) async {
+    final code = await as(server, a, ana.invite);
+    final pB = await as(server, b, () => boris.accept(code));
+    final pA = await as(server, a, ana.pollInvite);
+    expect(pA, isNotNull);
+    expect(pA!.coupleId, pB!.coupleId);
+    return pA.coupleId;
+  }
 
-      final keyA = await CoupleCrypto.sharedKey(
-          ana, await CoupleCrypto.publicKeyBytes(boris));
-      final keyB = await CoupleCrypto.sharedKey(
-          boris, await CoupleCrypto.publicKeyBytes(ana));
+  test('сдвояване: покана → приемане създава двойка и за двамата', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
 
-      expect(await keyA.extractBytes(), await keyB.extractBytes());
-      // SAS емоджитата също съвпадат — това сравняват на глас.
-      expect(await CoupleCrypto.verificationEmojis(keyA),
-          await CoupleCrypto.verificationEmojis(keyB));
-    });
+    final code = await as(server, 'ana', ana.invite);
+    // Преди някой да приеме, канещият не вижда двойка.
+    expect(await as(server, 'ana', ana.pollInvite), isNull);
 
-    test('seal/open кръг + грешен ключ е отхвърлен', () async {
-      final ana = await CoupleCrypto.newKeyPair();
-      final boris = await CoupleCrypto.newKeyPair();
-      final key = await CoupleCrypto.sharedKey(
-          ana, await CoupleCrypto.publicKeyBytes(boris));
-
-      final sealed = await CoupleCrypto.seal(
-          {'text': 'Мисля за теб 💜'}, key);
-      final opened = await CoupleCrypto.open(sealed, key);
-      expect(opened['text'], 'Мисля за теб 💜');
-
-      // Кодиране за транспорт — кръгът също е верен.
-      final decoded = SealedBox.decode(sealed.encode());
-      expect((await CoupleCrypto.open(decoded, key))['text'],
-          'Мисля за теб 💜');
-
-      // Трета страна със собствен ключ не може да чете.
-      final eve = await CoupleCrypto.newKeyPair();
-      final wrongKey = await CoupleCrypto.sharedKey(
-          eve, await CoupleCrypto.publicKeyBytes(ana));
-      expect(() => CoupleCrypto.open(sealed, wrongKey), throwsA(anything));
-    });
-
-    test('кодът за покана е 8 знака от недвусмислената азбука', () {
-      final code = CoupleCrypto.inviteCode(random: Random(42));
-      expect(code.length, 8);
-      expect(RegExp(r'^[ABCDEFGHJKMNPQRSTUVWXYZ23456789]+$').hasMatch(code),
-          isTrue);
-      // Различни генерации → различни кодове (детерминистично с seed).
-      expect(CoupleCrypto.inviteCode(random: Random(1)),
-          isNot(CoupleCrypto.inviteCode(random: Random(2))));
-    });
+    final pB = await as(server, 'boris', () => boris.accept(code));
+    expect(pB, isNotNull);
+    final pA = await as(server, 'ana', ana.pollInvite);
+    expect(pA!.coupleId, pB!.coupleId);
   });
 
-  group('Сдвояване и споделяне през mock сървъра', () {
-    test('пълен флоу: покана → SAS → бележки в двете посоки', () async {
-      final server = InMemorySyncBackend();
-      final ana = PartnerRepository(server, deviceIdOverride: 'ana');
-      final boris = PartnerRepository(server, deviceIdOverride: 'boris');
+  test('невалиден код връща null', () async {
+    final server = InMemoryPartnerBackend();
+    final boris = PartnerRepository(server);
+    expect(await as(server, 'boris', () => boris.accept('НЯМАТАКЪВ')), isNull);
+  });
 
-      // Ана кани, Борис приема с кода.
-      final invite = await ana.invite();
-      expect(ana.status, PartnerStatus.inviting);
-      final sasBoris = await boris.accept(invite.code);
-      final sasAna = await ana.inviteAccepted();
+  test('чат: текст и снимка в двете посоки, мое/чуждо', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    final couple = await link(server, ana, boris);
 
-      // Емоджитата съвпадат → потвърждават и двамата.
-      expect(sasAna, isNotNull);
-      expect(sasAna, sasBoris);
-      await ana.confirm();
-      await boris.confirm();
-      expect(ana.status, PartnerStatus.linked);
-      expect(ana.coupleId, boris.coupleId);
+    await as(server, 'ana', () => ana.sendText(couple, 'Здравей 💜'));
+    await as(
+        server, 'boris', () => boris.sendImage(couple, '/local/pic.jpg'));
 
-      // Бележки в двете посоки.
-      await ana.shareNote('Довечера в 8? 💜');
-      await boris.shareNote('Да! Аз нося виното 🍷');
+    final chat = await as(server, 'ana', () => ana.chat(couple));
+    expect(chat, hasLength(2));
+    expect(chat[0].body, 'Здравей 💜');
+    expect(chat[0].mine, isTrue);
+    expect(chat[1].mediaKind, MediaKind.image);
+    expect(chat[1].mediaUrl, '/local/pic.jpg'); // mock връща пътя
+    expect(chat[1].mine, isFalse);
 
-      final anaInbox = await ana.inbox();
-      expect(anaInbox, hasLength(2));
-      expect(anaInbox.map((m) => m.payload['text']),
-          containsAll(['Довечера в 8? 💜', 'Да! Аз нося виното 🍷']));
-      expect(anaInbox.firstWhere((m) => m.author == 'boris').payload['text'],
-          'Да! Аз нося виното 🍷');
-    });
+    // Същият чат от страната на Борис — „мое/чуждо" е обърнато.
+    final chatB = await as(server, 'boris', () => boris.chat(couple));
+    expect(chatB[0].mine, isFalse);
+    expect(chatB[1].mine, isTrue);
+  });
 
-    test('сървърът вижда само шифровани байтове', () async {
-      final server = InMemorySyncBackend();
-      final ana = PartnerRepository(server, deviceIdOverride: 'ana');
-      final boris = PartnerRepository(server, deviceIdOverride: 'boris');
-      final invite = await ana.invite();
-      await boris.accept(invite.code);
-      await ana.inviteAccepted();
-      await ana.confirm();
-      await boris.confirm();
+  test('видео съобщение носи правилния вид', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    final couple = await link(server, ana, boris);
 
-      const secret = 'Много лично съдържание';
-      await ana.shareNote(secret);
+    await as(server, 'ana', () => ana.sendVideo(couple, '/local/clip.mp4'));
+    final chat = await as(server, 'boris', () => boris.chat(couple));
+    expect(chat.single.mediaKind, MediaKind.video);
+    expect(chat.single.mediaUrl, '/local/clip.mp4');
+  });
 
-      final stored = server.storedItems(ana.coupleId!).single;
-      final wire = stored.sealed.encode();
-      // Нито явният текст, нито base64 формата му се виждат по жицата.
-      expect(wire.contains(secret), isFalse);
-      expect(wire.contains(base64Encode(utf8.encode(secret))), isFalse);
-      // А партньорът си го чете нормално.
-      final inbox = await boris.inbox();
-      expect(inbox.single.payload['text'], secret);
-    });
+  test('съобщенията се пазят в явен вид на сървъра (без E2E — по дизайн)',
+      () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    final couple = await link(server, ana, boris);
 
-    test('грешен код връща null, прекъсването спира канала', () async {
-      final server = InMemorySyncBackend();
-      final ana = PartnerRepository(server, deviceIdOverride: 'ana');
-      final boris = PartnerRepository(server, deviceIdOverride: 'boris');
+    await as(server, 'ana', () => ana.sendText(couple, 'явен текст'));
+    final stored = server.storedMessages(couple).single;
+    expect(stored.body, 'явен текст');
+  });
 
-      expect(await boris.accept('НЕСЪЩЕСТВУВАЩ'), isNull);
+  test('няколко партньора', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final b1 = PartnerRepository(server);
+    final b2 = PartnerRepository(server);
 
-      final invite = await ana.invite();
-      await boris.accept(invite.code);
-      await ana.inviteAccepted();
-      await ana.confirm();
-      await boris.confirm();
-      await ana.shareNote('преди раздялата');
+    await link(server, ana, b1, b: 'b1');
+    await link(server, ana, b2, b: 'b2');
 
-      // Борис прекъсва едностранно → каналът е мъртъв и за двамата.
-      await boris.unlink();
-      expect(boris.status, PartnerStatus.none);
-      expect(await ana.inbox(), isEmpty);
-      expect(() => ana.shareNote('след раздялата'), throwsA(anything));
-    });
+    await as(server, 'ana', ana.refreshPartners);
+    expect(ana.partners, hasLength(2));
+    // Всеки партньор вижда само своята двойка.
+    await as(server, 'b1', b1.refreshPartners);
+    expect(b1.partners, hasLength(1));
+  });
 
-    test('persist: нова инстанция след рестарт остава свързана', () async {
-      final server = InMemorySyncBackend();
-      final ana = PartnerRepository(server, deviceIdOverride: 'ana');
-      final boris = PartnerRepository(server, deviceIdOverride: 'boris');
-      final invite = await ana.invite();
-      await boris.accept(invite.code);
-      await ana.inviteAccepted();
-      await ana.confirm();
-      await boris.confirm();
-      await boris.shareNote('пази ме след рестарт');
+  test('псевдоним на партньор се пази локално', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    final couple = await link(server, ana, boris);
 
-      // „Рестарт" на приложението на Ана.
-      final restarted = PartnerRepository(server, deviceIdOverride: 'ana');
-      await restarted.init();
-      expect(restarted.status, PartnerStatus.linked);
-      expect((await restarted.inbox()).single.payload['text'],
-          'пази ме след рестарт');
-    });
+    await as(server, 'ana', () => ana.setNickname(couple, 'Н.'));
+    await as(server, 'ana', ana.refreshPartners);
+    expect(ana.partners.single.nickname, 'Н.');
+  });
+
+  test('прекъсване спира чата и трие съдържанието', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    final couple = await link(server, ana, boris);
+    await as(server, 'ana', () => ana.sendText(couple, 'преди'));
+
+    await as(server, 'ana', () => ana.unlink(couple));
+    expect(ana.partners, isEmpty);
+
+    expect(await as(server, 'boris', () => boris.chat(couple)), isEmpty);
+    expect(() => as(server, 'boris', () => boris.sendText(couple, 'след')),
+        throwsA(anything));
   });
 }

@@ -1,135 +1,160 @@
-import 'dart:typed_data';
+/// Видът на медията към съобщение.
+enum MediaKind { none, image, video }
 
-import 'couple_crypto.dart';
-
-/// Видът на споделеното нещо — единствената нешифрована семантика,
-/// нужна за ефективен pull. Не издава съдържание.
-enum SharedKind { note, calendarMark, nudge }
-
-/// Шифрован запис така, както лежи на сървъра.
-class SharedItem {
-  const SharedItem({
+/// Едно чат съобщение така, както лежи на сървъра — в явен вид
+/// (без E2E криптиране; вижда се и от модерацията). Виж
+/// docs/design/PARTNER_MODE.md и Privacy Policy.
+class Message {
+  const Message({
     required this.id,
     required this.coupleId,
     required this.author,
-    required this.kind,
-    required this.sealed,
     required this.createdAt,
+    this.body,
+    this.mediaPath,
+    this.mediaKind = MediaKind.none,
   });
 
   final String id;
   final String coupleId;
 
-  /// Анонимното device id на автора.
+  /// Анонимното auth id на автора.
   final String author;
-  final SharedKind kind;
-  final SealedBox sealed;
+  final String? body;
+
+  /// Път до медията в Storage (или локален път при тестовия бекенд).
+  final String? mediaPath;
+  final MediaKind mediaKind;
   final DateTime createdAt;
 }
 
-/// Текущото състояние на една покана на сървъра.
-class PairingState {
-  const PairingState({required this.pubA, this.pubB});
-
-  final Uint8List pubA;
-  final Uint8List? pubB;
-
-  bool get completed => pubB != null;
-}
-
-/// Абстракцията към сървъра. Получава САМО публични ключове и
-/// шифровани блокчета — нищо четимо. Реалната имплементация
-/// (SupabaseBackend) чака проекта; InMemorySyncBackend е за тестове
-/// и локална разработка.
-abstract class SyncBackend {
-  /// Идентичността, с която този клиент пише на сървъра — за
-  /// различаване „мое/чуждо". null = бекендът няма собствена
-  /// (тестове); тогава се ползва локалното device id.
+/// Бекендът на партньорския чат. Реалната имплементация е Supabase;
+/// InMemoryPartnerBackend е за тестове и локална разработка.
+abstract class PartnerBackend {
+  /// Идентичността, с която този клиент пише на сървъра. null =
+  /// бекендът няма собствена (тестове) → ползва се локално id.
   Future<String?> identity() async => null;
 
-  /// Кани: регистрира [code] с публичния ключ на канещия.
-  Future<void> createPairing(String code, Uint8List pubA);
+  /// Кани: регистрира еднократен код.
+  Future<void> createPairing(String code);
 
-  /// Приема: връща публичния ключ на канещия и записва [pubB];
-  /// null при непознат/изтекъл код.
-  Future<Uint8List?> joinPairing(String code, Uint8List pubB);
+  /// Приема покана по код; връща couple_id или null при невалиден код.
+  Future<String?> joinPairing(String code);
 
-  /// Канещият проверява дали другата страна е приела.
-  Future<PairingState?> pairingState(String code);
+  /// Канещият проверява дали поканата е приета → couple_id или null.
+  Future<String?> pairingCouple(String code);
 
-  /// Двамата потвърдиха SAS → кодът се унищожава, ражда се couple id.
-  Future<String> completePairing(String code);
+  /// Двойките, в които участва текущият потребител.
+  Future<List<String>> myCouples();
 
-  Future<void> push(SharedItem item);
+  /// Праща съобщение; при медия [mediaLocalPath] се качва и пътят се
+  /// записва в реда.
+  Future<void> sendMessage({
+    required String coupleId,
+    required String author,
+    String? body,
+    String? mediaLocalPath,
+    MediaKind mediaKind = MediaKind.none,
+  });
 
-  /// Записите на двойката след [since] (null = всички).
-  Future<List<SharedItem>> pull(String coupleId, {DateTime? since});
+  /// Съобщенията на двойката след [since] (null = всички), хронологично.
+  Future<List<Message>> messages(String coupleId, {DateTime? since});
 
-  /// Едностранно прекъсване — спира канала за двамата.
+  /// URL за показване на медия (подписан при Supabase); null при липса.
+  Future<String?> mediaUrl(String? mediaPath);
+
+  /// Едностранно прекъсване — спира канала и трие съдържанието.
   Future<void> dissolve(String coupleId);
 }
 
-/// In-memory сървър за тестове: държи се като реалния, включително
-/// еднократните кодове, но живее в паметта на процеса.
-class InMemorySyncBackend extends SyncBackend {
-  final _pairings = <String, PairingState>{};
-  final _completed = <String, String>{};
-  final _items = <String, List<SharedItem>>{};
+/// In-memory сървър за тестове — държи се като реалния, но в паметта.
+class InMemoryPartnerBackend extends PartnerBackend {
+  InMemoryPartnerBackend();
+
+  final _pairings = <String, String?>{}; // code -> couple_id (null = чака)
+  final _pairingInviter = <String, String>{}; // code -> inviter device
+  final _couples = <String, List<String>>{}; // couple_id -> [a, b]
+  final _messages = <String, List<Message>>{};
   final _dissolved = <String>{};
-  var _nextCoupleId = 0;
+  var _nextCouple = 0;
+  var _nextMsg = 0;
+
+  /// Кой „извиква" в момента (тестовете го сменят между устройствата).
+  String currentDevice = 'device';
 
   @override
-  Future<void> createPairing(String code, Uint8List pubA) async {
-    _pairings[code] = PairingState(pubA: pubA);
+  Future<String?> identity() async => currentDevice;
+
+  @override
+  Future<void> createPairing(String code) async {
+    _pairings[code] = null;
+    _pairingInviter[code] = currentDevice;
   }
 
   @override
-  Future<Uint8List?> joinPairing(String code, Uint8List pubB) async {
-    final pairing = _pairings[code];
-    if (pairing == null || pairing.completed) return null;
-    _pairings[code] = PairingState(pubA: pairing.pubA, pubB: pubB);
-    return pairing.pubA;
-  }
-
-  @override
-  Future<PairingState?> pairingState(String code) async => _pairings[code];
-
-  @override
-  Future<String> completePairing(String code) async {
-    // Идемпотентно: и двете страни потвърждават и получават едно id.
-    final existing = _completed[code];
-    if (existing != null) return existing;
-    _pairings.remove(code);
-    final id = 'couple-${_nextCoupleId++}';
-    _completed[code] = id;
-    _items[id] = [];
+  Future<String?> joinPairing(String code) async {
+    if (!_pairings.containsKey(code) || _pairings[code] != null) return null;
+    final inviter = _pairingInviter[code]!;
+    if (inviter == currentDevice) return null;
+    final id = 'couple-${_nextCouple++}';
+    _couples[id] = [inviter, currentDevice];
+    _messages[id] = [];
+    _pairings[code] = id;
     return id;
   }
 
   @override
-  Future<void> push(SharedItem item) async {
-    if (_dissolved.contains(item.coupleId)) {
+  Future<String?> pairingCouple(String code) async => _pairings[code];
+
+  @override
+  Future<List<String>> myCouples() async => [
+        for (final e in _couples.entries)
+          if (e.value.contains(currentDevice) &&
+              !_dissolved.contains(e.key))
+            e.key,
+      ];
+
+  @override
+  Future<void> sendMessage({
+    required String coupleId,
+    required String author,
+    String? body,
+    String? mediaLocalPath,
+    MediaKind mediaKind = MediaKind.none,
+  }) async {
+    if (_dissolved.contains(coupleId)) {
       throw StateError('Връзката е прекъсната');
     }
-    _items.putIfAbsent(item.coupleId, () => []).add(item);
+    _messages.putIfAbsent(coupleId, () => []).add(Message(
+          id: 'm${_nextMsg++}',
+          coupleId: coupleId,
+          author: author,
+          body: body,
+          mediaPath: mediaLocalPath,
+          mediaKind: mediaKind,
+          createdAt: DateTime.fromMillisecondsSinceEpoch(_nextMsg * 1000),
+        ));
   }
 
   @override
-  Future<List<SharedItem>> pull(String coupleId, {DateTime? since}) async {
+  Future<List<Message>> messages(String coupleId, {DateTime? since}) async {
     if (_dissolved.contains(coupleId)) return const [];
     return [
-      for (final item in _items[coupleId] ?? const <SharedItem>[])
-        if (since == null || item.createdAt.isAfter(since)) item,
+      for (final m in _messages[coupleId] ?? const <Message>[])
+        if (since == null || m.createdAt.isAfter(since)) m,
     ];
   }
 
   @override
+  Future<String?> mediaUrl(String? mediaPath) async => mediaPath;
+
+  @override
   Future<void> dissolve(String coupleId) async {
     _dissolved.add(coupleId);
-    _items.remove(coupleId);
+    _messages.remove(coupleId);
   }
 
   /// Само за тестове: каквото сървърът „вижда" за двойката.
-  List<SharedItem> storedItems(String coupleId) =>
-      List.unmodifiable(_items[coupleId] ?? const []);
+  List<Message> storedMessages(String coupleId) =>
+      List.unmodifiable(_messages[coupleId] ?? const []);
 }

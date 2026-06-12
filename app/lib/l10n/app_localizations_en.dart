@@ -12,11 +12,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'Intima';
 
   @override
-  String get onbPrivacyTitle => 'Yours alone.';
+  String get onbPrivacyTitle => 'Discreet and personal';
 
   @override
   String get onbPrivacyBody =>
-      'Everything stays on your phone, encrypted.\nNo account. No cloud. No prying eyes.';
+      'Your diary and calendar live on your phone, locked with a PIN.\nShare with a partner only when you choose.';
 
   @override
   String get onbCalendarTitle => 'Intimacy calendar';
@@ -832,17 +832,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get partnerSettingsSubtitle =>
-      'Link with your partner — end-to-end encrypted';
+      'Link with a partner and chat with photos and video';
 
   @override
   String get partnerIntro =>
-      'Link your two apps and share only what you choose. Everything travels encrypted — even we can\'t read it. 🔒';
+      'Link your two apps with a code and chat — text, photos and video. You can have more than one partner.';
+
+  @override
+  String get partnerStorageNotice =>
+      'Shared messages, photos and videos are stored on our servers so they reach your partner, and may be reviewed for safety.';
 
   @override
   String get partnerStatusLinked => 'You\'re linked 💜';
 
   @override
-  String get partnerInvite => 'Invite your partner';
+  String get partnerInvite => 'Invite a partner';
+
+  @override
+  String get partnerAddAnother => 'Add another partner';
 
   @override
   String get partnerHaveCode => 'I have a code';
@@ -852,7 +859,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tell your partner this code. It\'s valid for 15 minutes.';
 
   @override
-  String get partnerWaiting => 'Waiting for your partner to enter the code…';
+  String get partnerWaiting =>
+      'Nobody has entered the code yet. Try again in a moment.';
 
   @override
   String get partnerCheck => 'Check';
@@ -870,36 +878,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get partnerCodeInvalid => 'Unknown, taken or expired code';
 
   @override
-  String get partnerCompareTitle => 'Do the emojis match?';
-
-  @override
-  String get partnerCompareBody =>
-      'Compare the emojis on both screens out loud. If they match, the connection is secure and nobody is listening in.';
-
-  @override
-  String get partnerMatch => 'Yes, they match';
-
-  @override
-  String get partnerNoMatch => 'They\'re different';
+  String get partnerLinked => 'Partner linked 💜';
 
   @override
   String get partnerUnlink => 'Unlink';
 
   @override
-  String get partnerUnlinkTitle => 'Unlink from your partner?';
+  String get partnerUnlinkTitle => 'Unlink from this partner?';
 
   @override
   String get partnerUnlinkBody =>
-      'The shared channel stops for both of you. Everyone keeps their own local entries.';
+      'The chat stops for both of you and the shared content is deleted from the server.';
 
   @override
   String get partnerUnlinked => 'Unlinked';
 
   @override
-  String get partnerNotes => 'Shared notes';
-
-  @override
-  String get partnerNoteHint => 'A short note for the two of you…';
+  String get partnerNoteHint => 'Message…';
 
   @override
   String get partnerSend => 'Send';
@@ -908,10 +903,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get partnerSent => 'Sent 💌';
 
   @override
-  String get partnerEmpty => 'No shared notes yet.\nWrite the first one 💜';
+  String get partnerEmpty => 'No messages yet.\nWrite the first one 💜';
 
   @override
   String get partnerYou => 'You';
+
+  @override
+  String partnerUnnamed(Object n) {
+    return 'Partner $n';
+  }
+
+  @override
+  String get partnerNickname => 'Partner\'s name';
+
+  @override
+  String get partnerNicknameHint => 'e.g. N.';
 
   @override
   String get partnerError =>
