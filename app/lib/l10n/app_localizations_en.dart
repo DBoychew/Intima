@@ -48,7 +48,112 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navInsights => 'Insights';
 
   @override
+  String get navPartner => 'Partner';
+
+  @override
+  String get navProfile => 'Profile';
+
+  @override
   String get navSettings => 'Settings';
+
+  @override
+  String get dayDetailEdit => 'Log / edit';
+
+  @override
+  String get dayPhasePeriod => 'Period';
+
+  @override
+  String get dayPhasePredicted => 'Expected period';
+
+  @override
+  String get dayPhaseOvulation => 'Ovulation';
+
+  @override
+  String get dayPhaseFertile => 'Fertile window';
+
+  @override
+  String get dayPhaseRegular => 'Outside the fertile window';
+
+  @override
+  String get dayNoData => 'No entry for this day';
+
+  @override
+  String get detailMood => 'Mood';
+
+  @override
+  String get detailLibido => 'Libido';
+
+  @override
+  String get detailEnergy => 'Energy';
+
+  @override
+  String get detailSymptoms => 'Symptoms';
+
+  @override
+  String detailMoments(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count intimate moments',
+      one: '$count intimate moment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fertilityTitle => 'Chance of pregnancy';
+
+  @override
+  String get fertVeryHigh => 'Very high';
+
+  @override
+  String get fertHigh => 'High';
+
+  @override
+  String get fertModerate => 'Moderate';
+
+  @override
+  String get fertLow => 'Low';
+
+  @override
+  String get fertNegligible => 'Negligible';
+
+  @override
+  String fertApprox(Object pct) {
+    return 'about $pct%';
+  }
+
+  @override
+  String get fertOnOvulation => 'Today is ovulation day';
+
+  @override
+  String fertBeforeOvulation(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days before ovulation',
+      one: '$days day before ovulation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fertAfterOvulation(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days days after ovulation',
+      one: '$days day after ovulation',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fertDisclaimer =>
+      'An estimate based on days from ovulation — not a method of contraception.';
+
+  @override
+  String get fertNoData => 'Mark a period so we can estimate the chance.';
 
   @override
   String get bootStarting => 'Starting…';
@@ -613,6 +718,44 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get languageSystem => 'Follow system';
+
+  @override
+  String get profileTitle => 'Profile';
+
+  @override
+  String get profileSetName => 'Set a name';
+
+  @override
+  String get profileName => 'Name';
+
+  @override
+  String get profileNameHint => 'What should we call you';
+
+  @override
+  String get profileChangePhoto => 'Change photo';
+
+  @override
+  String get sectionAccount => 'ACCOUNT';
+
+  @override
+  String get accountSignedOut =>
+      'Sign in to keep your profile and use it across devices.';
+
+  @override
+  String get accountSignedIn => 'You\'re signed in 💜';
+
+  @override
+  String get accountSignOut => 'Sign out';
+
+  @override
+  String get signInFacebook => 'Continue with Facebook';
+
+  @override
+  String get signInGoogle => 'Continue with Google';
+
+  @override
+  String get accountProvidersNote =>
+      'Instagram and TikTok sign-in aren\'t supported yet.';
 
   @override
   String get paletteTitle => 'Palette';

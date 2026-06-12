@@ -48,7 +48,112 @@ class AppLocalizationsBg extends AppLocalizations {
   String get navInsights => 'Инсайти';
 
   @override
+  String get navPartner => 'Партньор';
+
+  @override
+  String get navProfile => 'Профил';
+
+  @override
   String get navSettings => 'Настройки';
+
+  @override
+  String get dayDetailEdit => 'Запиши / редактирай';
+
+  @override
+  String get dayPhasePeriod => 'Менструация';
+
+  @override
+  String get dayPhasePredicted => 'Очаквана менструация';
+
+  @override
+  String get dayPhaseOvulation => 'Овулация';
+
+  @override
+  String get dayPhaseFertile => 'Фертилен прозорец';
+
+  @override
+  String get dayPhaseRegular => 'Извън фертилния прозорец';
+
+  @override
+  String get dayNoData => 'Няма запис за този ден';
+
+  @override
+  String get detailMood => 'Настроение';
+
+  @override
+  String get detailLibido => 'Либидо';
+
+  @override
+  String get detailEnergy => 'Енергия';
+
+  @override
+  String get detailSymptoms => 'Симптоми';
+
+  @override
+  String detailMoments(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count интимни момента',
+      one: '$count интимен момент',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fertilityTitle => 'Шанс за забременяване';
+
+  @override
+  String get fertVeryHigh => 'Много висок';
+
+  @override
+  String get fertHigh => 'Висок';
+
+  @override
+  String get fertModerate => 'Умерен';
+
+  @override
+  String get fertLow => 'Нисък';
+
+  @override
+  String get fertNegligible => 'Незначителен';
+
+  @override
+  String fertApprox(Object pct) {
+    return 'около $pct%';
+  }
+
+  @override
+  String get fertOnOvulation => 'Днес е денят на овулацията';
+
+  @override
+  String fertBeforeOvulation(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days дни преди овулацията',
+      one: '$days ден преди овулацията',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String fertAfterOvulation(num days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: '$days дни след овулацията',
+      one: '$days ден след овулацията',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get fertDisclaimer =>
+      'Приблизителна оценка по дни от овулацията — не е метод за контрацепция.';
+
+  @override
+  String get fertNoData => 'Отбележи менструация, за да изчислим шанса.';
 
   @override
   String get bootStarting => 'Стартираме…';
@@ -611,6 +716,44 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get languageSystem => 'Според системата';
+
+  @override
+  String get profileTitle => 'Профил';
+
+  @override
+  String get profileSetName => 'Задай име';
+
+  @override
+  String get profileName => 'Име';
+
+  @override
+  String get profileNameHint => 'Как да те наричаме';
+
+  @override
+  String get profileChangePhoto => 'Смени снимката';
+
+  @override
+  String get sectionAccount => 'АКАУНТ';
+
+  @override
+  String get accountSignedOut =>
+      'Влез, за да пазиш профила си и да го ползваш на няколко устройства.';
+
+  @override
+  String get accountSignedIn => 'Влязъл/а си 💜';
+
+  @override
+  String get accountSignOut => 'Изход';
+
+  @override
+  String get signInFacebook => 'Продължи с Facebook';
+
+  @override
+  String get signInGoogle => 'Продължи с Google';
+
+  @override
+  String get accountProvidersNote =>
+      'Instagram и TikTok вход все още не се поддържат.';
 
   @override
   String get paletteTitle => 'Палитра';

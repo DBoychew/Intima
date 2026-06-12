@@ -7,6 +7,7 @@ import 'core/demo_seed.dart';
 import 'core/locale_controller.dart';
 import 'core/notifications.dart';
 import 'core/premium.dart';
+import 'core/profile_controller.dart';
 import 'core/theme_controller.dart';
 import 'data/cycle_prefs_repository.dart';
 import 'l10n/app_localizations.dart';
@@ -17,6 +18,7 @@ import 'features/diary/diary_editor_screen.dart';
 import 'features/diary/diary_screen.dart';
 import 'features/insights/insights_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
+import 'features/partner/partner_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'security/app_lock.dart';
 import 'security/lock_screen.dart';
@@ -47,6 +49,7 @@ void main() {
         await premium.init();
         await themeController.init();
         await localeController.init();
+        await profileController.init();
       },
     ),
     (label: (l) => l.bootLock, run: appLock.init),
@@ -128,6 +131,11 @@ final _router = GoRouter(
           GoRoute(
               path: '/insights',
               builder: (context, state) => const InsightsScreen()),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+              path: '/partner',
+              builder: (context, state) => const PartnerScreen()),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(

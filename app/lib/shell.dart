@@ -30,9 +30,13 @@ class AppShell extends StatelessWidget {
               selectedIcon: const Icon(Icons.insights),
               label: l10n.navInsights),
           NavigationDestination(
-              icon: const Icon(Icons.settings_outlined),
-              selectedIcon: const Icon(Icons.settings),
-              label: l10n.navSettings),
+              icon: const Icon(Icons.favorite_outline),
+              selectedIcon: const Icon(Icons.favorite),
+              label: l10n.navPartner),
+          NavigationDestination(
+              icon: const Icon(Icons.person_outline),
+              selectedIcon: const Icon(Icons.person),
+              label: l10n.navProfile),
         ],
       ),
     );

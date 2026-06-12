@@ -3,15 +3,19 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show OAuthProvider;
 
 import '../../core/cycle_settings.dart';
 import '../../core/dates.dart';
 import '../../core/locale_controller.dart';
 import '../../core/notifications.dart';
 import '../../core/premium.dart';
+import '../../core/profile_controller.dart';
 import '../../core/theme_controller.dart';
+import '../../partner/supabase_backend.dart' show signInWithProvider;
 import '../../data/db_manager.dart';
 import '../../data/diary_pdf.dart';
 import '../../data/diary_repository.dart';
@@ -21,7 +25,6 @@ import '../../security/pin_widgets.dart';
 import '../../security/secure_flag.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/palettes.dart';
-import '../partner/partner_screen.dart';
 import '../premium/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -379,6 +382,128 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) setState(() {});
   }
 
+  Widget _profileHeader() {
+    final avatar = profileController.avatarPath;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          GestureDetector(
+            onTap: _pickAvatar,
+            child: CircleAvatar(
+              radius: 36,
+              backgroundColor: context.colors.surfaceHigh,
+              backgroundImage:
+                  avatar != null ? FileImage(File(avatar)) : null,
+              child: avatar == null
+                  ? Icon(Icons.person,
+                      size: 36, color: context.colors.textSecondary)
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(profileController.name ?? _l10n.profileSetName,
+                    style: Theme.of(context).textTheme.titleLarge),
+                const SizedBox(height: 4),
+                Text(_l10n.profileChangePhoto,
+                    style: Theme.of(context).textTheme.labelMedium),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: _editName,
+            icon: Icon(Icons.edit_outlined, color: context.colors.accentSoft),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _pickAvatar() async {
+    try {
+      final picked = await ImagePicker().pickImage(
+          source: ImageSource.gallery, maxWidth: 1024, imageQuality: 85);
+      if (picked == null) return;
+      await profileController.setAvatar(picked.path);
+      if (mounted) setState(() {});
+    } catch (_) {
+      if (mounted) _toast(_l10n.galleryUnavailable);
+    }
+  }
+
+  Future<void> _editName() async {
+    final controller = TextEditingController(text: profileController.name);
+    final name = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.colors.surfaceHigh,
+        title: Text(_l10n.profileName),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(hintText: _l10n.profileNameHint),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(_l10n.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: Text(_l10n.save,
+                style: TextStyle(color: ctx.colors.accentSoft)),
+          ),
+        ],
+      ),
+    );
+    if (name == null || !mounted) return;
+    await profileController.setName(name);
+    if (mounted) setState(() {});
+  }
+
+  /// Вход през доставчик. Изисква настройка в Supabase (виж
+  /// ZA_DIMITAR.md). Instagram/TikTok не се поддържат.
+  Future<void> _signIn(OAuthProvider provider) async {
+    try {
+      await signInWithProvider(provider);
+    } catch (_) {
+      if (mounted) _toast(_l10n.partnerError);
+    }
+  }
+
+  Widget _accountSection() => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(_l10n.accountSignedOut,
+                style: Theme.of(context).textTheme.labelMedium),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () => _signIn(OAuthProvider.facebook),
+            icon: const Icon(Icons.facebook),
+            label: Text(_l10n.signInFacebook),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            onPressed: () => _signIn(OAuthProvider.google),
+            icon: const Icon(Icons.login),
+            label: Text(_l10n.signInGoogle),
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: Text(_l10n.accountProvidersNote,
+                style: Theme.of(context).textTheme.labelMedium),
+          ),
+        ],
+      );
+
   String _paletteLabel(AppPalette p) => switch (p) {
         AppPalette.roseGold => _l10n.paletteRoseGold,
         AppPalette.midnightBlue => _l10n.paletteMidnightBlue,
@@ -456,6 +581,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await dbManager.wipeEverything();
     await appLock.reload();
     await premium.deactivate();
+    await profileController.reset();
     cycleSettings.resetToDefaults();
     if (!mounted) return;
     setState(() {
@@ -473,10 +599,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         .bodyMedium!
         .copyWith(color: context.colors.accentSoft);
     return Scaffold(
-      appBar: AppBar(title: Text(_l10n.settingsTitle)),
+      appBar: AppBar(title: Text(_l10n.profileTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          _profileHeader(),
+          _section(_l10n.sectionAccount),
+          _accountSection(),
           _section(_l10n.sectionCycle),
           ListTile(
             title: Text(_l10n.cycleLength),
@@ -589,21 +718,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: accent),
             onTap: _pickLanguage,
           ),
-          // Партньорският канал е реален — скрит в stealth копието.
-          if (!appLock.decoyActive) ...[
-            _section(_l10n.sectionPartner),
-            ListTile(
-              leading: const Text('💞', style: TextStyle(fontSize: 22)),
-              title: Text(_l10n.partnerTitle),
-              subtitle: Text(_l10n.partnerSettingsSubtitle,
-                  style: Theme.of(context).textTheme.labelMedium),
-              trailing: Icon(Icons.chevron_right,
-                  color: context.colors.textSecondary),
-              onTap: () => Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const PartnerScreen()),
-              ),
-            ),
-          ],
           _section(_l10n.sectionPremium),
           ListTile(
             leading: const Text('💜', style: TextStyle(fontSize: 22)),

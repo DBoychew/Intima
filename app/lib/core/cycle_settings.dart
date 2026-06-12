@@ -78,6 +78,23 @@ class CycleSettings extends ChangeNotifier {
     return false;
   }
 
+  /// Дни спрямо най-близката прогнозирана овулация (отрицателно =
+  /// преди овулацията). null при липса на данни. Овулацията на цикъл,
+  /// започващ на S, е ≈ S + cycleLength − 14.
+  int? daysFromOvulation(DateTime d) {
+    if (_lastPeriodStart == null) return null;
+    final day = DateTime(d.year, d.month, d.day);
+    int? best;
+    for (var k = 0; k <= 4; k++) {
+      final ov = _lastPeriodStart!
+          .add(Duration(days: cycleLength * k - 14));
+      final diff =
+          day.difference(DateTime(ov.year, ov.month, ov.day)).inDays;
+      if (best == null || diff.abs() < best.abs()) best = diff;
+    }
+    return best;
+  }
+
   /// Дали [d] попада в очаквана (предиктирана) менструация —
   /// проверяваме следващите три цикъла напред.
   bool isPredictedPeriod(DateTime d) {

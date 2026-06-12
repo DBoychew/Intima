@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:math';
 
+import '../security/app_lock.dart';
 import '../security/secure_store.dart';
 import 'sync_backend.dart';
 
@@ -64,6 +65,11 @@ class PartnerRepository {
   }
 
   Future<void> refreshPartners() async {
+    // Stealth копието не разкрива партньори.
+    if (appLock.decoyActive) {
+      _partners = const [];
+      return;
+    }
     final ids = await _backend.myCouples();
     _partners = [
       for (final id in ids) Partner(coupleId: id, nickname: _nicknames[id]),
@@ -99,6 +105,8 @@ class PartnerRepository {
   /// Страна А: създава покана; връща кода, който се казва на партньора.
   Future<String> invite() async {
     _pendingCode = _inviteCode();
+    // В stealth кодът е инертен — нищо реално не се създава.
+    if (appLock.decoyActive) return _pendingCode!;
     await _backend.createPairing(_pendingCode!);
     return _pendingCode!;
   }
@@ -106,7 +114,7 @@ class PartnerRepository {
   /// Страна А: проверява дали поканата е приета → новата двойка или null.
   Future<Partner?> pollInvite() async {
     final code = _pendingCode;
-    if (code == null) return null;
+    if (code == null || appLock.decoyActive) return null;
     final coupleId = await _backend.pairingCouple(code);
     if (coupleId == null) return null;
     _pendingCode = null;
@@ -120,6 +128,7 @@ class PartnerRepository {
   /// Страна Б: приема покана по код → новата двойка или null при
   /// невалиден/изтекъл код.
   Future<Partner?> accept(String code) async {
+    if (appLock.decoyActive) return null;
     final coupleId = await _backend.joinPairing(code.toUpperCase().trim());
     if (coupleId == null) return null;
     await refreshPartners();
@@ -165,6 +174,7 @@ class PartnerRepository {
 
   /// Чат историята на двойката, хронологично, с готови URL-и за медията.
   Future<List<ChatMessage>> chat(String coupleId, {DateTime? since}) async {
+    if (appLock.decoyActive) return const [];
     final me = await _author();
     final raw = await _backend.messages(coupleId, since: since);
     return [

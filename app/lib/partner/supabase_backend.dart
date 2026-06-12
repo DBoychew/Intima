@@ -144,3 +144,11 @@ class SupabaseBackend extends PartnerBackend {
 
 /// Глобалната инстанция за UI-я — реалният сървър.
 final partnerRepository = PartnerRepository(SupabaseBackend());
+
+/// Вход през външен доставчик (Facebook/Google). Изисква доставчикът
+/// да е настроен в Supabase (Dashboard → Authentication → Providers).
+/// Instagram и TikTok не се поддържат от Supabase auth.
+Future<void> signInWithProvider(OAuthProvider provider) async {
+  await SupabaseBackend.ensureInitialized();
+  await Supabase.instance.client.auth.signInWithOAuth(provider);
+}

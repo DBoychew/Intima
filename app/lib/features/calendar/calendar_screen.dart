@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../../core/cycle_settings.dart';
 import '../../core/dates.dart';
+import '../../core/fertility.dart';
+import '../../core/moods.dart';
 import '../../data/calendar_repository.dart';
 import '../../data/db_manager.dart';
 import '../../l10n/app_localizations.dart';
@@ -105,6 +107,179 @@ class _CalendarScreenState extends State<CalendarScreen> {
             : _l10n.saved;
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  String _fertLabel(FertilityLevel l) => switch (l) {
+        FertilityLevel.veryHigh => _l10n.fertVeryHigh,
+        FertilityLevel.high => _l10n.fertHigh,
+        FertilityLevel.moderate => _l10n.fertModerate,
+        FertilityLevel.low => _l10n.fertLow,
+        FertilityLevel.negligible => _l10n.fertNegligible,
+      };
+
+  Color _fertColor(FertilityLevel l) => switch (l) {
+        FertilityLevel.veryHigh ||
+        FertilityLevel.high =>
+          context.colors.fertile,
+        FertilityLevel.moderate => context.colors.accent,
+        _ => context.colors.textSecondary,
+      };
+
+  /// Подробен изглед на деня: фаза, шанс за забременяване и записаното.
+  Future<void> _showDayDetail(int day) async {
+    final date = DateTime(_year, _month, day);
+    final log = _data.logs[day];
+    final moments = _data.momentsByDay[day] ?? const [];
+    final isPeriod = log?.isPeriod ?? false;
+    final predicted = !isPeriod && cycleSettings.isPredictedPeriod(date);
+    final dfo = cycleSettings.daysFromOvulation(date);
+    final isOvulation = dfo == 0;
+    final fertile = cycleSettings.isFertile(date);
+
+    final (String phaseLabel, Color phaseColor) = isPeriod
+        ? (_l10n.dayPhasePeriod, context.colors.period)
+        : predicted
+            ? (_l10n.dayPhasePredicted, context.colors.period)
+            : isOvulation
+                ? (_l10n.dayPhaseOvulation, context.colors.fertile)
+                : fertile
+                    ? (_l10n.dayPhaseFertile, context.colors.fertile)
+                    : (_l10n.dayPhaseRegular, context.colors.textSecondary);
+
+    final symptoms = decodeStringList(log?.symptoms);
+    final tt = Theme.of(context).textTheme;
+
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(dayMonthYear(date, _locale),
+                      style: tt.headlineSmall),
+                ),
+                const SizedBox(height: 16),
+                // Фаза на цикъла.
+                Row(children: [
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                        color: phaseColor, shape: BoxShape.circle),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(phaseLabel, style: tt.bodyMedium),
+                ]),
+                const SizedBox(height: 16),
+                _fertilitySection(dfo, ctx),
+                const SizedBox(height: 16),
+                // Записаното за деня.
+                if (log == null && moments.isEmpty)
+                  Text(_l10n.dayNoData, style: tt.labelMedium)
+                else ...[
+                  if (log?.mood != null)
+                    _detailRow(_l10n.detailMood, moodEmoji(log!.mood)),
+                  if (log?.libido != null)
+                    _detailRow(_l10n.detailLibido,
+                        '${(log!.libido! * 100).round()}%'),
+                  if (log?.energy != null)
+                    _detailRow(_l10n.detailEnergy,
+                        '${(log!.energy! * 100).round()}%'),
+                  if (symptoms.isNotEmpty)
+                    _detailRow(_l10n.detailSymptoms, symptoms.join(', ')),
+                  if (moments.isNotEmpty)
+                    _detailRow('💞', _l10n.detailMoments(moments.length)),
+                ],
+                const SizedBox(height: 20),
+                FilledButton.icon(
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    _openLog(day);
+                  },
+                  icon: const Icon(Icons.edit_outlined),
+                  label: Text(_l10n.dayDetailEdit),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(label, style: Theme.of(context).textTheme.labelMedium),
+            Flexible(
+              child: Text(value,
+                  textAlign: TextAlign.right,
+                  style: Theme.of(context).textTheme.bodyMedium),
+            ),
+          ],
+        ),
+      );
+
+  Widget _fertilitySection(int? dfo, BuildContext ctx) {
+    final tt = Theme.of(ctx).textTheme;
+    if (dfo == null) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: ctx.colors.surface,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Text(_l10n.fertNoData, style: tt.bodyMedium),
+      );
+    }
+    final chance = pregnancyChance(dfo);
+    final relative = dfo == 0
+        ? _l10n.fertOnOvulation
+        : dfo < 0
+            ? _l10n.fertBeforeOvulation(-dfo)
+            : _l10n.fertAfterOvulation(dfo);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: ctx.colors.surface,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(_l10n.fertilityTitle, style: tt.labelMedium),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Text(_fertLabel(chance.level),
+                  style: tt.titleLarge!
+                      .copyWith(color: _fertColor(chance.level))),
+              const SizedBox(width: 8),
+              if (chance.percentApprox > 0)
+                Text(_l10n.fertApprox(chance.percentApprox),
+                    style: tt.bodyMedium!
+                        .copyWith(color: ctx.colors.textSecondary)),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(relative, style: tt.labelMedium),
+          const SizedBox(height: 8),
+          Text(_l10n.fertDisclaimer,
+              style: tt.labelMedium!
+                  .copyWith(color: ctx.colors.textSecondary)),
+        ],
+      ),
+    );
   }
 
   void _changeMonth(int delta) {
@@ -298,7 +473,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           isPredicted: !isPeriod && cycleSettings.isPredictedPeriod(date),
           onTap: () {
             HapticFeedback.selectionClick();
-            _openLog(day);
+            _showDayDetail(day);
           },
         ),
       );

@@ -170,11 +170,167 @@ abstract class AppLocalizations {
   /// **'Инсайти'**
   String get navInsights;
 
+  /// No description provided for @navPartner.
+  ///
+  /// In bg, this message translates to:
+  /// **'Партньор'**
+  String get navPartner;
+
+  /// No description provided for @navProfile.
+  ///
+  /// In bg, this message translates to:
+  /// **'Профил'**
+  String get navProfile;
+
   /// No description provided for @navSettings.
   ///
   /// In bg, this message translates to:
   /// **'Настройки'**
   String get navSettings;
+
+  /// No description provided for @dayDetailEdit.
+  ///
+  /// In bg, this message translates to:
+  /// **'Запиши / редактирай'**
+  String get dayDetailEdit;
+
+  /// No description provided for @dayPhasePeriod.
+  ///
+  /// In bg, this message translates to:
+  /// **'Менструация'**
+  String get dayPhasePeriod;
+
+  /// No description provided for @dayPhasePredicted.
+  ///
+  /// In bg, this message translates to:
+  /// **'Очаквана менструация'**
+  String get dayPhasePredicted;
+
+  /// No description provided for @dayPhaseOvulation.
+  ///
+  /// In bg, this message translates to:
+  /// **'Овулация'**
+  String get dayPhaseOvulation;
+
+  /// No description provided for @dayPhaseFertile.
+  ///
+  /// In bg, this message translates to:
+  /// **'Фертилен прозорец'**
+  String get dayPhaseFertile;
+
+  /// No description provided for @dayPhaseRegular.
+  ///
+  /// In bg, this message translates to:
+  /// **'Извън фертилния прозорец'**
+  String get dayPhaseRegular;
+
+  /// No description provided for @dayNoData.
+  ///
+  /// In bg, this message translates to:
+  /// **'Няма запис за този ден'**
+  String get dayNoData;
+
+  /// No description provided for @detailMood.
+  ///
+  /// In bg, this message translates to:
+  /// **'Настроение'**
+  String get detailMood;
+
+  /// No description provided for @detailLibido.
+  ///
+  /// In bg, this message translates to:
+  /// **'Либидо'**
+  String get detailLibido;
+
+  /// No description provided for @detailEnergy.
+  ///
+  /// In bg, this message translates to:
+  /// **'Енергия'**
+  String get detailEnergy;
+
+  /// No description provided for @detailSymptoms.
+  ///
+  /// In bg, this message translates to:
+  /// **'Симптоми'**
+  String get detailSymptoms;
+
+  /// No description provided for @detailMoments.
+  ///
+  /// In bg, this message translates to:
+  /// **'{count, plural, one{{count} интимен момент} other{{count} интимни момента}}'**
+  String detailMoments(num count);
+
+  /// No description provided for @fertilityTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Шанс за забременяване'**
+  String get fertilityTitle;
+
+  /// No description provided for @fertVeryHigh.
+  ///
+  /// In bg, this message translates to:
+  /// **'Много висок'**
+  String get fertVeryHigh;
+
+  /// No description provided for @fertHigh.
+  ///
+  /// In bg, this message translates to:
+  /// **'Висок'**
+  String get fertHigh;
+
+  /// No description provided for @fertModerate.
+  ///
+  /// In bg, this message translates to:
+  /// **'Умерен'**
+  String get fertModerate;
+
+  /// No description provided for @fertLow.
+  ///
+  /// In bg, this message translates to:
+  /// **'Нисък'**
+  String get fertLow;
+
+  /// No description provided for @fertNegligible.
+  ///
+  /// In bg, this message translates to:
+  /// **'Незначителен'**
+  String get fertNegligible;
+
+  /// No description provided for @fertApprox.
+  ///
+  /// In bg, this message translates to:
+  /// **'около {pct}%'**
+  String fertApprox(Object pct);
+
+  /// No description provided for @fertOnOvulation.
+  ///
+  /// In bg, this message translates to:
+  /// **'Днес е денят на овулацията'**
+  String get fertOnOvulation;
+
+  /// No description provided for @fertBeforeOvulation.
+  ///
+  /// In bg, this message translates to:
+  /// **'{days, plural, one{{days} ден преди овулацията} other{{days} дни преди овулацията}}'**
+  String fertBeforeOvulation(num days);
+
+  /// No description provided for @fertAfterOvulation.
+  ///
+  /// In bg, this message translates to:
+  /// **'{days, plural, one{{days} ден след овулацията} other{{days} дни след овулацията}}'**
+  String fertAfterOvulation(num days);
+
+  /// No description provided for @fertDisclaimer.
+  ///
+  /// In bg, this message translates to:
+  /// **'Приблизителна оценка по дни от овулацията — не е метод за контрацепция.'**
+  String get fertDisclaimer;
+
+  /// No description provided for @fertNoData.
+  ///
+  /// In bg, this message translates to:
+  /// **'Отбележи менструация, за да изчислим шанса.'**
+  String get fertNoData;
 
   /// No description provided for @bootStarting.
   ///
@@ -1177,6 +1333,78 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Според системата'**
   String get languageSystem;
+
+  /// No description provided for @profileTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Профил'**
+  String get profileTitle;
+
+  /// No description provided for @profileSetName.
+  ///
+  /// In bg, this message translates to:
+  /// **'Задай име'**
+  String get profileSetName;
+
+  /// No description provided for @profileName.
+  ///
+  /// In bg, this message translates to:
+  /// **'Име'**
+  String get profileName;
+
+  /// No description provided for @profileNameHint.
+  ///
+  /// In bg, this message translates to:
+  /// **'Как да те наричаме'**
+  String get profileNameHint;
+
+  /// No description provided for @profileChangePhoto.
+  ///
+  /// In bg, this message translates to:
+  /// **'Смени снимката'**
+  String get profileChangePhoto;
+
+  /// No description provided for @sectionAccount.
+  ///
+  /// In bg, this message translates to:
+  /// **'АКАУНТ'**
+  String get sectionAccount;
+
+  /// No description provided for @accountSignedOut.
+  ///
+  /// In bg, this message translates to:
+  /// **'Влез, за да пазиш профила си и да го ползваш на няколко устройства.'**
+  String get accountSignedOut;
+
+  /// No description provided for @accountSignedIn.
+  ///
+  /// In bg, this message translates to:
+  /// **'Влязъл/а си 💜'**
+  String get accountSignedIn;
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In bg, this message translates to:
+  /// **'Изход'**
+  String get accountSignOut;
+
+  /// No description provided for @signInFacebook.
+  ///
+  /// In bg, this message translates to:
+  /// **'Продължи с Facebook'**
+  String get signInFacebook;
+
+  /// No description provided for @signInGoogle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Продължи с Google'**
+  String get signInGoogle;
+
+  /// No description provided for @accountProvidersNote.
+  ///
+  /// In bg, this message translates to:
+  /// **'Instagram и TikTok вход все още не се поддържат.'**
+  String get accountProvidersNote;
 
   /// No description provided for @paletteTitle.
   ///
