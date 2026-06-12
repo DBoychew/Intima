@@ -42,6 +42,11 @@ class PairingState {
 /// (SupabaseBackend) чака проекта; InMemorySyncBackend е за тестове
 /// и локална разработка.
 abstract class SyncBackend {
+  /// Идентичността, с която този клиент пише на сървъра — за
+  /// различаване „мое/чуждо". null = бекендът няма собствена
+  /// (тестове); тогава се ползва локалното device id.
+  Future<String?> identity() async => null;
+
   /// Кани: регистрира [code] с публичния ключ на канещия.
   Future<void> createPairing(String code, Uint8List pubA);
 
@@ -66,7 +71,7 @@ abstract class SyncBackend {
 
 /// In-memory сървър за тестове: държи се като реалния, включително
 /// еднократните кодове, но живее в паметта на процеса.
-class InMemorySyncBackend implements SyncBackend {
+class InMemorySyncBackend extends SyncBackend {
   final _pairings = <String, PairingState>{};
   final _completed = <String, String>{};
   final _items = <String, List<SharedItem>>{};

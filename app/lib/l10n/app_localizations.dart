@@ -1508,6 +1508,180 @@ abstract class AppLocalizations {
   /// **'Средно настроение'**
   String get insightsAvgMood;
 
+  /// No description provided for @sectionPartner.
+  ///
+  /// In bg, this message translates to:
+  /// **'ПАРТНЬОР'**
+  String get sectionPartner;
+
+  /// No description provided for @partnerTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Партньор'**
+  String get partnerTitle;
+
+  /// No description provided for @partnerSettingsSubtitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Свържи се с половинката си — шифровано от край до край'**
+  String get partnerSettingsSubtitle;
+
+  /// No description provided for @partnerIntro.
+  ///
+  /// In bg, this message translates to:
+  /// **'Свържете двете приложения и споделяйте само това, което изберете. Всичко пътува шифровано — дори ние не можем да го прочетем. 🔒'**
+  String get partnerIntro;
+
+  /// No description provided for @partnerStatusLinked.
+  ///
+  /// In bg, this message translates to:
+  /// **'Свързани сте 💜'**
+  String get partnerStatusLinked;
+
+  /// No description provided for @partnerInvite.
+  ///
+  /// In bg, this message translates to:
+  /// **'Покани партньора'**
+  String get partnerInvite;
+
+  /// No description provided for @partnerHaveCode.
+  ///
+  /// In bg, this message translates to:
+  /// **'Имам код от партньора'**
+  String get partnerHaveCode;
+
+  /// No description provided for @partnerSayCode.
+  ///
+  /// In bg, this message translates to:
+  /// **'Кажи този код на партньора си. Важи 15 минути.'**
+  String get partnerSayCode;
+
+  /// No description provided for @partnerWaiting.
+  ///
+  /// In bg, this message translates to:
+  /// **'Чакаме партньора да въведе кода…'**
+  String get partnerWaiting;
+
+  /// No description provided for @partnerCheck.
+  ///
+  /// In bg, this message translates to:
+  /// **'Провери'**
+  String get partnerCheck;
+
+  /// No description provided for @partnerEnterCodeTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Код от партньора'**
+  String get partnerEnterCodeTitle;
+
+  /// No description provided for @partnerEnterCodeHint.
+  ///
+  /// In bg, this message translates to:
+  /// **'напр. KX7M2PQA'**
+  String get partnerEnterCodeHint;
+
+  /// No description provided for @partnerJoin.
+  ///
+  /// In bg, this message translates to:
+  /// **'Свържи'**
+  String get partnerJoin;
+
+  /// No description provided for @partnerCodeInvalid.
+  ///
+  /// In bg, this message translates to:
+  /// **'Непознат, зает или изтекъл код'**
+  String get partnerCodeInvalid;
+
+  /// No description provided for @partnerCompareTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Еднакви ли са емоджитата?'**
+  String get partnerCompareTitle;
+
+  /// No description provided for @partnerCompareBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Сравнете на глас емоджитата на двата екрана. Еднакви ли са — връзката е сигурна и никой не подслушва.'**
+  String get partnerCompareBody;
+
+  /// No description provided for @partnerMatch.
+  ///
+  /// In bg, this message translates to:
+  /// **'Да, еднакви са'**
+  String get partnerMatch;
+
+  /// No description provided for @partnerNoMatch.
+  ///
+  /// In bg, this message translates to:
+  /// **'Различни са'**
+  String get partnerNoMatch;
+
+  /// No description provided for @partnerUnlink.
+  ///
+  /// In bg, this message translates to:
+  /// **'Прекъсни връзката'**
+  String get partnerUnlink;
+
+  /// No description provided for @partnerUnlinkTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Прекъсване на връзката?'**
+  String get partnerUnlinkTitle;
+
+  /// No description provided for @partnerUnlinkBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Споделеният канал спира и за двамата. Локалните записи на всеки остават при него.'**
+  String get partnerUnlinkBody;
+
+  /// No description provided for @partnerUnlinked.
+  ///
+  /// In bg, this message translates to:
+  /// **'Връзката е прекъсната'**
+  String get partnerUnlinked;
+
+  /// No description provided for @partnerNotes.
+  ///
+  /// In bg, this message translates to:
+  /// **'Споделени бележки'**
+  String get partnerNotes;
+
+  /// No description provided for @partnerNoteHint.
+  ///
+  /// In bg, this message translates to:
+  /// **'Кратка бележка за двама…'**
+  String get partnerNoteHint;
+
+  /// No description provided for @partnerSend.
+  ///
+  /// In bg, this message translates to:
+  /// **'Изпрати'**
+  String get partnerSend;
+
+  /// No description provided for @partnerSent.
+  ///
+  /// In bg, this message translates to:
+  /// **'Изпратено 💌'**
+  String get partnerSent;
+
+  /// No description provided for @partnerEmpty.
+  ///
+  /// In bg, this message translates to:
+  /// **'Още няма споделени бележки.\nНапиши първата 💜'**
+  String get partnerEmpty;
+
+  /// No description provided for @partnerYou.
+  ///
+  /// In bg, this message translates to:
+  /// **'Ти'**
+  String get partnerYou;
+
+  /// No description provided for @partnerError.
+  ///
+  /// In bg, this message translates to:
+  /// **'Връзката със сървъра не успя — провери интернета и опитай пак'**
+  String get partnerError;
+
   /// No description provided for @notifChannelName.
   ///
   /// In bg, this message translates to:

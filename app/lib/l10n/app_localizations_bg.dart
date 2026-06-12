@@ -823,6 +823,98 @@ class AppLocalizationsBg extends AppLocalizations {
   String get insightsAvgMood => 'Средно настроение';
 
   @override
+  String get sectionPartner => 'ПАРТНЬОР';
+
+  @override
+  String get partnerTitle => 'Партньор';
+
+  @override
+  String get partnerSettingsSubtitle =>
+      'Свържи се с половинката си — шифровано от край до край';
+
+  @override
+  String get partnerIntro =>
+      'Свържете двете приложения и споделяйте само това, което изберете. Всичко пътува шифровано — дори ние не можем да го прочетем. 🔒';
+
+  @override
+  String get partnerStatusLinked => 'Свързани сте 💜';
+
+  @override
+  String get partnerInvite => 'Покани партньора';
+
+  @override
+  String get partnerHaveCode => 'Имам код от партньора';
+
+  @override
+  String get partnerSayCode => 'Кажи този код на партньора си. Важи 15 минути.';
+
+  @override
+  String get partnerWaiting => 'Чакаме партньора да въведе кода…';
+
+  @override
+  String get partnerCheck => 'Провери';
+
+  @override
+  String get partnerEnterCodeTitle => 'Код от партньора';
+
+  @override
+  String get partnerEnterCodeHint => 'напр. KX7M2PQA';
+
+  @override
+  String get partnerJoin => 'Свържи';
+
+  @override
+  String get partnerCodeInvalid => 'Непознат, зает или изтекъл код';
+
+  @override
+  String get partnerCompareTitle => 'Еднакви ли са емоджитата?';
+
+  @override
+  String get partnerCompareBody =>
+      'Сравнете на глас емоджитата на двата екрана. Еднакви ли са — връзката е сигурна и никой не подслушва.';
+
+  @override
+  String get partnerMatch => 'Да, еднакви са';
+
+  @override
+  String get partnerNoMatch => 'Различни са';
+
+  @override
+  String get partnerUnlink => 'Прекъсни връзката';
+
+  @override
+  String get partnerUnlinkTitle => 'Прекъсване на връзката?';
+
+  @override
+  String get partnerUnlinkBody =>
+      'Споделеният канал спира и за двамата. Локалните записи на всеки остават при него.';
+
+  @override
+  String get partnerUnlinked => 'Връзката е прекъсната';
+
+  @override
+  String get partnerNotes => 'Споделени бележки';
+
+  @override
+  String get partnerNoteHint => 'Кратка бележка за двама…';
+
+  @override
+  String get partnerSend => 'Изпрати';
+
+  @override
+  String get partnerSent => 'Изпратено 💌';
+
+  @override
+  String get partnerEmpty => 'Още няма споделени бележки.\nНапиши първата 💜';
+
+  @override
+  String get partnerYou => 'Ти';
+
+  @override
+  String get partnerError =>
+      'Връзката със сървъра не успя — провери интернета и опитай пак';
+
+  @override
   String get notifChannelName => 'Нежни напомняния';
 
   @override

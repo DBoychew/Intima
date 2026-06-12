@@ -4,6 +4,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Аудио бележки в дневника (Premium) — записът остава локален. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <!-- Фаза 7 Partner Mode: мрежата се ползва САМО за E2E шифрования
+         sync през Supabase — сървърът вижда единствено ciphertext. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="Intima"
         android:name="${applicationName}"

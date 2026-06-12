@@ -64,6 +64,11 @@ class PartnerRepository {
     return id;
   }
 
+  /// Авторът, който се записва на сървъра: auth идентичността на
+  /// бекенда (нужна за RLS) или локалното id при тестовия mock.
+  Future<String> _author() async =>
+      (await _backend.identity()) ?? await _deviceId();
+
   /// Страна А: създава покана и връща кода, който се казва на глас.
   Future<PendingInvite> invite() async {
     _pendingPair = await CoupleCrypto.newKeyPair();
@@ -119,6 +124,17 @@ class PartnerRepository {
     _pendingCode = null;
   }
 
+  /// Отказ от текущото сдвояване (емоджитата не съвпаднаха / отказ).
+  /// Поканата на сървъра изтича сама след 15 минути.
+  void cancelPending() {
+    _pendingPair = null;
+    _pendingCode = null;
+    if (_status != PartnerStatus.linked) {
+      _coupleKey = null;
+      _status = PartnerStatus.none;
+    }
+  }
+
   /// Споделя бележка — на сървъра пристига само шифрован блок.
   Future<void> shareNote(String text, {DateTime? at}) async {
     final key = _requireLinked();
@@ -129,7 +145,7 @@ class PartnerRepository {
     await _backend.push(SharedItem(
       id: '${DateTime.now().microsecondsSinceEpoch}',
       coupleId: _coupleId!,
-      author: await _deviceId(),
+      author: await _author(),
       kind: SharedKind.note,
       sealed: sealed,
       createdAt: DateTime.now(),
@@ -138,15 +154,18 @@ class PartnerRepository {
 
   /// Изтегля и декриптира споделеното; чужди/повредени блокове се
   /// пропускат тихо (по-добре липсваща бележка от крив текст).
-  Future<List<({String author, dynamic payload, SharedKind kind})>> inbox(
-      {DateTime? since}) async {
+  Future<List<({String author, bool mine, dynamic payload, SharedKind kind})>>
+      inbox({DateTime? since}) async {
     final key = _requireLinked();
+    final me = await _author();
     final items = await _backend.pull(_coupleId!, since: since);
-    final result = <({String author, dynamic payload, SharedKind kind})>[];
+    final result =
+        <({String author, bool mine, dynamic payload, SharedKind kind})>[];
     for (final item in items) {
       try {
         result.add((
           author: item.author,
+          mine: item.author == me,
           payload: await CoupleCrypto.open(item.sealed, key),
           kind: item.kind,
         ));

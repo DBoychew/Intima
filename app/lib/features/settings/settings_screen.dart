@@ -21,6 +21,7 @@ import '../../security/pin_widgets.dart';
 import '../../security/secure_flag.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/palettes.dart';
+import '../partner/partner_screen.dart';
 import '../premium/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -588,6 +589,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: accent),
             onTap: _pickLanguage,
           ),
+          // Партньорският канал е реален — скрит в stealth копието.
+          if (!appLock.decoyActive) ...[
+            _section(_l10n.sectionPartner),
+            ListTile(
+              leading: const Text('💞', style: TextStyle(fontSize: 22)),
+              title: Text(_l10n.partnerTitle),
+              subtitle: Text(_l10n.partnerSettingsSubtitle,
+                  style: Theme.of(context).textTheme.labelMedium),
+              trailing: Icon(Icons.chevron_right,
+                  color: context.colors.textSecondary),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const PartnerScreen()),
+              ),
+            ),
+          ],
           _section(_l10n.sectionPremium),
           ListTile(
             leading: const Text('💜', style: TextStyle(fontSize: 22)),

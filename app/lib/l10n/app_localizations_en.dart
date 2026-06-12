@@ -825,6 +825,99 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsAvgMood => 'Average mood';
 
   @override
+  String get sectionPartner => 'PARTNER';
+
+  @override
+  String get partnerTitle => 'Partner';
+
+  @override
+  String get partnerSettingsSubtitle =>
+      'Link with your partner — end-to-end encrypted';
+
+  @override
+  String get partnerIntro =>
+      'Link your two apps and share only what you choose. Everything travels encrypted — even we can\'t read it. 🔒';
+
+  @override
+  String get partnerStatusLinked => 'You\'re linked 💜';
+
+  @override
+  String get partnerInvite => 'Invite your partner';
+
+  @override
+  String get partnerHaveCode => 'I have a code';
+
+  @override
+  String get partnerSayCode =>
+      'Tell your partner this code. It\'s valid for 15 minutes.';
+
+  @override
+  String get partnerWaiting => 'Waiting for your partner to enter the code…';
+
+  @override
+  String get partnerCheck => 'Check';
+
+  @override
+  String get partnerEnterCodeTitle => 'Partner\'s code';
+
+  @override
+  String get partnerEnterCodeHint => 'e.g. KX7M2PQA';
+
+  @override
+  String get partnerJoin => 'Link';
+
+  @override
+  String get partnerCodeInvalid => 'Unknown, taken or expired code';
+
+  @override
+  String get partnerCompareTitle => 'Do the emojis match?';
+
+  @override
+  String get partnerCompareBody =>
+      'Compare the emojis on both screens out loud. If they match, the connection is secure and nobody is listening in.';
+
+  @override
+  String get partnerMatch => 'Yes, they match';
+
+  @override
+  String get partnerNoMatch => 'They\'re different';
+
+  @override
+  String get partnerUnlink => 'Unlink';
+
+  @override
+  String get partnerUnlinkTitle => 'Unlink from your partner?';
+
+  @override
+  String get partnerUnlinkBody =>
+      'The shared channel stops for both of you. Everyone keeps their own local entries.';
+
+  @override
+  String get partnerUnlinked => 'Unlinked';
+
+  @override
+  String get partnerNotes => 'Shared notes';
+
+  @override
+  String get partnerNoteHint => 'A short note for the two of you…';
+
+  @override
+  String get partnerSend => 'Send';
+
+  @override
+  String get partnerSent => 'Sent 💌';
+
+  @override
+  String get partnerEmpty => 'No shared notes yet.\nWrite the first one 💜';
+
+  @override
+  String get partnerYou => 'You';
+
+  @override
+  String get partnerError =>
+      'Couldn\'t reach the server — check your connection and try again';
+
+  @override
   String get notifChannelName => 'Gentle reminders';
 
   @override
