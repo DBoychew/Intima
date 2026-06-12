@@ -14,6 +14,7 @@ import 'data/db_manager.dart';
 import 'features/calendar/calendar_screen.dart';
 import 'features/diary/diary_editor_screen.dart';
 import 'features/diary/diary_screen.dart';
+import 'features/insights/insights_screen.dart';
 import 'features/onboarding/onboarding_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'security/app_lock.dart';
@@ -120,6 +121,11 @@ final _router = GoRouter(
                       initial: state.extra as DiaryEntryRow?)),
             ],
           ),
+        ]),
+        StatefulShellBranch(routes: [
+          GoRoute(
+              path: '/insights',
+              builder: (context, state) => const InsightsScreen()),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(

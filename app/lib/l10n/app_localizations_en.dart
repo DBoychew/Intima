@@ -45,6 +45,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navDiary => 'Diary';
 
   @override
+  String get navInsights => 'Insights';
+
+  @override
   String get navSettings => 'Settings';
 
   @override
@@ -637,6 +640,123 @@ class AppLocalizationsEn extends AppLocalizations {
   String pdfFailed(Object error) {
     return 'Export failed: $error';
   }
+
+  @override
+  String get insightsTitle => 'Insights';
+
+  @override
+  String get insightsPrivacyNote => 'Computed entirely on your device 🔒';
+
+  @override
+  String get insightsTeaser =>
+      'See what your data has to say — your real cycle length, mood by phase, libido trends. Entirely on your device, nothing ever leaves it.';
+
+  @override
+  String get insightsUnlock => 'Unlock with Premium';
+
+  @override
+  String get insightsEmpty =>
+      'Not enough data yet.\nKeep logging your cycle and mood and your trends will appear here. 💜';
+
+  @override
+  String get insightsCycleCard => 'Your cycle';
+
+  @override
+  String insightsAvgDays(Object value) {
+    return '$value days';
+  }
+
+  @override
+  String insightsMeasuredFrom(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Measured from $count real cycles',
+      one: 'Measured from $count real cycle',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsCycleRange(Object min, Object max) {
+    return 'Between $min and $max days';
+  }
+
+  @override
+  String get insightsCycleNeedTwo =>
+      'Mark at least two periods in the calendar and we\'ll measure your real cycle length — not just the setting.';
+
+  @override
+  String insightsVsSetting(Object days) {
+    return 'Setting: $days days';
+  }
+
+  @override
+  String get insightsMoodCard => 'Mood by phase';
+
+  @override
+  String get phaseMenstrual => 'Menstrual';
+
+  @override
+  String get phaseFollicular => 'Follicular';
+
+  @override
+  String get phaseOvulation => 'Ovulation';
+
+  @override
+  String get phaseLuteal => 'Luteal';
+
+  @override
+  String get insightsMoodHint =>
+      'Log your mood more often to see how it relates to your cycle.';
+
+  @override
+  String get insightsTrendCard => 'Libido & energy by month';
+
+  @override
+  String get insightsRecapCard => 'The last 30 days';
+
+  @override
+  String insightsRecapEntries(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count diary entries',
+      one: '$count diary entry',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsRecapMoments(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count intimate moments',
+      one: '$count intimate moment',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsRecapOrgasms(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count orgasms',
+      one: '$count orgasm',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insightsTopSymptom => 'Most frequent symptom';
+
+  @override
+  String get insightsTopPosition => 'Favourite position';
+
+  @override
+  String get insightsAvgMood => 'Average mood';
 
   @override
   String get notifChannelName => 'Gentle reminders';

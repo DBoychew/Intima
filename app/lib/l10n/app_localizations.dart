@@ -164,6 +164,12 @@ abstract class AppLocalizations {
   /// **'Дневник'**
   String get navDiary;
 
+  /// No description provided for @navInsights.
+  ///
+  /// In bg, this message translates to:
+  /// **'Инсайти'**
+  String get navInsights;
+
   /// No description provided for @navSettings.
   ///
   /// In bg, this message translates to:
@@ -1225,6 +1231,156 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Експортът не успя: {error}'**
   String pdfFailed(Object error);
+
+  /// No description provided for @insightsTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Инсайти'**
+  String get insightsTitle;
+
+  /// No description provided for @insightsPrivacyNote.
+  ///
+  /// In bg, this message translates to:
+  /// **'Изчислено изцяло на устройството 🔒'**
+  String get insightsPrivacyNote;
+
+  /// No description provided for @insightsTeaser.
+  ///
+  /// In bg, this message translates to:
+  /// **'Виж какво разказват твоите данни — реална дължина на цикъла, настроение по фази, тенденции на либидото. Изцяло на устройството, нищо не го напуска.'**
+  String get insightsTeaser;
+
+  /// No description provided for @insightsUnlock.
+  ///
+  /// In bg, this message translates to:
+  /// **'Отключи с Premium'**
+  String get insightsUnlock;
+
+  /// No description provided for @insightsEmpty.
+  ///
+  /// In bg, this message translates to:
+  /// **'Все още няма достатъчно данни.\nОтбелязвай цикъла и настроението си и тук ще се появят твоите тенденции. 💜'**
+  String get insightsEmpty;
+
+  /// No description provided for @insightsCycleCard.
+  ///
+  /// In bg, this message translates to:
+  /// **'Твоят цикъл'**
+  String get insightsCycleCard;
+
+  /// No description provided for @insightsAvgDays.
+  ///
+  /// In bg, this message translates to:
+  /// **'{value} дни'**
+  String insightsAvgDays(Object value);
+
+  /// No description provided for @insightsMeasuredFrom.
+  ///
+  /// In bg, this message translates to:
+  /// **'{count, plural, one{Изчислено от {count} реален цикъл} other{Изчислено от {count} реални цикъла}}'**
+  String insightsMeasuredFrom(num count);
+
+  /// No description provided for @insightsCycleRange.
+  ///
+  /// In bg, this message translates to:
+  /// **'Между {min} и {max} дни'**
+  String insightsCycleRange(Object min, Object max);
+
+  /// No description provided for @insightsCycleNeedTwo.
+  ///
+  /// In bg, this message translates to:
+  /// **'Отбележи поне две менструации в календара и ще изчислим реалната дължина на цикъла ти — не само настройката.'**
+  String get insightsCycleNeedTwo;
+
+  /// No description provided for @insightsVsSetting.
+  ///
+  /// In bg, this message translates to:
+  /// **'Настройка: {days} дни'**
+  String insightsVsSetting(Object days);
+
+  /// No description provided for @insightsMoodCard.
+  ///
+  /// In bg, this message translates to:
+  /// **'Настроение по фази'**
+  String get insightsMoodCard;
+
+  /// No description provided for @phaseMenstrual.
+  ///
+  /// In bg, this message translates to:
+  /// **'Менструация'**
+  String get phaseMenstrual;
+
+  /// No description provided for @phaseFollicular.
+  ///
+  /// In bg, this message translates to:
+  /// **'Фоликуларна'**
+  String get phaseFollicular;
+
+  /// No description provided for @phaseOvulation.
+  ///
+  /// In bg, this message translates to:
+  /// **'Овулация'**
+  String get phaseOvulation;
+
+  /// No description provided for @phaseLuteal.
+  ///
+  /// In bg, this message translates to:
+  /// **'Лутеална'**
+  String get phaseLuteal;
+
+  /// No description provided for @insightsMoodHint.
+  ///
+  /// In bg, this message translates to:
+  /// **'Записвай настроението си по-често, за да видиш връзката му с цикъла.'**
+  String get insightsMoodHint;
+
+  /// No description provided for @insightsTrendCard.
+  ///
+  /// In bg, this message translates to:
+  /// **'Либидо и енергия по месеци'**
+  String get insightsTrendCard;
+
+  /// No description provided for @insightsRecapCard.
+  ///
+  /// In bg, this message translates to:
+  /// **'Последните 30 дни'**
+  String get insightsRecapCard;
+
+  /// No description provided for @insightsRecapEntries.
+  ///
+  /// In bg, this message translates to:
+  /// **'{count, plural, one{{count} запис в дневника} other{{count} записа в дневника}}'**
+  String insightsRecapEntries(num count);
+
+  /// No description provided for @insightsRecapMoments.
+  ///
+  /// In bg, this message translates to:
+  /// **'{count, plural, one{{count} интимен момент} other{{count} интимни момента}}'**
+  String insightsRecapMoments(num count);
+
+  /// No description provided for @insightsRecapOrgasms.
+  ///
+  /// In bg, this message translates to:
+  /// **'{count, plural, one{{count} оргазъм} other{{count} оргазма}}'**
+  String insightsRecapOrgasms(num count);
+
+  /// No description provided for @insightsTopSymptom.
+  ///
+  /// In bg, this message translates to:
+  /// **'Най-чест симптом'**
+  String get insightsTopSymptom;
+
+  /// No description provided for @insightsTopPosition.
+  ///
+  /// In bg, this message translates to:
+  /// **'Любима поза'**
+  String get insightsTopPosition;
+
+  /// No description provided for @insightsAvgMood.
+  ///
+  /// In bg, this message translates to:
+  /// **'Средно настроение'**
+  String get insightsAvgMood;
 
   /// No description provided for @notifChannelName.
   ///

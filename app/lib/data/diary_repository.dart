@@ -5,6 +5,7 @@ import 'package:drift/drift.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+import '../core/data_version.dart';
 import '../security/app_lock.dart';
 import 'calendar_repository.dart' show decodeStringList;
 import 'database.dart';
@@ -41,11 +42,13 @@ class DiaryRepository {
       hasPhoto: Value(photos.isNotEmpty),
       photos: Value(jsonEncode(photos)),
     ));
+    bumpDataVersion();
   }
 
   Future<void> update(DiaryEntryRow row) async {
     if (appLock.decoyActive) return;
     await _manager.db.updateDiaryEntry(row);
+    bumpDataVersion();
   }
 
   Future<void> delete(DiaryEntryRow row) async {
@@ -54,6 +57,7 @@ class DiaryRepository {
       await deletePhotoFile(path);
     }
     await _manager.db.deleteDiaryEntry(row.id);
+    bumpDataVersion();
   }
 
   /// Копира снимка в private storage (никога в общата галерия)

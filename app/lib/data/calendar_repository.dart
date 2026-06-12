@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../core/cycle_settings.dart';
+import '../core/data_version.dart';
 import '../security/app_lock.dart';
 import 'database.dart';
 import 'db_manager.dart';
@@ -139,6 +140,7 @@ class CalendarRepository {
     }
 
     await refreshLastPeriodStart();
+    bumpDataVersion();
     return QuickLogOutcome(autoFilledDays: autoFilled, clearedDays: cleared);
   }
 

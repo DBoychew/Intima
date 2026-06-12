@@ -143,6 +143,14 @@ class IntimaDatabase extends _$IntimaDatabase {
         ..orderBy([(t) => OrderingTerm.desc(t.date)]))
       .get();
 
+  /// Всички дневни записи, хронологично — за инсайтите.
+  Future<List<DayLogRow>> allDayLogs() =>
+      (select(dayLogs)..orderBy([(t) => OrderingTerm.asc(t.date)])).get();
+
+  Future<List<IntimateMomentRow>> allMoments() =>
+      (select(intimateMoments)..orderBy([(t) => OrderingTerm.asc(t.date)]))
+          .get();
+
   // --- Интимни моменти ---
   Future<List<IntimateMomentRow>> momentsOn(String date) =>
       (select(intimateMoments)..where((t) => t.date.equals(date))).get();

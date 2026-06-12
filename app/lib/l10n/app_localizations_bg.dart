@@ -45,6 +45,9 @@ class AppLocalizationsBg extends AppLocalizations {
   String get navDiary => 'Дневник';
 
   @override
+  String get navInsights => 'Инсайти';
+
+  @override
   String get navSettings => 'Настройки';
 
   @override
@@ -636,6 +639,123 @@ class AppLocalizationsBg extends AppLocalizations {
   String pdfFailed(Object error) {
     return 'Експортът не успя: $error';
   }
+
+  @override
+  String get insightsTitle => 'Инсайти';
+
+  @override
+  String get insightsPrivacyNote => 'Изчислено изцяло на устройството 🔒';
+
+  @override
+  String get insightsTeaser =>
+      'Виж какво разказват твоите данни — реална дължина на цикъла, настроение по фази, тенденции на либидото. Изцяло на устройството, нищо не го напуска.';
+
+  @override
+  String get insightsUnlock => 'Отключи с Premium';
+
+  @override
+  String get insightsEmpty =>
+      'Все още няма достатъчно данни.\nОтбелязвай цикъла и настроението си и тук ще се появят твоите тенденции. 💜';
+
+  @override
+  String get insightsCycleCard => 'Твоят цикъл';
+
+  @override
+  String insightsAvgDays(Object value) {
+    return '$value дни';
+  }
+
+  @override
+  String insightsMeasuredFrom(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Изчислено от $count реални цикъла',
+      one: 'Изчислено от $count реален цикъл',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsCycleRange(Object min, Object max) {
+    return 'Между $min и $max дни';
+  }
+
+  @override
+  String get insightsCycleNeedTwo =>
+      'Отбележи поне две менструации в календара и ще изчислим реалната дължина на цикъла ти — не само настройката.';
+
+  @override
+  String insightsVsSetting(Object days) {
+    return 'Настройка: $days дни';
+  }
+
+  @override
+  String get insightsMoodCard => 'Настроение по фази';
+
+  @override
+  String get phaseMenstrual => 'Менструация';
+
+  @override
+  String get phaseFollicular => 'Фоликуларна';
+
+  @override
+  String get phaseOvulation => 'Овулация';
+
+  @override
+  String get phaseLuteal => 'Лутеална';
+
+  @override
+  String get insightsMoodHint =>
+      'Записвай настроението си по-често, за да видиш връзката му с цикъла.';
+
+  @override
+  String get insightsTrendCard => 'Либидо и енергия по месеци';
+
+  @override
+  String get insightsRecapCard => 'Последните 30 дни';
+
+  @override
+  String insightsRecapEntries(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count записа в дневника',
+      one: '$count запис в дневника',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsRecapMoments(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count интимни момента',
+      one: '$count интимен момент',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String insightsRecapOrgasms(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count оргазма',
+      one: '$count оргазъм',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get insightsTopSymptom => 'Най-чест симптом';
+
+  @override
+  String get insightsTopPosition => 'Любима поза';
+
+  @override
+  String get insightsAvgMood => 'Средно настроение';
 
   @override
   String get notifChannelName => 'Нежни напомняния';
