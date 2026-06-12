@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -55,8 +56,12 @@ class _PartnerScreenState extends State<PartnerScreen> {
     setState(() => _busy = true);
     try {
       return await op();
-    } catch (_) {
-      if (mounted) _toast(_l10n.partnerError);
+    } catch (e) {
+      debugPrint('[partner] $e');
+      if (mounted) {
+        // В debug показваме причината — иначе се дебъгва на сляпо.
+        _toast(kDebugMode ? '${_l10n.partnerError}\n$e' : _l10n.partnerError);
+      }
       return null;
     } finally {
       if (mounted) setState(() => _busy = false);
