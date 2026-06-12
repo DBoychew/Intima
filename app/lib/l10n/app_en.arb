@@ -204,6 +204,10 @@
   "themeLight": "Light",
   "themeSystem": "Follow system",
 
+  "sectionGeneral": "GENERAL",
+  "languageTitle": "Language",
+  "languageSystem": "Follow system",
+
   "paletteTitle": "Palette",
   "paletteIntima": "Intima · purple & gold",
   "paletteRoseGold": "Rose gold",

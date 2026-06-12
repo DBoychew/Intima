@@ -204,6 +204,10 @@
   "themeLight": "Светла",
   "themeSystem": "Според системата",
 
+  "sectionGeneral": "ОБЩИ",
+  "languageTitle": "Език",
+  "languageSystem": "Според системата",
+
   "paletteTitle": "Палитра",
   "paletteIntima": "Intima · лилаво и злато",
   "paletteRoseGold": "Роуз голд",

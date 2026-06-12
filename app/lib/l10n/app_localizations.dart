@@ -1160,6 +1160,24 @@ abstract class AppLocalizations {
   /// **'Според системата'**
   String get themeSystem;
 
+  /// No description provided for @sectionGeneral.
+  ///
+  /// In bg, this message translates to:
+  /// **'ОБЩИ'**
+  String get sectionGeneral;
+
+  /// No description provided for @languageTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Език'**
+  String get languageTitle;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In bg, this message translates to:
+  /// **'Според системата'**
+  String get languageSystem;
+
   /// No description provided for @paletteTitle.
   ///
   /// In bg, this message translates to:

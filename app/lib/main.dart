@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'boot_screen.dart';
 import 'core/cycle_settings.dart';
 import 'core/demo_seed.dart';
+import 'core/locale_controller.dart';
 import 'core/notifications.dart';
 import 'core/premium.dart';
 import 'core/theme_controller.dart';
@@ -45,6 +46,7 @@ void main() {
         await CyclePrefsRepository(dbManager).hydrate();
         await premium.init();
         await themeController.init();
+        await localeController.init();
       },
     ),
     (label: (l) => l.bootLock, run: appLock.init),
@@ -166,14 +168,15 @@ class _IntimaAppState extends State<IntimaApp> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return ListenableBuilder(
-      listenable: themeController,
+      listenable: Listenable.merge([themeController, localeController]),
       builder: (context, _) => MaterialApp.router(
         title: 'Intima',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(themeController.palette.light),
         darkTheme: AppTheme.dark(themeController.palette.dark),
         themeMode: themeController.mode,
-        locale: localeOverride,
+        // Тестове/скрийншоти > ръчният избор > езикът на системата.
+        locale: localeOverride ?? localeController.locale,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
         supportedLocales: AppLocalizations.supportedLocales,
         routerConfig: _router,

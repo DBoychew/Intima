@@ -604,6 +604,15 @@ class AppLocalizationsBg extends AppLocalizations {
   String get themeSystem => 'Според системата';
 
   @override
+  String get sectionGeneral => 'ОБЩИ';
+
+  @override
+  String get languageTitle => 'Език';
+
+  @override
+  String get languageSystem => 'Според системата';
+
+  @override
   String get paletteTitle => 'Палитра';
 
   @override

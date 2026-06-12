@@ -606,6 +606,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get themeSystem => 'Follow system';
 
   @override
+  String get sectionGeneral => 'GENERAL';
+
+  @override
+  String get languageTitle => 'Language';
+
+  @override
+  String get languageSystem => 'Follow system';
+
+  @override
   String get paletteTitle => 'Palette';
 
   @override

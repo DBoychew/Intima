@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/cycle_settings.dart';
 import '../../core/dates.dart';
+import '../../core/locale_controller.dart';
 import '../../core/notifications.dart';
 import '../../core/premium.dart';
 import '../../core/theme_controller.dart';
@@ -340,6 +341,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (mounted) setState(() {});
   }
 
+  /// Имената на езиците са ендоними — не се превеждат.
+  String _languageLabel(Locale? locale) => switch (locale?.languageCode) {
+        'bg' => 'Български',
+        'en' => 'English',
+        _ => _l10n.languageSystem,
+      };
+
+  Future<void> _pickLanguage() async {
+    const choices = [null, Locale('bg'), Locale('en')];
+    // null не може да е sentinel в showModalBottomSheet → индекс.
+    final selected = await showModalBottomSheet<int>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < choices.length; i++)
+              ListTile(
+                title: Text(_languageLabel(choices[i])),
+                leading: Icon(choices[i] == null
+                    ? Icons.brightness_auto_outlined
+                    : Icons.language),
+                trailing: localeController.locale == choices[i]
+                    ? Icon(Icons.check, color: ctx.colors.accentSoft)
+                    : null,
+                onTap: () => Navigator.pop(ctx, i),
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+    if (selected == null || !mounted) return;
+    await localeController.set(choices[selected]);
+    if (mounted) setState(() {});
+  }
+
   String _paletteLabel(AppPalette p) => switch (p) {
         AppPalette.roseGold => _l10n.paletteRoseGold,
         AppPalette.midnightBlue => _l10n.paletteMidnightBlue,
@@ -542,6 +580,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: Text(_l10n.timeLabel),
             trailing: Text(_timeLabel, style: accent),
             onTap: _pickTime,
+          ),
+          _section(_l10n.sectionGeneral),
+          ListTile(
+            title: Text(_l10n.languageTitle),
+            trailing: Text(_languageLabel(localeController.locale),
+                style: accent),
+            onTap: _pickLanguage,
           ),
           _section(_l10n.sectionPremium),
           ListTile(
