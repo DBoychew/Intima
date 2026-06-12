@@ -29,6 +29,18 @@
 7. **App content → Health**: декларирай „period tracking" категорията,
    данни само на устройството.
 
+## 1️⃣½ Supabase за Partner Mode (Фаза 7 — започната)
+
+Избра Supabase; кодовата основа е готова (E2E крипто, сдвояване с код
++ емоджи проверка, mock сървър, 7 теста). За реалния sync чакам от теб:
+
+1. Акаунт на [supabase.com](https://supabase.com) → **New project**,
+   регион **EU (Frankfurt)**, безплатният тир стига.
+2. От Settings → API ми дай **Project URL** и **anon key** (слагам ги
+   като `--dart-define`, не влизат в repo-то).
+3. SQL схемата и RLS политиките ги генерирам аз — само ги изпълняваш
+   в SQL Editor-а. Детайли: `docs/design/PARTNER_MODE.md`.
+
 ## 2️⃣ Решения, които чакат теб
 
 - [ ] **Заглавие в Play** (моята препоръка е първото):
