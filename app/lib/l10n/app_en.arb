@@ -392,6 +392,11 @@
   "poseTriedOn": "Tried on",
   "poseMarkTriedToday": "Mark \"tried today\"",
   "poseSaved": "Saved ✨",
+  "coupleMatchTitle": "It's a match 💘",
+  "coupleMatchBody": "You and {partner} both want to try \"{pose}\".",
+  "@coupleMatchBody": {"placeholders": {"partner": {}, "pose": {}}},
+  "coupleMatchNew": "You have a new match 💘",
+  "poseMatchBadge": "Match",
 
   "notifChannelName": "Gentle reminders",
   "notifChannelDesc": "Discreet reminders from Intima",

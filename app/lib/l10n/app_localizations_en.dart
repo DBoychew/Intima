@@ -1197,6 +1197,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get poseSaved => 'Saved ✨';
 
   @override
+  String get coupleMatchTitle => 'It\'s a match 💘';
+
+  @override
+  String coupleMatchBody(Object partner, Object pose) {
+    return 'You and $partner both want to try \"$pose\".';
+  }
+
+  @override
+  String get coupleMatchNew => 'You have a new match 💘';
+
+  @override
+  String get poseMatchBadge => 'Match';
+
+  @override
   String get notifChannelName => 'Gentle reminders';
 
   @override

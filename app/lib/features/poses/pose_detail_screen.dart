@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/dates.dart';
 import '../../data/pose_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../../partner/supabase_backend.dart' show partnerRepository;
 import '../../theme/app_theme.dart';
 import 'poses_data.dart';
 
@@ -43,8 +44,47 @@ class _PoseDetailScreenState extends State<PoseDetailScreen> {
     await poseRepository.update(widget.pose.id, next);
   }
 
-  void _toggleStatus(PoseStatus s) {
-    _save(_state.copyWith(status: _state.status == s ? PoseStatus.none : s));
+  Future<void> _toggleStatus(PoseStatus s) async {
+    final next =
+        _state.copyWith(status: _state.status == s ? PoseStatus.none : s);
+    await _save(next);
+    // Couple Match се задейства само от „искам да пробвам".
+    if (s != PoseStatus.wantToTry) return;
+    final wanted = next.status == PoseStatus.wantToTry;
+    try {
+      await partnerRepository.sharePoseInterest(widget.pose.id, wanted);
+      if (!wanted) return;
+      final fresh = await partnerRepository.refreshMatches();
+      final hit = fresh.where((f) => f.poseId == widget.pose.id);
+      if (hit.isNotEmpty && mounted) _showMatch(hit.first.coupleId);
+    } catch (_) {
+      // Couple Match е best-effort; локалният статус вече е запазен.
+    }
+  }
+
+  String _partnerName(String coupleId) {
+    final nick = partnerRepository.nicknameForCouple(coupleId);
+    if (nick != null) return nick;
+    final i = partnerRepository.indexOfCouple(coupleId);
+    return _l10n.partnerUnnamed(i >= 0 ? i + 1 : 1);
+  }
+
+  void _showMatch(String coupleId) {
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: ctx.colors.surfaceHigh,
+        title: Text(_l10n.coupleMatchTitle),
+        content: Text(_l10n.coupleMatchBody(
+            _partnerName(coupleId), widget.pose.name(_locale))),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('💘'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _setRating(int r) {

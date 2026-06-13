@@ -63,6 +63,12 @@ abstract class PartnerBackend {
   /// URL за показване на медия (подписан при Supabase); null при липса.
   Future<String?> mediaUrl(String? mediaPath);
 
+  /// Couple Match: отбелязва/маха интерес към поза (само за текущия член).
+  Future<void> setPoseInterest(String coupleId, String poseId, bool wanted);
+
+  /// Само взаимните пози (и двамата искат).
+  Future<List<String>> poseMatches(String coupleId);
+
   /// Едностранно прекъсване — спира канала и трие съдържанието.
   Future<void> dissolve(String coupleId);
 }
@@ -75,6 +81,8 @@ class InMemoryPartnerBackend extends PartnerBackend {
   final _pairingInviter = <String, String>{}; // code -> inviter device
   final _couples = <String, List<String>>{}; // couple_id -> [a, b]
   final _messages = <String, List<Message>>{};
+  // coupleId → member → {poseId}
+  final _interests = <String, Map<String, Set<String>>>{};
   final _dissolved = <String>{};
   var _nextCouple = 0;
   var _nextMsg = 0;
@@ -149,9 +157,41 @@ class InMemoryPartnerBackend extends PartnerBackend {
   Future<String?> mediaUrl(String? mediaPath) async => mediaPath;
 
   @override
+  Future<void> setPoseInterest(
+      String coupleId, String poseId, bool wanted) async {
+    if (_dissolved.contains(coupleId)) return;
+    final set = _interests
+        .putIfAbsent(coupleId, () => {})
+        .putIfAbsent(currentDevice, () => {});
+    if (wanted) {
+      set.add(poseId);
+    } else {
+      set.remove(poseId);
+    }
+  }
+
+  @override
+  Future<List<String>> poseMatches(String coupleId) async {
+    if (_dissolved.contains(coupleId)) return const [];
+    final byMember = _interests[coupleId];
+    if (byMember == null || byMember.length < 2) return const [];
+    final counts = <String, int>{};
+    for (final s in byMember.values) {
+      for (final p in s) {
+        counts[p] = (counts[p] ?? 0) + 1;
+      }
+    }
+    return [
+      for (final e in counts.entries)
+        if (e.value >= 2) e.key,
+    ];
+  }
+
+  @override
   Future<void> dissolve(String coupleId) async {
     _dissolved.add(coupleId);
     _messages.remove(coupleId);
+    _interests.remove(coupleId);
   }
 
   /// Само за тестове: каквото сървърът „вижда" за двойката.

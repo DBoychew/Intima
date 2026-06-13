@@ -41,6 +41,7 @@ class PartnerRepository {
 
   static const _deviceKey = 'partner_device_id';
   static const _nicknamesKey = 'partner_nicknames';
+  static const _seenMatchesKey = 'partner_seen_matches';
 
   final PartnerBackend _backend;
 
@@ -57,12 +58,29 @@ class PartnerRepository {
 
   Map<String, String> _nicknames = const {};
 
+  /// Couple Match: ключове „coupleId:poseId" вече показани веднъж.
+  Set<String> _seenMatches = {};
+
+  /// Последно изчислените съвпадащи пози (id), за бадж в каталога.
+  Set<String> _matchedPoseIds = {};
+  Set<String> get matchedPoseIds => _matchedPoseIds;
+
   /// Зарежда партньорите от сървъра (мрежата се пипа само тук, когато
   /// потребителката отвори екрана „Партньор").
   Future<void> init() async {
     _nicknames = _readNicknames(await SecureStore.read(_nicknamesKey));
+    final seen = await SecureStore.read(_seenMatchesKey);
+    if (seen != null) {
+      _seenMatches = {for (final k in jsonDecode(seen) as List) '$k'};
+    }
     await refreshPartners();
   }
+
+  /// Етикетът на партньора (псевдоним или „Партньор N") по индекс.
+  String? nicknameForCouple(String coupleId) => _nicknames[coupleId];
+
+  int indexOfCouple(String coupleId) =>
+      _partners.indexWhere((p) => p.coupleId == coupleId);
 
   Future<void> refreshPartners() async {
     // Stealth копието не разкрива партньори.
@@ -188,6 +206,45 @@ class PartnerRepository {
           createdAt: m.createdAt,
         ),
     ];
+  }
+
+  /// Couple Match: споделя/маха интерес към поза към ВСИЧКИ партньори.
+  /// Best-effort — ако мрежата падне, локалният статус пак е запазен.
+  Future<void> sharePoseInterest(String poseId, bool wanted) async {
+    if (appLock.decoyActive) return;
+    if (_partners.isEmpty) {
+      try {
+        await refreshPartners();
+      } catch (_) {
+        return;
+      }
+    }
+    for (final p in _partners) {
+      await _backend.setPoseInterest(p.coupleId, poseId, wanted);
+    }
+  }
+
+  /// Преизчислява съвпаденията по двойки; връща новопоявилите се
+  /// (coupleId, poseId) и ги маркира като показани.
+  Future<List<({String coupleId, String poseId})>> refreshMatches() async {
+    if (appLock.decoyActive) return const [];
+    final fresh = <({String coupleId, String poseId})>[];
+    final allIds = <String>{};
+    for (final p in _partners) {
+      final ids = await _backend.poseMatches(p.coupleId);
+      for (final id in ids) {
+        allIds.add(id);
+        final key = '${p.coupleId}:$id';
+        if (!_seenMatches.contains(key)) {
+          fresh.add((coupleId: p.coupleId, poseId: id));
+          _seenMatches.add(key);
+        }
+      }
+    }
+    _matchedPoseIds = allIds;
+    await SecureStore.write(
+        _seenMatchesKey, jsonEncode(_seenMatches.toList()));
+    return fresh;
   }
 
   /// Прекъсва връзката с конкретен партньор.

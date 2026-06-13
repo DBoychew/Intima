@@ -1195,6 +1195,20 @@ class AppLocalizationsBg extends AppLocalizations {
   String get poseSaved => 'Запазено ✨';
 
   @override
+  String get coupleMatchTitle => 'Съвпадение 💘';
+
+  @override
+  String coupleMatchBody(Object partner, Object pose) {
+    return 'Ти и $partner искате да пробвате „$pose“.';
+  }
+
+  @override
+  String get coupleMatchNew => 'Имате ново съвпадение 💘';
+
+  @override
+  String get poseMatchBadge => 'Съвпадение';
+
+  @override
   String get notifChannelName => 'Нежни напомняния';
 
   @override

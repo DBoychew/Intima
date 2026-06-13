@@ -129,6 +129,52 @@ void main() {
     expect(ana.partners.single.nickname, 'Н.');
   });
 
+  test('couple match: само взаимните пози се разкриват', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    final couple = await link(server, ana, boris);
+
+    // Само Ана иска „spooning" → още няма съвпадение.
+    await as(server, 'ana', () => ana.sharePoseInterest('spooning', true));
+    await as(server, 'ana', ana.refreshPartners);
+    expect(await as(server, 'ana', ana.refreshMatches), isEmpty);
+
+    // Ана иска и „on_top"; Борис иска „on_top" → съвпадение само за него.
+    await as(server, 'ana', () => ana.sharePoseInterest('on_top', true));
+    await as(server, 'boris', boris.refreshPartners);
+    await as(server, 'boris', () => boris.sharePoseInterest('on_top', true));
+
+    final freshForBoris = await as(server, 'boris', boris.refreshMatches);
+    expect(freshForBoris.map((m) => m.poseId), ['on_top']);
+    expect(freshForBoris.single.coupleId, couple);
+    // „spooning" не е взаимно → не се разкрива.
+    expect(boris.matchedPoseIds, {'on_top'});
+
+    // Повторно извикване не дава „нови" (вече видяно).
+    expect(await as(server, 'boris', boris.refreshMatches), isEmpty);
+    expect(boris.matchedPoseIds, {'on_top'});
+  });
+
+  test('couple match: махане на интерес премахва съвпадението', () async {
+    final server = InMemoryPartnerBackend();
+    final ana = PartnerRepository(server);
+    final boris = PartnerRepository(server);
+    await link(server, ana, boris);
+    await as(server, 'ana', ana.refreshPartners);
+    await as(server, 'boris', boris.refreshPartners);
+
+    await as(server, 'ana', () => ana.sharePoseInterest('standing', true));
+    await as(server, 'boris', () => boris.sharePoseInterest('standing', true));
+    expect((await as(server, 'ana', ana.refreshMatches)).single.poseId,
+        'standing');
+
+    // Ана се отказва → вече няма съвпадение.
+    await as(server, 'ana', () => ana.sharePoseInterest('standing', false));
+    await as(server, 'boris', boris.refreshMatches);
+    expect(boris.matchedPoseIds, isEmpty);
+  });
+
   test('прекъсване спира чата и трие съдържанието', () async {
     final server = InMemoryPartnerBackend();
     final ana = PartnerRepository(server);

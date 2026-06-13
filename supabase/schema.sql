@@ -15,6 +15,7 @@ drop function if exists public.create_pairing(text, text);
 drop function if exists public.join_pairing(text, text);
 drop function if exists public.pairing_state(text);
 drop function if exists public.complete_pairing(text);
+drop function if exists public.pose_matches(uuid);
 
 -- Двойка: две анонимни auth идентичности. Един потребител може да е в
 -- няколко двойки (няколко партньора).
@@ -48,12 +49,24 @@ create table if not exists public.messages (
 create index if not exists messages_couple_created
   on public.messages (couple_id, created_at);
 
+-- Couple Match: кой коя поза иска да пробва. Всеки вижда САМО своите
+-- редове (несподелените желания не се разкриват на партньора);
+-- съвпаденията идват само през функцията pose_matches.
+create table if not exists public.pose_interests (
+  couple_id uuid not null references public.couples(id) on delete cascade,
+  member uuid not null,
+  pose_id text not null,
+  created_at timestamptz not null default now(),
+  primary key (couple_id, member, pose_id)
+);
+
 -- ---------------------------------------------------------------------
 -- Row Level Security
 -- ---------------------------------------------------------------------
 alter table public.couples enable row level security;
 alter table public.pairings enable row level security;
 alter table public.messages enable row level security;
+alter table public.pose_interests enable row level security;
 
 drop policy if exists couples_select on public.couples;
 create policy couples_select on public.couples
@@ -71,6 +84,17 @@ drop policy if exists messages_insert on public.messages;
 create policy messages_insert on public.messages
   for insert to authenticated
   with check (author = auth.uid() and exists (
+    select 1 from public.couples c
+    where c.id = couple_id and auth.uid() in (c.member_a, c.member_b)));
+
+-- Couple Match: всеки достъпва САМО своите редове (член = auth.uid()).
+drop policy if exists pose_interests_own on public.pose_interests;
+create policy pose_interests_own on public.pose_interests
+  for all to authenticated
+  using (member = auth.uid() and exists (
+    select 1 from public.couples c
+    where c.id = couple_id and auth.uid() in (c.member_a, c.member_b)))
+  with check (member = auth.uid() and exists (
     select 1 from public.couples c
     where c.id = couple_id and auth.uid() in (c.member_a, c.member_b)));
 
@@ -144,11 +168,27 @@ begin
    where id = p_couple and auth.uid() in (member_a, member_b);
 end $$;
 
+-- Връща САМО взаимните пози (и двамата са ги отбелязали). Несъвпадащите
+-- желания никога не напускат функцията.
+create or replace function public.pose_matches(p_couple uuid)
+returns setof text
+language sql security definer set search_path = public as $$
+  select pose_id from pose_interests
+   where couple_id = p_couple
+     and (select auth.uid()) in (
+       select member_a from couples where id = p_couple
+       union select member_b from couples where id = p_couple)
+   group by pose_id
+   having count(distinct member) >= 2;
+$$;
+
 revoke execute on function public.create_pairing(text) from anon, public;
 revoke execute on function public.join_pairing(text) from anon, public;
 revoke execute on function public.pairing_couple(text) from anon, public;
 revoke execute on function public.dissolve_couple(uuid) from anon, public;
+revoke execute on function public.pose_matches(uuid) from anon, public;
 grant execute on function public.create_pairing(text) to authenticated;
 grant execute on function public.join_pairing(text) to authenticated;
 grant execute on function public.pairing_couple(text) to authenticated;
 grant execute on function public.dissolve_couple(uuid) to authenticated;
+grant execute on function public.pose_matches(uuid) to authenticated;

@@ -2162,6 +2162,30 @@ abstract class AppLocalizations {
   /// **'Запазено ✨'**
   String get poseSaved;
 
+  /// No description provided for @coupleMatchTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Съвпадение 💘'**
+  String get coupleMatchTitle;
+
+  /// No description provided for @coupleMatchBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Ти и {partner} искате да пробвате „{pose}“.'**
+  String coupleMatchBody(Object partner, Object pose);
+
+  /// No description provided for @coupleMatchNew.
+  ///
+  /// In bg, this message translates to:
+  /// **'Имате ново съвпадение 💘'**
+  String get coupleMatchNew;
+
+  /// No description provided for @poseMatchBadge.
+  ///
+  /// In bg, this message translates to:
+  /// **'Съвпадение'**
+  String get poseMatchBadge;
+
   /// No description provided for @notifChannelName.
   ///
   /// In bg, this message translates to:

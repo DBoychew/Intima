@@ -1,0 +1,22 @@
+Phase 8: Couple Match (mutual pose interest, only matches revealed)
+
+- schema.sql: pose_interests table (couple_id, member, pose_id) with
+  per-member RLS so a partner can read only their own rows; a security-
+  definer pose_matches(couple) RPC returns only poses both partners
+  want. Re-runnable; owner must re-run the updated schema.
+- PartnerBackend.setPoseInterest/poseMatches (InMemory + Supabase).
+- PartnerRepository.sharePoseInterest broadcasts a want-to-try to all
+  couples; refreshMatches computes matches per couple, caches matched
+  pose ids and tracks already-seen matches (persisted) so only newly
+  appeared matches are surfaced.
+- Pose detail: marking want-to-try shares interest (best-effort) and
+  reveals a discreet match dialog naming the partner; unmarking removes
+  the interest and the match. Catalog badges matched poses with a heart
+  and shows a snackbar for new matches found on open.
+- Stealth-guarded; unrequited picks are never shown to the partner.
+- 84 host tests green (incl. mutual-only and remove-interest cases).
+
+Note: real-time push when the partner matches while you're away needs
+FCM (not built); matches surface on next open/toggle. Recorded for owner.
+
+Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>

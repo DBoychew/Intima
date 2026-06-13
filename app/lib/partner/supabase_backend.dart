@@ -136,6 +136,34 @@ class SupabaseBackend extends PartnerBackend {
   }
 
   @override
+  Future<void> setPoseInterest(
+      String coupleId, String poseId, bool wanted) async {
+    await ensureInitialized();
+    final uid = _db.auth.currentUser!.id;
+    if (wanted) {
+      await _db.from('pose_interests').upsert({
+        'couple_id': coupleId,
+        'member': uid,
+        'pose_id': poseId,
+      });
+    } else {
+      await _db
+          .from('pose_interests')
+          .delete()
+          .eq('couple_id', coupleId)
+          .eq('member', uid)
+          .eq('pose_id', poseId);
+    }
+  }
+
+  @override
+  Future<List<String>> poseMatches(String coupleId) async {
+    await ensureInitialized();
+    final res = await _db.rpc('pose_matches', params: {'p_couple': coupleId});
+    return [for (final e in res as List) e as String];
+  }
+
+  @override
   Future<void> dissolve(String coupleId) async {
     await ensureInitialized();
     await _db.rpc('dissolve_couple', params: {'p_couple': coupleId});

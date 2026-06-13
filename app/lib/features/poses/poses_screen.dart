@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/premium.dart';
 import '../../data/pose_repository.dart';
 import '../../l10n/app_localizations.dart';
+import '../../partner/supabase_backend.dart' show partnerRepository;
 import '../premium/paywall_screen.dart';
 import 'pose_detail_screen.dart';
 import 'poses_data.dart';
@@ -28,6 +29,24 @@ class _PosesScreenState extends State<PosesScreen> {
     super.initState();
     poseRepository.addListener(_onChange);
     premium.addListener(_onChange);
+    _loadMatches();
+  }
+
+  /// Couple Match: best-effort синхрон при отваряне — баджове + известие
+  /// за нови съвпадения (напр. партньорът е отбелязал нещо междувременно).
+  Future<void> _loadMatches() async {
+    try {
+      await partnerRepository.init();
+      final fresh = await partnerRepository.refreshMatches();
+      if (!mounted) return;
+      setState(() {});
+      if (fresh.isNotEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(_l10n.coupleMatchNew)));
+      }
+    } catch (_) {
+      // Без партньор/мрежа — каталогът работи нормално.
+    }
   }
 
   @override
@@ -182,6 +201,10 @@ class _PosesScreenState extends State<PosesScreen> {
               children: [
                 Text(pose.emoji, style: const TextStyle(fontSize: 30)),
                 const Spacer(),
+                if (partnerRepository.matchedPoseIds.contains(pose.id)) ...[
+                  const Text('💘', style: TextStyle(fontSize: 16)),
+                  const SizedBox(width: 4),
+                ],
                 if (locked)
                   const Icon(Icons.lock, size: 18, color: Colors.white)
                 else if (status == PoseStatus.favorite)

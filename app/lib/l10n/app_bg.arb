@@ -392,6 +392,11 @@
   "poseTriedOn": "Пробвано на",
   "poseMarkTriedToday": "Отбележи „пробвано днес“",
   "poseSaved": "Запазено ✨",
+  "coupleMatchTitle": "Съвпадение 💘",
+  "coupleMatchBody": "Ти и {partner} искате да пробвате „{pose}“.",
+  "@coupleMatchBody": {"placeholders": {"partner": {}, "pose": {}}},
+  "coupleMatchNew": "Имате ново съвпадение 💘",
+  "poseMatchBadge": "Съвпадение",
 
   "notifChannelName": "Нежни напомняния",
   "notifChannelDesc": "Дискретни напомняния от Intima",
