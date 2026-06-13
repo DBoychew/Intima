@@ -10,6 +10,7 @@ import 'core/premium.dart';
 import 'core/profile_controller.dart';
 import 'core/theme_controller.dart';
 import 'data/cycle_prefs_repository.dart';
+import 'data/pose_repository.dart';
 import 'l10n/app_localizations.dart';
 import 'data/database.dart';
 import 'data/db_manager.dart';
@@ -50,6 +51,7 @@ void main() {
         await themeController.init();
         await localeController.init();
         await profileController.init();
+        await poseRepository.init();
       },
     ),
     (label: (l) => l.bootLock, run: appLock.init),

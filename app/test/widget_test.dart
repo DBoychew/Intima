@@ -89,13 +89,19 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Добави снимка'), findsOneWidget);
-    expect(find.text('Нов таг'), findsOneWidget);
+    // Персонализираната подсказка за нов запис (Фаза 9).
+    expect(find.text('Подсказка за днес'), findsOneWidget);
 
     // Шаблонът с начален текст го вмъква при празно поле.
     await tester.tap(find.text('Благодарност'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Днес съм благодарна за'), findsOneWidget);
+
+    // Действията са под полето — скролваме до тях.
+    final scrollable = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(find.text('Нов таг'), 120,
+        scrollable: scrollable);
+    expect(find.text('Добави снимка'), findsOneWidget);
 
     await tester.tap(find.text('Нов таг'));
     await tester.pumpAndSettle();

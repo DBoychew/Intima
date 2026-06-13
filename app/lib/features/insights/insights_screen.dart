@@ -104,6 +104,11 @@ class _InsightsScreenState extends State<InsightsScreen> {
         topSymptom: _l10n.tagPms,
         topPosition: _l10n.posSpoons,
       ),
+      correlations: const Correlations(
+        moodFertileDelta: 0.6,
+        intimacyInFertilePct: 0.55,
+        libidoEnergyTrend: 1,
+      ),
     );
   }
 
@@ -175,6 +180,10 @@ class _InsightsScreenState extends State<InsightsScreen> {
         _cycleCard(data.cycle),
         const SizedBox(height: 12),
         _moodCard(data),
+        if (data.correlations.hasAny) ...[
+          const SizedBox(height: 12),
+          _correlationsCard(data.correlations),
+        ],
         if (data.trend.any((m) => m.hasData)) ...[
           const SizedBox(height: 12),
           _trendCard(data.trend),
@@ -184,6 +193,40 @@ class _InsightsScreenState extends State<InsightsScreen> {
           _recapCard(data.recap),
         ],
       ];
+
+  Widget _correlationsCard(Correlations c) {
+    final lines = <String>[];
+    if (c.moodFertileDelta != null && c.moodFertileDelta!.abs() >= 0.3) {
+      lines.add(c.moodFertileDelta! > 0
+          ? _l10n.corrMoodFertileUp
+          : _l10n.corrMoodFertileDown);
+    }
+    if (c.intimacyInFertilePct != null) {
+      lines.add(_l10n
+          .corrIntimacyFertile((c.intimacyInFertilePct! * 100).round()));
+    }
+    if (c.libidoEnergyTrend != null && c.libidoEnergyTrend != 0) {
+      lines.add(c.libidoEnergyTrend! > 0
+          ? _l10n.corrLibidoEnergyTogether
+          : _l10n.corrLibidoEnergyOpposite);
+    }
+    if (lines.isEmpty) return const SizedBox.shrink();
+    return _card(title: _l10n.insightsCorrTitle, children: [
+      for (final line in lines)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 4),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('•  '),
+              Expanded(
+                  child: Text(line,
+                      style: Theme.of(context).textTheme.bodyMedium)),
+            ],
+          ),
+        ),
+    ]);
+  }
 
   Widget _content(InsightsData data) {
     return RefreshIndicator(

@@ -12,6 +12,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:video_player/video_player.dart';
 
+import '../../core/cycle_settings.dart';
+import '../../core/journaling.dart';
 import '../../core/moods.dart';
 import '../../core/premium.dart';
 import '../../data/calendar_repository.dart' show decodeStringList;
@@ -92,6 +94,33 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     return firstLine.length <= 28
         ? firstLine
         : '${firstLine.substring(0, 28)}…';
+  }
+
+  /// Персонализирана подсказка според фазата на цикъла (Фаза 9).
+  String get _suggestedPrompt {
+    final today = DateTime.now();
+    final kind = suggestPromptKind(
+      daysFromOvulation: cycleSettings.daysFromOvulation(today),
+      isPeriod: cycleSettings.isPredictedPeriod(today),
+    );
+    return switch (kind) {
+      PromptKind.menstrual => _l10n.promptMenstrual,
+      PromptKind.follicular => _l10n.promptFollicular,
+      PromptKind.ovulation => _l10n.promptOvulation,
+      PromptKind.luteal => _l10n.promptLuteal,
+      PromptKind.neutral => _l10n.promptNeutral,
+    };
+  }
+
+  void _usePrompt() {
+    final prompt = _suggestedPrompt;
+    setState(() {
+      if (_text.text.trim().isEmpty) {
+        _text.text = '$prompt\n';
+        _text.selection =
+            TextSelection.collapsed(offset: _text.text.length);
+      }
+    });
   }
 
   void _applyTemplate(int i) {
@@ -494,6 +523,33 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Персонализирана подсказка — само за нов запис.
+          if (widget.initial == null) ...[
+            Card(
+              color: context.colors.surfaceHigh,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 12, 8, 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(_l10n.promptSuggestionTitle,
+                        style: Theme.of(context).textTheme.labelMedium),
+                    const SizedBox(height: 4),
+                    Text(_suggestedPrompt,
+                        style: Theme.of(context).textTheme.bodyMedium),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: _usePrompt,
+                        child: Text(_l10n.promptUse),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+          ],
           Wrap(
             spacing: 8,
             runSpacing: 8,

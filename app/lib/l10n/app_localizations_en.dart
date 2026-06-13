@@ -968,6 +968,52 @@ class AppLocalizationsEn extends AppLocalizations {
   String get insightsAvgMood => 'Average mood';
 
   @override
+  String get insightsCorrTitle => 'What we notice';
+
+  @override
+  String get corrMoodFertileUp =>
+      'Your mood is usually better during your fertile days.';
+
+  @override
+  String get corrMoodFertileDown =>
+      'Your mood is usually lower during your fertile days.';
+
+  @override
+  String corrIntimacyFertile(Object pct) {
+    return 'About $pct% of intimate moments fall in the fertile window.';
+  }
+
+  @override
+  String get corrLibidoEnergyTogether =>
+      'Your libido and energy often rise and fall together.';
+
+  @override
+  String get corrLibidoEnergyOpposite =>
+      'Your libido and energy often move in different directions.';
+
+  @override
+  String get promptSuggestionTitle => 'Today\'s prompt';
+
+  @override
+  String get promptUse => 'Use';
+
+  @override
+  String get promptMenstrual =>
+      'How are you taking care of yourself these days?';
+
+  @override
+  String get promptFollicular => 'What\'s inspiring you this week?';
+
+  @override
+  String get promptOvulation => 'What makes you feel close to someone today?';
+
+  @override
+  String get promptLuteal => 'What brings you calm when your energy dips?';
+
+  @override
+  String get promptNeutral => 'What do you want to remember about this day?';
+
+  @override
   String get sectionPartner => 'PARTNER';
 
   @override
@@ -1065,6 +1111,90 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get partnerError =>
       'Couldn\'t reach the server — check your connection and try again';
+
+  @override
+  String get posesTitle => 'Pose library';
+
+  @override
+  String get posesSubtitle => 'Intimacy ideas — save, rate, try';
+
+  @override
+  String get posesEmpty => 'No poses match this filter.';
+
+  @override
+  String get poseArtNote => 'Stylised illustrations coming soon';
+
+  @override
+  String get filterAll => 'All';
+
+  @override
+  String get poseDifficulty => 'Difficulty';
+
+  @override
+  String get poseIntensity => 'Intensity';
+
+  @override
+  String get poseMoodLabel => 'Mood';
+
+  @override
+  String get poseStatusLabel => 'Status';
+
+  @override
+  String get packStarter => 'Starter';
+
+  @override
+  String get packRomance => 'Romance';
+
+  @override
+  String get packAdventure => 'Adventure';
+
+  @override
+  String get poseMoodTender => 'Tender';
+
+  @override
+  String get poseMoodPlayful => 'Playful';
+
+  @override
+  String get poseMoodPassionate => 'Passionate';
+
+  @override
+  String get poseMoodAdventurous => 'Adventurous';
+
+  @override
+  String get poseMoodSlow => 'Slow';
+
+  @override
+  String get poseStatusWantToTry => 'Want to try';
+
+  @override
+  String get poseStatusTried => 'Tried';
+
+  @override
+  String get poseStatusFavorite => 'Favourite';
+
+  @override
+  String get poseLocked => 'This collection is Premium';
+
+  @override
+  String get poseUnlock => 'Unlock with Premium';
+
+  @override
+  String get poseRate => 'Rate';
+
+  @override
+  String get poseNote => 'Private note';
+
+  @override
+  String get poseNoteHint => 'Just for you…';
+
+  @override
+  String get poseTriedOn => 'Tried on';
+
+  @override
+  String get poseMarkTriedToday => 'Mark \"tried today\"';
+
+  @override
+  String get poseSaved => 'Saved ✨';
 
   @override
   String get notifChannelName => 'Gentle reminders';

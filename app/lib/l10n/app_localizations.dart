@@ -1736,6 +1736,84 @@ abstract class AppLocalizations {
   /// **'Средно настроение'**
   String get insightsAvgMood;
 
+  /// No description provided for @insightsCorrTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Какво забелязваме'**
+  String get insightsCorrTitle;
+
+  /// No description provided for @corrMoodFertileUp.
+  ///
+  /// In bg, this message translates to:
+  /// **'Настроението ти обикновено е по-добро във фертилните дни.'**
+  String get corrMoodFertileUp;
+
+  /// No description provided for @corrMoodFertileDown.
+  ///
+  /// In bg, this message translates to:
+  /// **'Настроението ти обикновено е по-ниско във фертилните дни.'**
+  String get corrMoodFertileDown;
+
+  /// No description provided for @corrIntimacyFertile.
+  ///
+  /// In bg, this message translates to:
+  /// **'Около {pct}% от интимните моменти попадат във фертилния прозорец.'**
+  String corrIntimacyFertile(Object pct);
+
+  /// No description provided for @corrLibidoEnergyTogether.
+  ///
+  /// In bg, this message translates to:
+  /// **'Либидото и енергията ти често вървят заедно.'**
+  String get corrLibidoEnergyTogether;
+
+  /// No description provided for @corrLibidoEnergyOpposite.
+  ///
+  /// In bg, this message translates to:
+  /// **'Либидото и енергията ти често се движат в различни посоки.'**
+  String get corrLibidoEnergyOpposite;
+
+  /// No description provided for @promptSuggestionTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Подсказка за днес'**
+  String get promptSuggestionTitle;
+
+  /// No description provided for @promptUse.
+  ///
+  /// In bg, this message translates to:
+  /// **'Използвай'**
+  String get promptUse;
+
+  /// No description provided for @promptMenstrual.
+  ///
+  /// In bg, this message translates to:
+  /// **'Как се грижиш за себе си тези дни?'**
+  String get promptMenstrual;
+
+  /// No description provided for @promptFollicular.
+  ///
+  /// In bg, this message translates to:
+  /// **'Какво те вдъхновява тази седмица?'**
+  String get promptFollicular;
+
+  /// No description provided for @promptOvulation.
+  ///
+  /// In bg, this message translates to:
+  /// **'Кое те кара да се чувстваш близо до някого днес?'**
+  String get promptOvulation;
+
+  /// No description provided for @promptLuteal.
+  ///
+  /// In bg, this message translates to:
+  /// **'Какво ти носи спокойствие, когато енергията спадне?'**
+  String get promptLuteal;
+
+  /// No description provided for @promptNeutral.
+  ///
+  /// In bg, this message translates to:
+  /// **'За какво искаш да си спомняш този ден?'**
+  String get promptNeutral;
+
   /// No description provided for @sectionPartner.
   ///
   /// In bg, this message translates to:
@@ -1915,6 +1993,174 @@ abstract class AppLocalizations {
   /// In bg, this message translates to:
   /// **'Връзката със сървъра не успя — провери интернета и опитай пак'**
   String get partnerError;
+
+  /// No description provided for @posesTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Библиотека с пози'**
+  String get posesTitle;
+
+  /// No description provided for @posesSubtitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Идеи за близост — отбелязвай, оценявай, пробвай'**
+  String get posesSubtitle;
+
+  /// No description provided for @posesEmpty.
+  ///
+  /// In bg, this message translates to:
+  /// **'Няма пози по този филтър.'**
+  String get posesEmpty;
+
+  /// No description provided for @poseArtNote.
+  ///
+  /// In bg, this message translates to:
+  /// **'Стилизирани илюстрации предстоят'**
+  String get poseArtNote;
+
+  /// No description provided for @filterAll.
+  ///
+  /// In bg, this message translates to:
+  /// **'Всички'**
+  String get filterAll;
+
+  /// No description provided for @poseDifficulty.
+  ///
+  /// In bg, this message translates to:
+  /// **'Трудност'**
+  String get poseDifficulty;
+
+  /// No description provided for @poseIntensity.
+  ///
+  /// In bg, this message translates to:
+  /// **'Интензивност'**
+  String get poseIntensity;
+
+  /// No description provided for @poseMoodLabel.
+  ///
+  /// In bg, this message translates to:
+  /// **'Настроение'**
+  String get poseMoodLabel;
+
+  /// No description provided for @poseStatusLabel.
+  ///
+  /// In bg, this message translates to:
+  /// **'Статус'**
+  String get poseStatusLabel;
+
+  /// No description provided for @packStarter.
+  ///
+  /// In bg, this message translates to:
+  /// **'Старт'**
+  String get packStarter;
+
+  /// No description provided for @packRomance.
+  ///
+  /// In bg, this message translates to:
+  /// **'Романтика'**
+  String get packRomance;
+
+  /// No description provided for @packAdventure.
+  ///
+  /// In bg, this message translates to:
+  /// **'Приключение'**
+  String get packAdventure;
+
+  /// No description provided for @poseMoodTender.
+  ///
+  /// In bg, this message translates to:
+  /// **'Нежно'**
+  String get poseMoodTender;
+
+  /// No description provided for @poseMoodPlayful.
+  ///
+  /// In bg, this message translates to:
+  /// **'Игриво'**
+  String get poseMoodPlayful;
+
+  /// No description provided for @poseMoodPassionate.
+  ///
+  /// In bg, this message translates to:
+  /// **'Страстно'**
+  String get poseMoodPassionate;
+
+  /// No description provided for @poseMoodAdventurous.
+  ///
+  /// In bg, this message translates to:
+  /// **'Приключенско'**
+  String get poseMoodAdventurous;
+
+  /// No description provided for @poseMoodSlow.
+  ///
+  /// In bg, this message translates to:
+  /// **'Бавно'**
+  String get poseMoodSlow;
+
+  /// No description provided for @poseStatusWantToTry.
+  ///
+  /// In bg, this message translates to:
+  /// **'Искам да пробвам'**
+  String get poseStatusWantToTry;
+
+  /// No description provided for @poseStatusTried.
+  ///
+  /// In bg, this message translates to:
+  /// **'Пробвано'**
+  String get poseStatusTried;
+
+  /// No description provided for @poseStatusFavorite.
+  ///
+  /// In bg, this message translates to:
+  /// **'Любимо'**
+  String get poseStatusFavorite;
+
+  /// No description provided for @poseLocked.
+  ///
+  /// In bg, this message translates to:
+  /// **'Тази колекция е Premium'**
+  String get poseLocked;
+
+  /// No description provided for @poseUnlock.
+  ///
+  /// In bg, this message translates to:
+  /// **'Отключи с Premium'**
+  String get poseUnlock;
+
+  /// No description provided for @poseRate.
+  ///
+  /// In bg, this message translates to:
+  /// **'Оцени'**
+  String get poseRate;
+
+  /// No description provided for @poseNote.
+  ///
+  /// In bg, this message translates to:
+  /// **'Лична бележка'**
+  String get poseNote;
+
+  /// No description provided for @poseNoteHint.
+  ///
+  /// In bg, this message translates to:
+  /// **'Само за теб…'**
+  String get poseNoteHint;
+
+  /// No description provided for @poseTriedOn.
+  ///
+  /// In bg, this message translates to:
+  /// **'Пробвано на'**
+  String get poseTriedOn;
+
+  /// No description provided for @poseMarkTriedToday.
+  ///
+  /// In bg, this message translates to:
+  /// **'Отбележи „пробвано днес“'**
+  String get poseMarkTriedToday;
+
+  /// No description provided for @poseSaved.
+  ///
+  /// In bg, this message translates to:
+  /// **'Запазено ✨'**
+  String get poseSaved;
 
   /// No description provided for @notifChannelName.
   ///

@@ -18,6 +18,7 @@ import '../../core/theme_controller.dart';
 import '../../partner/supabase_backend.dart' show signInWithProvider;
 import '../../data/db_manager.dart';
 import '../../data/diary_pdf.dart';
+import '../../data/pose_repository.dart';
 import '../../data/diary_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../security/app_lock.dart';
@@ -25,6 +26,7 @@ import '../../security/pin_widgets.dart';
 import '../../security/secure_flag.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/palettes.dart';
+import '../poses/poses_screen.dart';
 import '../premium/paywall_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -582,6 +584,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     await appLock.reload();
     await premium.deactivate();
     await profileController.reset();
+    await poseRepository.reset();
     cycleSettings.resetToDefaults();
     if (!mounted) return;
     setState(() {
@@ -604,6 +607,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           _profileHeader(),
+          // Библиотека с пози — реална функция, скрита в stealth копието.
+          if (!appLock.decoyActive)
+            Card(
+              child: ListTile(
+                leading: const Text('💞', style: TextStyle(fontSize: 22)),
+                title: Text(_l10n.posesTitle),
+                subtitle: Text(_l10n.posesSubtitle,
+                    style: Theme.of(context).textTheme.labelMedium),
+                trailing: Icon(Icons.chevron_right,
+                    color: context.colors.textSecondary),
+                onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const PosesScreen()),
+                ),
+              ),
+            ),
           _section(_l10n.sectionAccount),
           _accountSection(),
           _section(_l10n.sectionCycle),

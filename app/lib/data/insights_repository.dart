@@ -66,6 +66,85 @@ class Recap {
       diaryEntries > 0 || moments > 0 || avgMood != null;
 }
 
+/// Локални корелации (Фаза 9) — изчислени изцяло на устройството.
+class Correlations {
+  const Correlations({
+    this.moodFertileDelta,
+    this.intimacyInFertilePct,
+    this.libidoEnergyTrend,
+  });
+
+  /// Средно настроение във фертилния прозорец минус извън него (−4..4).
+  final double? moodFertileDelta;
+
+  /// Дял на интимните моменти във фертилния прозорец (0..1).
+  final double? intimacyInFertilePct;
+
+  /// Тенденция либидо↔енергия: +1 вървят заедно, −1 обратно, 0 неясно.
+  final int? libidoEnergyTrend;
+
+  bool get hasAny =>
+      moodFertileDelta != null ||
+      intimacyInFertilePct != null ||
+      libidoEnergyTrend != null;
+}
+
+/// Корелации от реалните данни; [isFertile] решава кои дни са във
+/// фертилния прозорец (подава се cycleSettings.isFertile).
+Correlations computeCorrelations({
+  required List<DayLogRow> logs,
+  required List<IntimateMomentRow> moments,
+  required bool Function(DateTime) isFertile,
+}) {
+  double fSum = 0, nSum = 0;
+  var fN = 0, nN = 0;
+  final libido = <double>[];
+  final energy = <double>[];
+  for (final l in logs) {
+    final date = parseDateKey(l.date);
+    if (l.mood != null) {
+      if (isFertile(date)) {
+        fSum += l.mood!;
+        fN++;
+      } else {
+        nSum += l.mood!;
+        nN++;
+      }
+    }
+    if (l.libido != null && l.energy != null) {
+      libido.add(l.libido!);
+      energy.add(l.energy!);
+    }
+  }
+
+  double? moodDelta;
+  if (fN > 0 && nN > 0) moodDelta = fSum / fN - nSum / nN;
+
+  double? intimacyPct;
+  if (moments.isNotEmpty) {
+    final inFertile =
+        moments.where((m) => isFertile(parseDateKey(m.date))).length;
+    intimacyPct = inFertile / moments.length;
+  }
+
+  int? trend;
+  if (libido.length >= 4) {
+    final ml = libido.reduce((a, b) => a + b) / libido.length;
+    final me = energy.reduce((a, b) => a + b) / energy.length;
+    var cov = 0.0;
+    for (var i = 0; i < libido.length; i++) {
+      cov += (libido[i] - ml) * (energy[i] - me);
+    }
+    trend = cov > 0.001 ? 1 : (cov < -0.001 ? -1 : 0);
+  }
+
+  return Correlations(
+    moodFertileDelta: moodDelta,
+    intimacyInFertilePct: intimacyPct,
+    libidoEnergyTrend: trend,
+  );
+}
+
 class InsightsData {
   const InsightsData({
     required this.cycle,
@@ -73,6 +152,7 @@ class InsightsData {
     required this.moodSamples,
     required this.trend,
     required this.recap,
+    this.correlations = const Correlations(),
   });
 
   static const empty = InsightsData(
@@ -92,6 +172,7 @@ class InsightsData {
   /// Последните 6 месеца, хронологично.
   final List<MonthTrend> trend;
   final Recap recap;
+  final Correlations correlations;
 
   bool get isEmpty =>
       cycle.count == 0 &&
@@ -167,6 +248,7 @@ InsightsData computeInsights({
   required DateTime now,
   required int fallbackCycleLength,
   required int periodLength,
+  bool Function(DateTime)? isFertile,
 }) {
   final starts = periodRunStarts(logs);
   final cycle = computeCycleStats(starts);
@@ -254,12 +336,18 @@ InsightsData computeInsights({
     topPosition: topOf(positionCounts),
   );
 
+  final correlations = isFertile == null
+      ? const Correlations()
+      : computeCorrelations(
+          logs: logs, moments: moments, isFertile: isFertile);
+
   return InsightsData(
     cycle: cycle,
     moodByPhase: moodByPhase,
     moodSamples: moodCount,
     trend: trend,
     recap: recap,
+    correlations: correlations,
   );
 }
 
@@ -278,6 +366,7 @@ class InsightsRepository {
       now: now ?? DateTime.now(),
       fallbackCycleLength: cycleSettings.cycleLength,
       periodLength: cycleSettings.periodLength,
+      isFertile: cycleSettings.isFertile,
     );
   }
 }

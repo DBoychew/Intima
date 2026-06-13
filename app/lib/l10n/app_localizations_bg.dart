@@ -966,6 +966,53 @@ class AppLocalizationsBg extends AppLocalizations {
   String get insightsAvgMood => 'Средно настроение';
 
   @override
+  String get insightsCorrTitle => 'Какво забелязваме';
+
+  @override
+  String get corrMoodFertileUp =>
+      'Настроението ти обикновено е по-добро във фертилните дни.';
+
+  @override
+  String get corrMoodFertileDown =>
+      'Настроението ти обикновено е по-ниско във фертилните дни.';
+
+  @override
+  String corrIntimacyFertile(Object pct) {
+    return 'Около $pct% от интимните моменти попадат във фертилния прозорец.';
+  }
+
+  @override
+  String get corrLibidoEnergyTogether =>
+      'Либидото и енергията ти често вървят заедно.';
+
+  @override
+  String get corrLibidoEnergyOpposite =>
+      'Либидото и енергията ти често се движат в различни посоки.';
+
+  @override
+  String get promptSuggestionTitle => 'Подсказка за днес';
+
+  @override
+  String get promptUse => 'Използвай';
+
+  @override
+  String get promptMenstrual => 'Как се грижиш за себе си тези дни?';
+
+  @override
+  String get promptFollicular => 'Какво те вдъхновява тази седмица?';
+
+  @override
+  String get promptOvulation =>
+      'Кое те кара да се чувстваш близо до някого днес?';
+
+  @override
+  String get promptLuteal =>
+      'Какво ти носи спокойствие, когато енергията спадне?';
+
+  @override
+  String get promptNeutral => 'За какво искаш да си спомняш този ден?';
+
+  @override
   String get sectionPartner => 'ПАРТНЬОР';
 
   @override
@@ -1062,6 +1109,90 @@ class AppLocalizationsBg extends AppLocalizations {
   @override
   String get partnerError =>
       'Връзката със сървъра не успя — провери интернета и опитай пак';
+
+  @override
+  String get posesTitle => 'Библиотека с пози';
+
+  @override
+  String get posesSubtitle => 'Идеи за близост — отбелязвай, оценявай, пробвай';
+
+  @override
+  String get posesEmpty => 'Няма пози по този филтър.';
+
+  @override
+  String get poseArtNote => 'Стилизирани илюстрации предстоят';
+
+  @override
+  String get filterAll => 'Всички';
+
+  @override
+  String get poseDifficulty => 'Трудност';
+
+  @override
+  String get poseIntensity => 'Интензивност';
+
+  @override
+  String get poseMoodLabel => 'Настроение';
+
+  @override
+  String get poseStatusLabel => 'Статус';
+
+  @override
+  String get packStarter => 'Старт';
+
+  @override
+  String get packRomance => 'Романтика';
+
+  @override
+  String get packAdventure => 'Приключение';
+
+  @override
+  String get poseMoodTender => 'Нежно';
+
+  @override
+  String get poseMoodPlayful => 'Игриво';
+
+  @override
+  String get poseMoodPassionate => 'Страстно';
+
+  @override
+  String get poseMoodAdventurous => 'Приключенско';
+
+  @override
+  String get poseMoodSlow => 'Бавно';
+
+  @override
+  String get poseStatusWantToTry => 'Искам да пробвам';
+
+  @override
+  String get poseStatusTried => 'Пробвано';
+
+  @override
+  String get poseStatusFavorite => 'Любимо';
+
+  @override
+  String get poseLocked => 'Тази колекция е Premium';
+
+  @override
+  String get poseUnlock => 'Отключи с Premium';
+
+  @override
+  String get poseRate => 'Оцени';
+
+  @override
+  String get poseNote => 'Лична бележка';
+
+  @override
+  String get poseNoteHint => 'Само за теб…';
+
+  @override
+  String get poseTriedOn => 'Пробвано на';
+
+  @override
+  String get poseMarkTriedToday => 'Отбележи „пробвано днес“';
+
+  @override
+  String get poseSaved => 'Запазено ✨';
 
   @override
   String get notifChannelName => 'Нежни напомняния';
