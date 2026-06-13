@@ -1,8 +1,0 @@
-Docs: record Phase 8/9 status and owner-dependent items
-
-ZA_DIMITAR.md: pose library + on-device correlations/prompts added to
-the Tested section; owner items added (real pose art, themed-pack IAP,
-optional couple match; optional real-AI/LLM with opt-in consent).
-PLAN.md: Phase 8 and 9 marked in-progress with what's done vs pending.
-
-Co-Authored-By: Claude Fable 5 <noreply@anthropic.com>
