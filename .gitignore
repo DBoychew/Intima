@@ -8,3 +8,4 @@ desktop.ini
 .vscode/
 *.iml
 .flutter-plugin.zip
+COMMIT_MSG.tmp
