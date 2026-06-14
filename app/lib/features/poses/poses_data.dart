@@ -186,6 +186,93 @@ const posesCatalog = <Pose>[
       'en': 'Change the setting — a different room, a different mood.',
     },
   ),
+  // ── Още старт (безплатни) ──
+  Pose(
+    id: 'reclining',
+    pack: PosePack.starter,
+    difficulty: 1,
+    intensity: 1,
+    moods: [PoseMood.tender, PoseMood.slow],
+    emoji: '🌿',
+    color: Color(0xFF5EC9A8),
+    name: {'bg': 'Полегнали заедно', 'en': 'Reclining together'},
+    description: {
+      'bg': 'Облегнати един на друг — дишане в синхрон, без бързане.',
+      'en': 'Leaning into each other — breathing in sync, no rush.',
+    },
+  ),
+  Pose(
+    id: 'kneeling',
+    pack: PosePack.starter,
+    difficulty: 2,
+    intensity: 2,
+    moods: [PoseMood.tender, PoseMood.passionate],
+    emoji: '🤲',
+    color: Color(0xFF9B6BE0),
+    name: {'bg': 'На колене, лице в лице', 'en': 'Kneeling, face to face'},
+    description: {
+      'bg': 'И двамата на колене, прегърнати — равни, близки, в очите.',
+      'en': 'Both kneeling, embraced — equal, close, eye to eye.',
+    },
+  ),
+  // ── Още романтика (Premium) ──
+  Pose(
+    id: 'bath',
+    pack: PosePack.romance,
+    difficulty: 1,
+    intensity: 2,
+    moods: [PoseMood.slow, PoseMood.tender],
+    emoji: '🛁',
+    color: Color(0xFF4F9FF0),
+    name: {'bg': 'Заедно във ваната', 'en': 'In the bath together'},
+    description: {
+      'bg': 'Топла вода, пяна и тишина — релакс, който води до близост.',
+      'en': 'Warm water, foam and quiet — relaxation that leads to closeness.',
+    },
+  ),
+  Pose(
+    id: 'sunset',
+    pack: PosePack.romance,
+    difficulty: 2,
+    intensity: 2,
+    moods: [PoseMood.slow, PoseMood.passionate],
+    emoji: '🌅',
+    color: Color(0xFFE0884F),
+    name: {'bg': 'На залез', 'en': 'At sunset'},
+    description: {
+      'bg': 'Меката светлина прави всичко по-нежно — без бързане.',
+      'en': 'Soft light makes everything gentler — take your time.',
+    },
+  ),
+  // ── Още приключение (Premium) ──
+  Pose(
+    id: 'mirror',
+    pack: PosePack.adventure,
+    difficulty: 2,
+    intensity: 3,
+    moods: [PoseMood.adventurous, PoseMood.passionate],
+    emoji: '🪞',
+    color: Color(0xFF6C7BF0),
+    name: {'bg': 'Пред огледалото', 'en': 'By the mirror'},
+    description: {
+      'bg': 'Нов ъгъл, нов поглед — да се видите заедно.',
+      'en': 'A new angle, a new view — seeing yourselves together.',
+    },
+  ),
+  Pose(
+    id: 'chair',
+    pack: PosePack.adventure,
+    difficulty: 2,
+    intensity: 3,
+    moods: [PoseMood.playful, PoseMood.adventurous],
+    emoji: '🪑',
+    color: Color(0xFF2BA89B),
+    name: {'bg': 'На стола', 'en': 'On the chair'},
+    description: {
+      'bg': 'Единият седнал, другият отгоре — игриво и близко.',
+      'en': 'One seated, the other on top — playful and close.',
+    },
+  ),
 ];
 
 Pose? poseById(String id) {

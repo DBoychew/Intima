@@ -5,6 +5,7 @@ import '../../data/pose_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../partner/supabase_backend.dart' show partnerRepository;
 import '../premium/paywall_screen.dart';
+import 'pose_art.dart';
 import 'pose_detail_screen.dart';
 import 'poses_data.dart';
 
@@ -181,58 +182,71 @@ class _PosesScreenState extends State<PosesScreen> {
     return InkWell(
       onTap: () => _open(pose),
       borderRadius: BorderRadius.circular(18),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              pose.color.withValues(alpha: 0.85),
-              pose.color.withValues(alpha: 0.45),
-            ],
-          ),
-        ),
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(pose.emoji, style: const TextStyle(fontSize: 30)),
-                const Spacer(),
-                if (partnerRepository.matchedPoseIds.contains(pose.id)) ...[
-                  const Text('💘', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 4),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Генерирана векторна илюстрация като фон.
+          PoseArt(color: pose.color, seed: PoseArt.seedOf(pose.id)),
+          // Лек тъмен градиент долу за четим текст.
+          DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(18),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Colors.transparent,
+                  Colors.black.withValues(alpha: 0.35),
                 ],
-                if (locked)
-                  const Icon(Icons.lock, size: 18, color: Colors.white)
-                else if (status == PoseStatus.favorite)
-                  const Icon(Icons.favorite, size: 18, color: Colors.white)
-                else if (status == PoseStatus.tried)
-                  const Icon(Icons.check_circle, size: 18, color: Colors.white)
-                else if (status == PoseStatus.wantToTry)
-                  const Icon(Icons.bookmark, size: 18, color: Colors.white),
-              ],
+              ),
             ),
-            const Spacer(),
-            Text(
-              pose.name(_locale),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 17,
-                  fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 6),
-            Row(
+          ),
+          Padding(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _dots(Icons.whatshot, pose.intensity),
-                const SizedBox(width: 10),
-                _dots(Icons.fitness_center, pose.difficulty),
+                Row(
+                  children: [
+                    Text(pose.emoji, style: const TextStyle(fontSize: 26)),
+                    const Spacer(),
+                    if (partnerRepository.matchedPoseIds.contains(pose.id))
+                      ...[
+                      const Text('💘', style: TextStyle(fontSize: 16)),
+                      const SizedBox(width: 4),
+                    ],
+                    if (locked)
+                      const Icon(Icons.lock, size: 18, color: Colors.white)
+                    else if (status == PoseStatus.favorite)
+                      const Icon(Icons.favorite, size: 18, color: Colors.white)
+                    else if (status == PoseStatus.tried)
+                      const Icon(Icons.check_circle,
+                          size: 18, color: Colors.white)
+                    else if (status == PoseStatus.wantToTry)
+                      const Icon(Icons.bookmark,
+                          size: 18, color: Colors.white),
+                  ],
+                ),
+                const Spacer(),
+                Text(
+                  pose.name(_locale),
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    _dots(Icons.whatshot, pose.intensity),
+                    const SizedBox(width: 10),
+                    _dots(Icons.fitness_center, pose.difficulty),
+                  ],
+                ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

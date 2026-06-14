@@ -5,6 +5,7 @@ import '../../data/pose_repository.dart';
 import '../../l10n/app_localizations.dart';
 import '../../partner/supabase_backend.dart' show partnerRepository;
 import '../../theme/app_theme.dart';
+import 'pose_art.dart';
 import 'poses_data.dart';
 
 /// Детайл на поза: описание, статус, оценка, „пробвано на", бележка.
@@ -121,28 +122,25 @@ class _PoseDetailScreenState extends State<PoseDetailScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          // Заглавна „илюстрация" (placeholder силует).
-          Container(
-            height: 160,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  pose.color.withValues(alpha: 0.85),
-                  pose.color.withValues(alpha: 0.4),
-                ],
-              ),
-            ),
-            alignment: Alignment.center,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+          // Заглавна илюстрация — генерирана във вектор (PoseArt).
+          SizedBox(
+            height: 200,
+            width: double.infinity,
+            child: Stack(
+              fit: StackFit.expand,
               children: [
-                Text(pose.emoji, style: const TextStyle(fontSize: 56)),
-                const SizedBox(height: 8),
-                Text(_l10n.poseArtNote,
-                    style: tt.labelMedium!.copyWith(color: Colors.white70)),
+                PoseArt(
+                    color: pose.color,
+                    seed: PoseArt.seedOf(pose.id),
+                    borderRadius: 20),
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Text(pose.emoji,
+                        style: const TextStyle(fontSize: 40)),
+                  ),
+                ),
               ],
             ),
           ),
