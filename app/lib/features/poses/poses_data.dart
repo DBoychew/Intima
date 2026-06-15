@@ -273,6 +273,93 @@ const posesCatalog = <Pose>[
       'en': 'One seated, the other on top — playful and close.',
     },
   ),
+  // ── Трета порция старт (безплатни) ──
+  Pose(
+    id: 'back_to_chest',
+    pack: PosePack.starter,
+    difficulty: 1,
+    intensity: 2,
+    moods: [PoseMood.tender, PoseMood.slow],
+    emoji: '🫂',
+    color: Color(0xFF8B5CF6),
+    name: {'bg': 'Гръб до гръд', 'en': 'Back to chest'},
+    description: {
+      'bg': 'Единият прегръща другия отзад — сигурно и топло.',
+      'en': 'One holding the other from behind — safe and warm.',
+    },
+  ),
+  Pose(
+    id: 'legs_entwined',
+    pack: PosePack.starter,
+    difficulty: 1,
+    intensity: 1,
+    moods: [PoseMood.tender, PoseMood.playful],
+    emoji: '🧶',
+    color: Color(0xFF3FB7A0),
+    name: {'bg': 'Преплетени крака', 'en': 'Legs entwined'},
+    description: {
+      'bg': 'Легнали, с преплетени крака — близост без думи.',
+      'en': 'Lying down, legs entwined — closeness without words.',
+    },
+  ),
+  // ── Трета порция романтика (Premium) ──
+  Pose(
+    id: 'fireplace',
+    pack: PosePack.romance,
+    difficulty: 1,
+    intensity: 2,
+    moods: [PoseMood.slow, PoseMood.passionate],
+    emoji: '🪔',
+    color: Color(0xFFD98A3D),
+    name: {'bg': 'Пред камината', 'en': 'By the fireplace'},
+    description: {
+      'bg': 'Меко одеяло, топла светлина — бавна, уютна близост.',
+      'en': 'A soft blanket, warm light — slow, cosy closeness.',
+    },
+  ),
+  Pose(
+    id: 'window',
+    pack: PosePack.romance,
+    difficulty: 2,
+    intensity: 2,
+    moods: [PoseMood.passionate, PoseMood.slow],
+    emoji: '🪟',
+    color: Color(0xFF4F86C6),
+    name: {'bg': 'До прозореца', 'en': 'By the window'},
+    description: {
+      'bg': 'Изправени до прозореца, прегърнати — гледка и близост.',
+      'en': 'Standing by the window, embraced — a view and closeness.',
+    },
+  ),
+  // ── Трета порция приключение (Premium) ──
+  Pose(
+    id: 'sofa',
+    pack: PosePack.adventure,
+    difficulty: 2,
+    intensity: 3,
+    moods: [PoseMood.playful, PoseMood.adventurous],
+    emoji: '🛋️',
+    color: Color(0xFF2BA15E),
+    name: {'bg': 'На дивана', 'en': 'On the sofa'},
+    description: {
+      'bg': 'Смяна на мястото — спонтанно и игриво извън спалнята.',
+      'en': 'Change of place — spontaneous and playful beyond the bedroom.',
+    },
+  ),
+  Pose(
+    id: 'edge_of_bed',
+    pack: PosePack.adventure,
+    difficulty: 3,
+    intensity: 3,
+    moods: [PoseMood.adventurous, PoseMood.passionate],
+    emoji: '🛏️',
+    color: Color(0xFF6C7BF0),
+    name: {'bg': 'На ръба на леглото', 'en': 'On the edge of the bed'},
+    description: {
+      'bg': 'Нов ъгъл и височина — изисква малко доверие и игра.',
+      'en': 'A new angle and height — takes a little trust and play.',
+    },
+  ),
 ];
 
 Pose? poseById(String id) {

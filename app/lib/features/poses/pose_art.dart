@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-/// Оригинална, генерирана във вектор илюстрация за поза — абстрактни
-/// преплетени силуети (без анатомия, wellness тон). Чисто откъм права:
-/// рисува се изцяло в код, нищо не се сваля. Детерминирана за дадена
-/// поза (един и същ seed → един и същ образ).
+/// Оригинална, генерирана във вектор илюстрация за поза — модерен flat
+/// стил: хармоничен градиент, мек bokeh, изчистен силует на двойка и
+/// долна винетка за четим текст. Рисува се изцяло в код → чисто откъм
+/// авторски права, неексплицитно, офлайн. Детерминирано за дадена поза.
 class PoseArt extends StatelessWidget {
   const PoseArt({
     super.key,
@@ -32,7 +32,7 @@ class PoseArt extends StatelessWidget {
   }
 }
 
-/// Малък детерминиран PRNG (LCG) — за повторяеми вариации без Random.
+/// Малък детерминиран PRNG (LCG) — повторяеми вариации без Random.
 class _Lcg {
   _Lcg(this._state);
   int _state;
@@ -42,6 +42,7 @@ class _Lcg {
   }
 
   double range(double a, double b) => a + (b - a) * next();
+  int pick(int n) => (next() * n).floor().clamp(0, n - 1);
 }
 
 class _PoseArtPainter extends CustomPainter {
@@ -53,82 +54,171 @@ class _PoseArtPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
-    final hsl = HSLColor.fromColor(color);
-    final dark = hsl
-        .withLightness((hsl.lightness * 0.55).clamp(0.0, 1.0))
-        .toColor();
-    final light = hsl
-        .withLightness((hsl.lightness * 1.15).clamp(0.0, 1.0))
-        .withSaturation((hsl.saturation * 0.9).clamp(0.0, 1.0))
-        .toColor();
+    canvas.clipRect(rect);
+    final base = HSLColor.fromColor(color);
 
-    // Фон — мек диагонален градиент.
+    HSLColor shift(double dh, double dl, [double ds = 0]) => HSLColor.fromAHSL(
+          1,
+          (base.hue + dh) % 360,
+          (base.saturation + ds).clamp(0.0, 1.0),
+          (base.lightness + dl).clamp(0.0, 1.0),
+        );
+
+    // Фон — богат диагонален градиент между два хармонични тона.
     canvas.drawRect(
       rect,
       Paint()
         ..shader = LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [light, dark],
+          colors: [
+            shift(18, 0.16, -0.05).toColor(),
+            shift(-12, -0.20).toColor(),
+          ],
         ).createShader(rect),
     );
 
     final rnd = _Lcg(seed);
     final w = size.width, h = size.height;
 
-    // Мек светъл ореол някъде горе.
-    canvas.drawCircle(
-      Offset(w * rnd.range(0.25, 0.75), h * rnd.range(0.18, 0.38)),
-      w * rnd.range(0.28, 0.42),
-      Paint()
-        ..color = Colors.white.withValues(alpha: 0.10)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 24),
-    );
-
-    // Две преплетени „ленти" — абстрактни фигури, спускащи се отдолу.
-    for (var i = 0; i < 2; i++) {
-      final baseX = w * (i == 0 ? rnd.range(0.30, 0.42) : rnd.range(0.58, 0.70));
-      final sway = w * rnd.range(0.12, 0.22);
-      final dir = i == 0 ? 1.0 : -1.0;
-      final path = Path()..moveTo(baseX, h * 1.05);
-      path.cubicTo(
-        baseX + dir * sway, h * rnd.range(0.70, 0.82),
-        baseX - dir * sway, h * rnd.range(0.45, 0.58),
-        baseX + dir * sway * rnd.range(0.3, 0.7), h * rnd.range(0.20, 0.34),
-      );
-      canvas.drawPath(
-        path,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..strokeWidth = w * rnd.range(0.10, 0.16)
-          ..color = Colors.white.withValues(alpha: i == 0 ? 0.30 : 0.20),
-      );
-      // „Глава" — малък кръг в горния край на лентата.
-      final hx = baseX + dir * sway * 0.4;
-      final hy = h * rnd.range(0.18, 0.30);
+    // Дълбочина — няколко меки кръга (bokeh).
+    for (var i = 0; i < 3; i++) {
       canvas.drawCircle(
-        Offset(hx, hy),
-        w * rnd.range(0.07, 0.10),
-        Paint()..color = Colors.white.withValues(alpha: i == 0 ? 0.34 : 0.24),
+        Offset(w * rnd.range(0.05, 0.95), h * rnd.range(0.05, 0.7)),
+        w * rnd.range(0.18, 0.5),
+        Paint()
+          ..color = Colors.white.withValues(alpha: rnd.range(0.04, 0.09))
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 30),
       );
     }
 
-    // Дискретен акцент — сърце/точка от златистото усещане.
-    final ax = w * rnd.range(0.4, 0.6);
-    final ay = h * rnd.range(0.5, 0.66);
-    _drawHeart(canvas, Offset(ax, ay), w * 0.07,
-        Colors.white.withValues(alpha: 0.5));
+    // Мек прожектор зад фигурите.
+    canvas.drawCircle(
+      Offset(w * 0.5, h * 0.62),
+      w * 0.5,
+      Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Colors.white.withValues(alpha: 0.16),
+            Colors.white.withValues(alpha: 0),
+          ],
+        ).createShader(Rect.fromCircle(
+            center: Offset(w * 0.5, h * 0.62), radius: w * 0.5)),
+    );
+
+    _drawCouple(canvas, size, rnd);
+
+    // Долна винетка — за контраст на текста върху картата.
+    canvas.drawRect(
+      rect,
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.center,
+          end: Alignment.bottomCenter,
+          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.28)],
+        ).createShader(rect),
+    );
   }
 
-  void _drawHeart(Canvas canvas, Offset c, double s, Color color) {
-    final p = Path();
-    p.moveTo(c.dx, c.dy + s * 0.3);
-    p.cubicTo(c.dx - s, c.dy - s * 0.6, c.dx - s * 0.5, c.dy - s,
-        c.dx, c.dy - s * 0.3);
-    p.cubicTo(c.dx + s * 0.5, c.dy - s, c.dx + s, c.dy - s * 0.6,
-        c.dx, c.dy + s * 0.3);
-    canvas.drawPath(p, Paint()..color = color);
+  /// Изчистен силует на ДВОЙКА в прегръдка — двете фигури се навеждат
+  /// една към друга (главите близо горе, краката разтворени долу).
+  void _drawCouple(Canvas canvas, Size size, _Lcg rnd) {
+    final w = size.width, h = size.height;
+    final composition = rnd.pick(4);
+
+    // spread = разтвор на краката; lean = колко горната част отива към
+    // центъра (прегръдка); dyBack/scaleBack = втората фигура.
+    late double spread, lean, dyBack, scaleBack;
+    switch (composition) {
+      case 0: // лице в лице, равни
+        spread = w * 0.15; lean = 0.62; dyBack = 0; scaleBack = 0.97;
+      case 1: // близка прегръдка
+        spread = w * 0.12; lean = 0.78; dyBack = -h * 0.03; scaleBack = 0.94;
+      case 2: // единият по-високо (отгоре/седнал)
+        spread = w * 0.14; lean = 0.5; dyBack = -h * 0.15; scaleBack = 0.84;
+      default: // спокойна, рамо до рамо
+        spread = w * 0.17; lean = 0.45; dyBack = 0; scaleBack = 1.03;
+    }
+
+    final cx = w * 0.5;
+    final groundY = h * 0.95;
+    final figH = h * rnd.range(0.6, 0.67);
+    final figW = w * 0.2;
+
+    // Сянка на земята под двойката.
+    canvas.drawOval(
+      Rect.fromCenter(
+          center: Offset(cx, groundY + h * 0.02),
+          width: w * 0.66,
+          height: h * 0.06),
+      Paint()
+        ..color = Colors.black.withValues(alpha: 0.18)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 12),
+    );
+
+    final back = _figure(
+      bottomX: cx + spread,
+      topX: cx + spread * (1 - lean),
+      bottomY: groundY + dyBack,
+      height: figH * scaleBack,
+      width: figW * scaleBack,
+    );
+    final front = _figure(
+      bottomX: cx - spread,
+      topX: cx - spread * (1 - lean),
+      bottomY: groundY,
+      height: figH,
+      width: figW,
+    );
+
+    // Задна фигура — по-тъмна за дълбочина.
+    canvas.drawPath(
+        back, Paint()..color = Colors.white.withValues(alpha: 0.34));
+
+    // Сянка на предната върху задната + самата предна (почти бяла).
+    canvas.drawPath(
+        front.shift(Offset(w * 0.012, h * 0.012)),
+        Paint()
+          ..color = Colors.black.withValues(alpha: 0.16)
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 7));
+    canvas.drawPath(
+        front, Paint()..color = Colors.white.withValues(alpha: 0.92));
+  }
+
+  /// Силует на човек, навеждащ се: горната част е центрирана около
+  /// [topX], долната около [bottomX] (затова фигурата „ляга" към партньора).
+  Path _figure({
+    required double topX,
+    required double bottomX,
+    required double bottomY,
+    required double height,
+    required double width,
+  }) {
+    final headR = height * 0.15;
+    final headC = Offset(topX, bottomY - height + headR);
+    final shoulderY = headC.dy + headR * 1.05;
+    final topW = width * 0.55;
+    final botW = width;
+
+    final p = Path()..addOval(Rect.fromCircle(center: headC, radius: headR));
+    // Десен контур: рамо (горе при topX) → ханш/крак (долу при bottomX).
+    p.moveTo(topX + topW, shoulderY);
+    p.cubicTo(
+      topX + topW, shoulderY + height * 0.25,
+      bottomX + botW, bottomY - height * 0.22,
+      bottomX + botW * 0.55, bottomY,
+    );
+    // Долен ръб.
+    p.quadraticBezierTo(
+        bottomX, bottomY + height * 0.03, bottomX - botW * 0.55, bottomY);
+    // Ляв контур обратно нагоре до другото рамо.
+    p.cubicTo(
+      bottomX - botW, bottomY - height * 0.22,
+      topX - topW, shoulderY + height * 0.25,
+      topX - topW, shoulderY,
+    );
+    p.close();
+    return p;
   }
 
   @override
