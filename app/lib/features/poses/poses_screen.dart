@@ -186,7 +186,7 @@ class _PosesScreenState extends State<PosesScreen> {
         fit: StackFit.expand,
         children: [
           // Генерирана векторна илюстрация като фон.
-          PoseArt(color: pose.color, seed: PoseArt.seedOf(pose.id)),
+          PoseArt(color: pose.color, id: pose.id),
           // Лек тъмен градиент долу за четим текст.
           DecoratedBox(
             decoration: BoxDecoration(

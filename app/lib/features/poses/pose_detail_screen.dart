@@ -129,10 +129,7 @@ class _PoseDetailScreenState extends State<PoseDetailScreen> {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                PoseArt(
-                    color: pose.color,
-                    seed: PoseArt.seedOf(pose.id),
-                    borderRadius: 20),
+                PoseArt(color: pose.color, id: pose.id, borderRadius: 20),
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: Padding(

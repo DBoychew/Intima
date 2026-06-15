@@ -1,19 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
-/// Оригинална, генерирана във вектор илюстрация за поза — модерен flat
-/// стил: хармоничен градиент, мек bokeh, изчистен силует на двойка и
-/// долна винетка за четим текст. Рисува се изцяло в код → чисто откъм
-/// авторски права, неексплицитно, офлайн. Детерминирано за дадена поза.
+import 'pose_assets.dart';
+
+/// Илюстрация за поза. Ако има вградена CC0 SVG (`assets/poses/<id>.svg`)
+/// — показва нея (бяла, върху брандирания градиент). Ако липсва — пада
+/// към генериран във вектор силует на двойка (fallback, чист откъм права).
 class PoseArt extends StatelessWidget {
   const PoseArt({
     super.key,
     required this.color,
-    required this.seed,
+    required this.id,
     this.borderRadius = 18,
   });
 
   final Color color;
-  final int seed;
+  final String id;
   final double borderRadius;
 
   /// Стабилен seed от id-то на позата (не зависи от hashCode).
@@ -22,11 +24,42 @@ class PoseArt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final seed = seedOf(id);
+    final hasSvg = poseSvgAvailable(id);
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
-      child: CustomPaint(
-        painter: _PoseArtPainter(color: color, seed: seed),
-        size: Size.infinite,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // Брандиран фон — градиент + bokeh + прожектор.
+          CustomPaint(painter: _PoseBackgroundPainter(color: color, seed: seed)),
+          // Реалната CC0 илюстрация или генерираният силует.
+          if (hasSvg)
+            Center(
+              child: FractionallySizedBox(
+                widthFactor: 0.66,
+                heightFactor: 0.66,
+                child: SvgPicture.asset(
+                  'assets/poses/$id.svg',
+                  fit: BoxFit.contain,
+                  colorFilter: ColorFilter.mode(
+                      Colors.white.withValues(alpha: 0.92), BlendMode.srcIn),
+                ),
+              ),
+            )
+          else
+            CustomPaint(painter: _PoseFigurePainter(seed: seed)),
+          // Долна винетка — за контраст на текста.
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.center,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Color(0x47000000)],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -45,8 +78,9 @@ class _Lcg {
   int pick(int n) => (next() * n).floor().clamp(0, n - 1);
 }
 
-class _PoseArtPainter extends CustomPainter {
-  _PoseArtPainter({required this.color, required this.seed});
+/// Брандираният фон — хармоничен градиент, мек bokeh и прожектор.
+class _PoseBackgroundPainter extends CustomPainter {
+  _PoseBackgroundPainter({required this.color, required this.seed});
 
   final Color color;
   final int seed;
@@ -64,7 +98,6 @@ class _PoseArtPainter extends CustomPainter {
           (base.lightness + dl).clamp(0.0, 1.0),
         );
 
-    // Фон — богат диагонален градиент между два хармонични тона.
     canvas.drawRect(
       rect,
       Paint()
@@ -81,7 +114,6 @@ class _PoseArtPainter extends CustomPainter {
     final rnd = _Lcg(seed);
     final w = size.width, h = size.height;
 
-    // Дълбочина — няколко меки кръга (bokeh).
     for (var i = 0; i < 3; i++) {
       canvas.drawCircle(
         Offset(w * rnd.range(0.05, 0.95), h * rnd.range(0.05, 0.7)),
@@ -92,7 +124,6 @@ class _PoseArtPainter extends CustomPainter {
       );
     }
 
-    // Мек прожектор зад фигурите.
     canvas.drawCircle(
       Offset(w * 0.5, h * 0.62),
       w * 0.5,
@@ -105,23 +136,25 @@ class _PoseArtPainter extends CustomPainter {
         ).createShader(Rect.fromCircle(
             center: Offset(w * 0.5, h * 0.62), radius: w * 0.5)),
     );
-
-    _drawCouple(canvas, size, rnd);
-
-    // Долна винетка — за контраст на текста върху картата.
-    canvas.drawRect(
-      rect,
-      Paint()
-        ..shader = LinearGradient(
-          begin: Alignment.center,
-          end: Alignment.bottomCenter,
-          colors: [Colors.transparent, Colors.black.withValues(alpha: 0.28)],
-        ).createShader(rect),
-    );
   }
 
-  /// Изчистен силует на ДВОЙКА в прегръдка — двете фигури се навеждат
-  /// една към друга (главите близо горе, краката разтворени долу).
+  @override
+  bool shouldRepaint(_PoseBackgroundPainter old) =>
+      old.seed != seed || old.color != color;
+}
+
+/// Генериран силует на двойка в прегръдка (fallback, когато няма SVG).
+class _PoseFigurePainter extends CustomPainter {
+  _PoseFigurePainter({required this.seed});
+
+  final int seed;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rnd = _Lcg(seed);
+    _drawCouple(canvas, size, rnd);
+  }
+
   void _drawCouple(Canvas canvas, Size size, _Lcg rnd) {
     final w = size.width, h = size.height;
     final composition = rnd.pick(4);
@@ -222,6 +255,5 @@ class _PoseArtPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_PoseArtPainter old) =>
-      old.seed != seed || old.color != color;
+  bool shouldRepaint(_PoseFigurePainter old) => old.seed != seed;
 }

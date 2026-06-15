@@ -57,6 +57,7 @@ dependencies:
   audioplayers: ^6.5.1
   cryptography: ^2.7.0
   supabase_flutter: ^2.10.2
+  flutter_svg: ^2.0.10
   flutter_local_notifications: ^22.0.0
   timezone: ^0.11.0
   flutter_timezone: ^5.1.0
@@ -92,6 +93,11 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  # CC0/собствени SVG илюстрации за позите (по pose id) — ако липсват,
+  # се ползва генерираният вектор арт (PoseArt fallback).
+  assets:
+    - assets/poses/
 
   # Шрифтовете са вградени (latin + cyrillic) — приложението е офлайн
   # и няма INTERNET permission, runtime fetch не е възможен.
