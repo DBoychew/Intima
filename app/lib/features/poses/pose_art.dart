@@ -25,37 +25,48 @@ class PoseArt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final seed = seedOf(id);
-    final hasSvg = poseSvgAvailable(id);
+    final assetPath = poseAssetPath(id);
+    final isSvg = assetPath != null && poseAssetIsSvg(id);
+    final isPhoto = assetPath != null && !isSvg;
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // Брандиран фон — градиент + bokeh + прожектор.
-          CustomPaint(painter: _PoseBackgroundPainter(color: color, seed: seed)),
-          // Реалната CC0 илюстрация или генерираният силует.
-          if (hasSvg)
-            Center(
-              child: FractionallySizedBox(
-                widthFactor: 0.66,
-                heightFactor: 0.66,
-                child: SvgPicture.asset(
-                  'assets/poses/$id.svg',
-                  fit: BoxFit.contain,
-                  colorFilter: ColorFilter.mode(
-                      Colors.white.withValues(alpha: 0.92), BlendMode.srcIn),
+          if (isPhoto)
+            // Реална CC0 снимка — на цялата карта.
+            Image.asset(assetPath, fit: BoxFit.cover)
+          else ...[
+            // Брандиран фон — градиент + bokeh + прожектор.
+            CustomPaint(
+                painter: _PoseBackgroundPainter(color: color, seed: seed)),
+            if (isSvg)
+              Center(
+                child: FractionallySizedBox(
+                  widthFactor: 0.66,
+                  heightFactor: 0.66,
+                  child: SvgPicture.asset(
+                    assetPath,
+                    fit: BoxFit.contain,
+                    colorFilter: ColorFilter.mode(
+                        Colors.white.withValues(alpha: 0.92),
+                        BlendMode.srcIn),
+                  ),
                 ),
-              ),
-            )
-          else
-            CustomPaint(painter: _PoseFigurePainter(seed: seed)),
-          // Долна винетка — за контраст на текста.
-          const DecoratedBox(
+              )
+            else
+              CustomPaint(painter: _PoseFigurePainter(seed: seed)),
+          ],
+          // Долна винетка — за контраст на текста (по-силна върху снимка).
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.center,
                 end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Color(0x47000000)],
+                colors: [
+                  Colors.transparent,
+                  Color(isPhoto ? 0x8C000000 : 0x47000000),
+                ],
               ),
             ),
           ),
