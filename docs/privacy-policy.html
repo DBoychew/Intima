@@ -129,10 +129,11 @@
 
   <section class="summary">
     <p><strong>Short version:</strong> Intima stores your private diary,
-      cycle calendar, moods, symptoms, intimate moments, videos, and audio
-      notes on your device. The local database is encrypted. Photos you add to
-      diary entries are also uploaded to our private server storage as a
-      personal copy. Other data is sent to our servers only when you use
+      cycle calendar, moods, symptoms, intimate moments, and audio
+      notes on your device. The local database is encrypted. Photos and videos
+      you add to diary entries are kept on your device and also uploaded to our
+      private server storage as a personal copy. Other data is sent to our
+      servers only when you use
       Partner Mode, optional provider sign-in, or other online account features
       described below. We do not sell personal or sensitive user data, and we do
       not use third-party advertising or analytics SDKs.</p>
@@ -145,13 +146,13 @@
   <h2>2. Data Stored on Your Device</h2>
   <p>The following data is stored locally on your device. It is not sent to
     Intima servers unless you separately choose to share specific content
-    through Partner Mode, except for diary photos as described below:</p>
+    through Partner Mode, except for diary photos and videos as described below:</p>
   <ul>
     <li>Diary entries, titles, text, tags, mood, and dates.</li>
     <li>Cycle calendar data, period days, cycle settings, symptoms, mood,
       libido, energy, fertile-window calculations, and reminders.</li>
     <li>Intimate moment logs, including notes, arousal, orgasms, and positions.</li>
-    <li>Videos and audio notes attached to diary entries. (Diary photos are kept
+    <li>Audio notes attached to diary entries. (Diary photos and videos are kept
       on device too, but are also uploaded to our servers &mdash; see below.)</li>
     <li>Local profile name and avatar.</li>
     <li>PIN, biometric lock settings, decoy PIN settings, theme, language, and
@@ -161,14 +162,14 @@
     format. The encryption key is stored in secure device storage such as
     Android Keystore. The PIN is stored as a one-way hash, not as plain text.</p>
 
-  <h3>Diary photos stored on our servers</h3>
-  <p>Photos you add to your diary entries are uploaded to our private server
-    storage (Supabase) as a personal copy, in addition to the copy kept on your
-    device. These photos are private to your account: other users, including a
-    linked partner, cannot access them. They are stored in their original image
-    format and are not end-to-end encrypted, so they may be accessed by us for
-    security, abuse prevention, troubleshooting, and legal compliance. Diary
-    videos and audio notes are not uploaded and remain only on your device.</p>
+  <h3>Diary photos and videos stored on our servers</h3>
+  <p>Photos and videos you add to your diary entries are uploaded to our private
+    server storage (Supabase) as a personal copy, in addition to the copy kept on
+    your device. These files are private to your account: other users, including a
+    linked partner, cannot access them. They are stored in their original format
+    and are not end-to-end encrypted, so they may be accessed by us for security,
+    abuse prevention, troubleshooting, and legal compliance. Diary audio notes
+    are not uploaded and remain only on your device.</p>
   <p>When you remove a diary photo, delete a diary entry, or use
     &ldquo;Delete everything&rdquo;, the app also requests deletion of the
     corresponding server copy.</p>
@@ -194,7 +195,7 @@
     for security, abuse prevention, troubleshooting, and legal compliance.</p>
   <p>If you do not use Partner Mode or optional online account features, the
     app is designed so that your diary and calendar data remain on your device,
-    apart from the diary photo copies described in section 2.</p>
+    apart from the diary photo and video copies described in section 2.</p>
 
   <h2>4. Optional Google or Facebook Sign-In</h2>
   <p>If you choose to sign in with Google or Facebook, the provider and
@@ -230,9 +231,9 @@
       <tr>
         <td>Photos and videos</td>
         <td>Used only when you choose media for a diary entry, profile avatar,
-          or Partner Mode message. Diary photos are kept on device and also
-          uploaded to private server storage as a personal copy; diary videos,
-          audio notes, and your profile avatar stay on device; Partner Mode
+          or Partner Mode message. Diary photos and videos are kept on device and
+          also uploaded to private server storage as a personal copy; diary
+          audio notes and your profile avatar stay on device; Partner Mode
           media is uploaded so your partner can receive it.</td>
       </tr>
       <tr>
@@ -280,8 +281,9 @@
       system.</li>
     <li>The in-app "Delete everything" action deletes local Intima data from
       your device, including local database data and local security keys, and
-      requests deletion of your diary photo copies from our server storage.</li>
-    <li>Diary photos also have a private server copy. Removing a photo or
+      requests deletion of your diary photo and video copies from our server
+      storage.</li>
+    <li>Diary photos and videos also have a private server copy. Removing one or
       deleting its entry requests deletion of that server copy. Some objects or
       backups may remain for a limited period until deletion processing
       completes.</li>
@@ -294,6 +296,8 @@
       processing is completed.</li>
     <li>You can request deletion of server-side Partner Mode or account data by
       contacting us at <a href="mailto:dimitur.boychew@abv.bg">dimitur.boychew@abv.bg</a>.</li>
+    <li>You can also use the <a href="delete-account.html">Intima account and
+      data deletion page</a> for deletion instructions.</li>
   </ul>
 
   <h2>10. Security</h2>
@@ -356,15 +360,15 @@
   <h3 lang="bg">2. Данни на устройството</h3>
   <p lang="bg">Следните данни се пазят локално на устройството. Не се изпращат
     към Intima сървъри, освен ако отделно не избереш да споделиш конкретно
-    съдържание чрез Partner Mode, с изключение на снимките от дневника, както е
-    описано по-долу:</p>
+    съдържание чрез Partner Mode, с изключение на снимките и видеата от дневника,
+    както е описано по-долу:</p>
   <ul lang="bg">
     <li>Дневник: записи, заглавия, текст, тагове, настроение и дати.</li>
     <li>Календар и цикъл: менструални дни, настройки на цикъла, симптоми,
       настроение, либидо, енергия, изчисления за фертилен прозорец и
       напомняния.</li>
     <li>Интимни моменти: бележки, възбуда, оргазми и позиции.</li>
-    <li>Видеа и аудио бележки, прикачени към дневникови записи. (Снимките от
+    <li>Аудио бележки, прикачени към дневникови записи. (Снимките и видеата от
       дневника също се пазят на устройството, но допълнително се качват на
       сървърите ни &mdash; виж по-долу.)</li>
     <li>Локално име и аватар на профила.</li>
@@ -375,18 +379,18 @@
     Android Keystore. PIN кодът се пази като еднопосочен хеш, не като чист
     текст.</p>
 
-  <h4 lang="bg">Снимки от дневника на нашите сървъри</h4>
-  <p lang="bg">Снимките, които добавяш към дневникови записи, се качват в
-    нашето частно сървърно хранилище (Supabase) като лично копие — в допълнение
-    към копието на устройството. Тези снимки са лични за твоя профил: други
+  <h4 lang="bg">Снимки и видеа от дневника на нашите сървъри</h4>
+  <p lang="bg">Снимките и видеата, които добавяш към дневникови записи, се качват
+    в нашето частно сървърно хранилище (Supabase) като лично копие — в допълнение
+    към копието на устройството. Тези файлове са лични за твоя профил: други
     потребители, включително свързан партньор, нямат достъп до тях. Пазят се в
     оригиналния си формат и не са криптирани от край до край, затова може да
     бъдат достъпни за нас с цел сигурност, предотвратяване на злоупотреби,
-    troubleshooting и спазване на закона. Видеата и аудио бележките от дневника
-    не се качват и остават само на устройството.</p>
-  <p lang="bg">Когато премахнеш снимка, изтриеш дневников запис или използваш
-    „Изтрий всичко", приложението иска изтриване и на съответното сървърно
-    копие.</p>
+    troubleshooting и спазване на закона. Аудио бележките от дневника не се
+    качват и остават само на устройството.</p>
+  <p lang="bg">Когато премахнеш снимка или видео, изтриеш дневников запис или
+    използваш „Изтрий всичко", приложението иска изтриване и на съответното
+    сървърно копие.</p>
 
   <h3 lang="bg">3. Данни, изпращани при Partner Mode</h3>
   <p lang="bg">Partner Mode позволява свързване с партньор чрез код, чат,
@@ -442,9 +446,9 @@
       <tr>
         <td>Снимки и видеа</td>
         <td>Само когато избираш медия за дневник, аватар или Partner Mode
-          съобщение. Снимките от дневника се пазят на устройството и
+          съобщение. Снимките и видеата от дневника се пазят на устройството и
           допълнително се качват в частно сървърно хранилище като лично копие;
-          видеата и аудиото от дневника и профилният аватар остават на
+          аудиото от дневника и профилният аватар остават на
           устройството; Partner Mode медията се качва, за да стигне до
           партньора.</td>
       </tr>
@@ -479,9 +483,9 @@
       операционната система.</li>
     <li>"Изтрий всичко" изтрива локалните Intima данни от устройството,
       включително локалната база и локалните security keys, и иска изтриване на
-      копията на снимките от дневника от сървърното ни хранилище.</li>
-    <li>Снимките от дневника имат и частно сървърно копие. Премахването на
-      снимка или изтриването на записа ѝ иска изтриване на това сървърно копие.
+      копията на снимките и видеата от дневника от сървърното ни хранилище.</li>
+    <li>Снимките и видеата от дневника имат и частно сървърно копие. Премахването
+      им или изтриването на записа иска изтриване на това сървърно копие.
       Някои обекти или backups може да останат за ограничен период, докато
       изтриването приключи.</li>
     <li>Partner Mode данни остават в backend-а, докато партньорската връзка е
@@ -493,6 +497,9 @@
       processing приключи.</li>
     <li>Можеш да поискаш изтриване на server-side Partner Mode или account
       данни на <a href="mailto:dimitur.boychew@abv.bg">dimitur.boychew@abv.bg</a>.</li>
+    <li>Можеш да използваш и страницата
+      <a href="delete-account.html">Intima account and data deletion</a> с
+      инструкции за изтриване.</li>
   </ul>
 
   <h3 lang="bg">8. Сигурност</h3>

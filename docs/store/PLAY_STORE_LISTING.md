@@ -123,13 +123,13 @@ intimacy app, discreet, women's health
 
 | Въпрос | Отговор |
 |---|---|
-| Събира ли приложението данни? | **Да** — за Partner Mode, снимките от дневника и optional account функции |
-| Какви данни | Съобщения, снимки и видео, споделени с партньор; **снимки от дневника (лично копие на сървъра, видимо само за потребителя и за модерацията)**; Couple Match pose-interest записи; анонимен account identifier; pairing/couple identifiers; technical metadata. При optional Google/Facebook вход: provider id, имейл/display name/profile photo metadata според доставчика. Останалите данни от дневника, календарът и цикълът остават само на устройството. |
+| Събира ли приложението данни? | **Да** — за Partner Mode, снимките и видеата от дневника и optional account функции |
+| Какви данни | Съобщения, снимки и видео, споделени с партньор; **снимки и видеа от дневника (лично копие на сървъра, видимо само за потребителя и за модерацията)**; Couple Match pose-interest записи; анонимен account identifier; pairing/couple identifiers; technical metadata. При optional Google/Facebook вход: provider id, имейл/display name/profile photo metadata според доставчика. Останалите данни от дневника, календарът и цикълът остават само на устройството. |
 | Цел | Функционалност на приложението: сдвояване, чат, media delivery, Couple Match, account/auth |
 | Споделя ли данни с трети страни? | Не за реклама/продажба; ползва се Supabase като backend/storage/auth processor. При optional вход участват Google/Facebook като auth providers. |
 | Данните криптирани ли са при пренос? | **Да** (TLS) |
 | End-to-end криптиране? | **Не** за Partner Mode — съдържанието може да бъде достъпно за сигурност, злоупотреби, troubleshooting и законови задължения |
-| Може ли потребителят да поиска изтриване? | Да — „Изтрий всичко" трие локалните данни и иска изтриване на сървърните копия на снимките от дневника; премахването на снимка/запис също трие сървърното копие; „Прекъсни връзката" премахва активната partner връзка и chat records от active backend DB. За пълно server-side/account deletion: contact email в privacy policy. |
+| Може ли потребителят да поиска изтриване? | Да — „Изтрий всичко" трие локалните данни и иска изтриване на сървърните копия на снимките и видеата от дневника; премахването на снимка/видео/запис също трие сървърното копие; „Прекъсни връзката" премахва активната partner връзка и chat records от active backend DB. За пълно server-side/account deletion: contact email в privacy policy. |
 | Health policy декларация | Цикъл/здравни данни се обработват **само локално**; приложението не е медицинско изделие; privacy policy URL задължителен |
 
 ## Какво остава да се подготви
