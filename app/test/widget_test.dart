@@ -79,6 +79,10 @@ void main() {
     await tester.tap(find.byIcon(Icons.chevron_left));
     await tester.pump();
     expect(find.text('Декември 2026'), findsOneWidget);
+
+    // Успокояваме всичко висящо (async четения от базата), за да не
+    // изтече състояние в следващия тест.
+    await tester.pumpAndSettle();
   });
 
   testWidgets('Diary editor: шаблони, тагове и действия', (
@@ -103,6 +107,10 @@ void main() {
         scrollable: scrollable);
     expect(find.text('Добави снимка'), findsOneWidget);
 
+    // scrollUntilVisible може да спре „Нов таг" точно на долния ръб, където
+    // тапът не уцелва — ensureVisible го вкарва изцяло във виждане.
+    await tester.ensureVisible(find.text('Нов таг'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Нов таг'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField).last, 'пътуване');

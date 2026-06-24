@@ -121,7 +121,7 @@ void main() {
       );
       _drawText(
         canvas,
-        'Интимен календар и дневник.\nКриптиран. Без акаунт. Само твой.',
+        'Private cycle diary.\nEncrypted. Discreet.',
         const Offset(486, 290),
         const TextStyle(
           fontFamily: 'Inter',

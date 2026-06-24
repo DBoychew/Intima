@@ -268,7 +268,7 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
       return;
     }
     // Снимките имат сървърно копие — трием и него.
-    await diaryRepository.deletePhoto(_photos[index]);
+    await diaryRepository.deleteSyncedMedia(_photos[index]);
     if (mounted) setState(() => _photos.removeAt(index));
   }
 
@@ -276,7 +276,8 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     if (!await _confirmRemoval(_l10n.removeVideoTitle, _l10n.removeVideoBody)) {
       return;
     }
-    await diaryRepository.deletePhotoFile(_videos[index]);
+    // Видеата имат сървърно копие — трием и него.
+    await diaryRepository.deleteSyncedMedia(_videos[index]);
     if (mounted) setState(() => _videos.removeAt(index));
   }
 

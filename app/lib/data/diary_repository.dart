@@ -65,16 +65,15 @@ class DiaryRepository {
 
   Future<void> delete(DiaryEntryRow row) async {
     if (appLock.decoyActive) return;
-    final photos = decodeStringList(row.photos);
-    for (final path in [
-      ...photos,
+    // Сървърни копия има за снимките и видеата (не за аудиото).
+    final synced = [
+      ...decodeStringList(row.photos),
       ...decodeStringList(row.videos),
-      ...decodeStringList(row.audios),
-    ]) {
+    ];
+    for (final path in [...synced, ...decodeStringList(row.audios)]) {
       await deletePhotoFile(path);
     }
-    // Сървърни копия има само за снимките — махаме ги best-effort.
-    for (final path in photos) {
+    for (final path in synced) {
       unawaited(_mediaSync.remove(path));
     }
     await _manager.db.deleteDiaryEntry(row.id);
@@ -89,9 +88,13 @@ class DiaryRepository {
     return local;
   }
 
-  /// Копира видео в private storage (v4, Premium).
-  Future<String> importVideo(String sourcePath) =>
-      _importMedia(sourcePath, 'videos');
+  /// Копира видео в private storage (v4, Premium). Качва и копие на
+  /// сървъра (фоново, best-effort).
+  Future<String> importVideo(String sourcePath) async {
+    final local = await _importMedia(sourcePath, 'videos');
+    if (!appLock.decoyActive) unawaited(_mediaSync.upload(local));
+    return local;
+  }
 
   /// Копира аудио бележка в private storage (v5, Premium).
   Future<String> importAudio(String sourcePath) =>
@@ -116,14 +119,14 @@ class DiaryRepository {
     if (await file.exists()) await file.delete();
   }
 
-  /// Трие снимка локално И сървърното ѝ копие — за единично премахване
-  /// от редактора. (Видеата/аудиото не се качват на сървъра.)
-  Future<void> deletePhoto(String path) async {
+  /// Трие медия локално И сървърното ѝ копие — за единично премахване на
+  /// снимка или видео от редактора. (Аудиото не се качва на сървъра.)
+  Future<void> deleteSyncedMedia(String path) async {
     await deletePhotoFile(path);
     if (!appLock.decoyActive) unawaited(_mediaSync.remove(path));
   }
 
-  /// GDPR: маха всички сървърни копия на снимките от дневника.
+  /// GDPR: маха всички сървърни копия на снимките и видеата от дневника.
   Future<void> removeAllServerMedia() => _mediaSync.removeAllForUser();
 
   /// „Спомен от преди време" — най-скорошният запис отпреди поне

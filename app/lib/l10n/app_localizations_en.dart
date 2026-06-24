@@ -706,7 +706,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutDataBody =>
-      'Your diary, calendar and insights are stored encrypted on this device and can be locked with a PIN.\n\nPhotos you add to your diary are also uploaded to our servers as a private copy — only your account can see them, and they may be reviewed by us for safety.\n\nWhen you connect with a partner, shared messages, photos and videos are stored on our servers so they reach your partner, and may be reviewed for safety. Unlinking removes the active partner connection and chat records; full server-side deletion can be requested through the privacy contact.\n\nFull details are in the Privacy Policy.';
+      'Your diary, calendar and insights are stored encrypted on this device and can be locked with a PIN.\n\nPhotos and videos you add to your diary are also uploaded to our servers as a private copy — only your account can see them, and they may be reviewed by us for safety.\n\nWhen you connect with a partner, shared messages, photos and videos are stored on our servers so they reach your partner, and may be reviewed for safety. Unlinking removes the active partner connection and chat records; full server-side deletion can be requested through the privacy contact.\n\nFull details are in the Privacy Policy.';
 
   @override
   String get close => 'Close';
