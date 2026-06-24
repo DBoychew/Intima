@@ -4,12 +4,8 @@ _Last updated / Последна актуализация: 2026-06-24_
 
 Canonical publishable page: `docs/privacy-policy.html`
 
-Before submitting to Google Play, replace:
-
-- `[DEVELOPER_LEGAL_NAME]`
-- `[PRIVACY_CONTACT_EMAIL]`
-
-Use the same developer identity and contact email as in Google Play Console.
+Developer: **Dimitar Boychev**  
+Privacy contact: **dimitur.boychew@abv.bg**
 
 ---
 
@@ -29,8 +25,8 @@ or analytics SDKs.
 
 ### Developer and privacy contact
 
-Developer: **[DEVELOPER_LEGAL_NAME]**  
-Privacy contact: **[PRIVACY_CONTACT_EMAIL]**
+Developer: **Dimitar Boychev**  
+Privacy contact: **dimitur.boychew@abv.bg**
 
 ### Data stored only on your device
 
@@ -144,7 +140,7 @@ by Partner Mode and optional account features.
   backups may remain for a limited period or until deletion processing is
   completed.
 - You can request deletion of server-side Partner Mode or account data by
-  contacting **[PRIVACY_CONTACT_EMAIL]**.
+  contacting **dimitur.boychew@abv.bg**.
 
 ### Security
 
@@ -191,8 +187,8 @@ SDK-и на трети страни.
 
 ### Разработчик и контакт
 
-Разработчик: **[DEVELOPER_LEGAL_NAME]**  
-Контакт за поверителност: **[PRIVACY_CONTACT_EMAIL]**
+Разработчик: **Dimitar Boychev**  
+Контакт за поверителност: **dimitur.boychew@abv.bg**
 
 ### Данни, които остават само на устройството
 
@@ -299,7 +295,7 @@ troubleshooting, предотвратяване на злоупотреби, з�
   чат записи от активната backend база. Някои media objects, logs или backups
   може да останат за ограничен период или докато deletion processing приключи.
 - Можеш да поискаш изтриване на server-side Partner Mode или account данни на
-  **[PRIVACY_CONTACT_EMAIL]**.
+  **dimitur.boychew@abv.bg**.
 
 ### Сигурност
 

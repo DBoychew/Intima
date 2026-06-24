@@ -11,10 +11,8 @@
 - [ ] **Преглед на описанията** (BG/EN) в `docs/store/PLAY_STORE_LISTING.md`
 - [ ] **Контактен имейл за потребители** — задължителен за Play Console;
       препоръка: отделен имейл (напр. нов Gmail), не служебният
-- [ ] **Име/фирма на разработчика** за privacy policy — попълва се в
-      `docs/privacy-policy.html` на мястото на `[DEVELOPER_LEGAL_NAME]`
-- [ ] **Контактен имейл в privacy policy** — попълва се в
-      `docs/privacy-policy.html` на мястото на `[PRIVACY_CONTACT_EMAIL]`
+- [x] **Име/фирма на разработчика** за privacy policy — Dimitar Boychev
+- [x] **Контактен имейл в privacy policy** — dimitur.boychew@abv.bg
 - [ ] **Хостинг на privacy policy** — `docs/privacy-policy.html` се качва
       на GitHub Pages (безплатен публичен URL) и URL-ът се попълва в Play
       Console
