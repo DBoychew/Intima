@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -10,12 +11,19 @@ import '../security/app_lock.dart';
 import 'calendar_repository.dart' show decodeStringList;
 import 'database.dart';
 import 'db_manager.dart';
+import 'diary_media_sync.dart';
 
 /// Дневникът върху криптираната база + снимки в private storage.
+/// Снимките се качват и на сървъра през [DiaryMediaSync] (по подразбиране
+/// no-op — тестовете и локалната разработка остават офлайн).
 class DiaryRepository {
-  DiaryRepository(this._manager);
+  DiaryRepository(
+    this._manager, {
+    DiaryMediaSync mediaSync = const NoopDiaryMediaSync(),
+  }) : _mediaSync = mediaSync;
 
   final DbManager _manager;
+  final DiaryMediaSync _mediaSync;
 
   Future<List<DiaryEntryRow>> all() async {
     // Stealth копието е празно.
@@ -57,21 +65,29 @@ class DiaryRepository {
 
   Future<void> delete(DiaryEntryRow row) async {
     if (appLock.decoyActive) return;
+    final photos = decodeStringList(row.photos);
     for (final path in [
-      ...decodeStringList(row.photos),
+      ...photos,
       ...decodeStringList(row.videos),
       ...decodeStringList(row.audios),
     ]) {
       await deletePhotoFile(path);
     }
+    // Сървърни копия има само за снимките — махаме ги best-effort.
+    for (final path in photos) {
+      unawaited(_mediaSync.remove(path));
+    }
     await _manager.db.deleteDiaryEntry(row.id);
     bumpDataVersion();
   }
 
-  /// Копира снимка в private storage (никога в общата галерия)
-  /// и връща пътя до копието.
-  Future<String> importPhoto(String sourcePath) =>
-      _importMedia(sourcePath, 'photos');
+  /// Копира снимка в private storage (никога в общата галерия) и връща
+  /// пътя до копието. Качва и копие на сървъра (фоново, best-effort).
+  Future<String> importPhoto(String sourcePath) async {
+    final local = await _importMedia(sourcePath, 'photos');
+    if (!appLock.decoyActive) unawaited(_mediaSync.upload(local));
+    return local;
+  }
 
   /// Копира видео в private storage (v4, Premium).
   Future<String> importVideo(String sourcePath) =>
@@ -100,6 +116,16 @@ class DiaryRepository {
     if (await file.exists()) await file.delete();
   }
 
+  /// Трие снимка локално И сървърното ѝ копие — за единично премахване
+  /// от редактора. (Видеата/аудиото не се качват на сървъра.)
+  Future<void> deletePhoto(String path) async {
+    await deletePhotoFile(path);
+    if (!appLock.decoyActive) unawaited(_mediaSync.remove(path));
+  }
+
+  /// GDPR: маха всички сървърни копия на снимките от дневника.
+  Future<void> removeAllServerMedia() => _mediaSync.removeAllForUser();
+
   /// „Спомен от преди време" — най-скорошният запис отпреди поне
   /// [minDays] дни; null ако още няма такъв.
   Future<DiaryEntryRow?> memory({int minDays = 30, DateTime? now}) async {
@@ -119,4 +145,5 @@ bool entryMatches(DiaryEntryRow row, String query) {
       decodeStringList(row.tags).any((t) => t.toLowerCase().contains(q));
 }
 
-final diaryRepository = DiaryRepository(dbManager);
+final diaryRepository =
+    DiaryRepository(dbManager, mediaSync: const SupabaseDiaryMediaSync());

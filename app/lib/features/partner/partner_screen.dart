@@ -165,8 +165,6 @@ class _PartnerScreenState extends State<PartnerScreen> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        _noticeBanner(),
-        const SizedBox(height: 16),
         if (_repo.hasPartners) ...[
           for (var i = 0; i < _repo.partners.length; i++)
             _partnerTile(_repo.partners[i], i),
@@ -183,25 +181,6 @@ class _PartnerScreenState extends State<PartnerScreen> {
       ],
     );
   }
-
-  Widget _noticeBanner() => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: context.colors.surface,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.info_outline,
-                size: 18, color: context.colors.textSecondary),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(_l10n.partnerStorageNotice,
-                  style: Theme.of(context).textTheme.labelMedium),
-            ),
-          ],
-        ),
-      );
 
   Widget _partnerTile(Partner p, int index) => Card(
         child: ListTile(

@@ -1,152 +1,327 @@
-# Intima — Privacy Policy / Политика за поверителност
+# Intima Privacy Policy / Политика за поверителност
 
-_Last updated / Последна актуализация: 2026-06-12_
+_Last updated / Последна актуализация: 2026-06-24_
 
-> Този документ е двуезичен: български отгоре, English below.
-> Преди публикуване: попълни **[КОНТАКТЕН ИМЕЙЛ]** и **[ИМЕ/ФИРМА НА РАЗРАБОТЧИКА]**
-> и хоствай страницата на публичен URL (напр. GitHub Pages).
+Canonical publishable page: `docs/privacy-policy.html`
 
----
+Before submitting to Google Play, replace:
 
-## 🇧🇬 Политика за поверителност
+- `[DEVELOPER_LEGAL_NAME]`
+- `[PRIVACY_CONTACT_EMAIL]`
 
-Intima е приложение за интимен календар и дневник. Този документ обяснява
-честно какви данни остават на устройството ти и какви се изпращат на
-нашите сървъри, когато ползваш функциите за партньор.
-
-### Какво остава само на устройството ти
-
-Твоят **дневник, календар, цикъл, настроения, симптоми, интимни моменти
-и прикачените към тях снимки/видеа/аудио** се съхраняват **само локално**:
-
-- Базата данни е криптирана с AES-256 (SQLCipher-съвместим формат).
-- Ключът се пази в защитеното хранилище на устройството (Android Keystore).
-- PIN кодът се съхранява само като необратим хеш.
-- Това съдържание **не се изпраща никъде** и ние нямаме достъп до него.
-
-### Какво се изпраща на нашите сървъри (функция „Партньор")
-
-Когато се свържеш с партньор и използваш чата, **съобщенията, снимките
-и видеата, които споделяш с него, се качват на нашите сървъри**
-(Supabase, хостинг в ЕС), за да достигнат до устройството на партньора.
-
-- Това съдържание **не е криптирано от край до край** и се пази на
-  сървъра, докато ти или партньорът прекъснете връзката.
-- Криптирано е при пренос (TLS) и при съхранение от хостинг доставчика.
-- **Може да бъде преглеждано от нас** с цел сигурност, предотвратяване
-  на злоупотреби и спазване на закона.
-- За тази функция се създава **анонимен акаунт** — без имейл, без
-  телефон, без име.
-- Когато прекъснеш връзката с партньор („Прекъсни връзката"),
-  споделеното с него съдържание се изтрива от сървъра.
-
-Ако не използваш функцията „Партньор", нищо не напуска устройството ти.
-
-### Разрешения, които приложението иска
-
-| Разрешение | Защо |
-|---|---|
-| Биометрия | Отключване с пръстов отпечатък/лице — по избор |
-| Нотификации | Нежни локални напомняния — по избор, без съдържание |
-| Галерия / Камера | Само когато избереш да прикачиш снимка/видео |
-| Микрофон | Само когато записваш аудио бележка |
-| Интернет | Само за функцията „Партньор" (синхронизация на чата) |
-
-### Трети страни
-
-За функцията „Партньор" ползваме **Supabase** (бекенд и съхранение) с
-хостинг в ЕС. Не продаваме данни и не използваме рекламни мрежи или
-аналитика на трети страни.
-
-### Твоите права (GDPR)
-
-- **Достъп и преносимост:** експортирай криптиран архив на локалните си
-  данни по всяко време (Настройки → Експортирай данните).
-- **Изтриване:** „Изтрий всичко" премахва локалните данни от
-  устройството; „Прекъсни връзката" изтрива споделеното с партньор
-  съдържание от сървъра. За пълно изтриване на сървърни данни се свържи
-  с нас на имейла по-долу.
-
-### Деца
-
-Приложението е предназначено за лица на 18 и повече години.
-
-### Промени по тази политика
-
-При промяна ще актуализираме датата най-горе.
-
-### Контакт
-
-**[ИМЕ/ФИРМА НА РАЗРАБОТЧИКА]** · **[КОНТАКТЕН ИМЕЙЛ]**
+Use the same developer identity and contact email as in Google Play Console.
 
 ---
 
-## 🇬🇧 Privacy Policy
+## English
 
-Intima is an intimacy calendar and diary app. This document honestly
-explains which data stays on your device and which data is sent to our
-servers when you use the partner features.
+### Short version
 
-### What stays on your device only
+Intima stores your private diary, cycle calendar, moods, symptoms, intimate
+moments, videos, and audio notes on your device. The local database is
+encrypted. Photos you add to diary entries are also uploaded to our private
+server storage as a personal copy. Other data is sent to our servers only when
+you use Partner Mode, optional provider sign-in, or another online account
+feature.
 
-Your **diary, calendar, cycle, moods, symptoms, intimate moments and
-the photos/videos/audio attached to them** are stored **locally only**:
+We do not sell personal or sensitive user data. We do not use third-party ads
+or analytics SDKs.
 
-- The database is encrypted with AES-256 (SQLCipher-compatible).
-- The key lives in your device's secure storage (Android Keystore).
-- Your PIN is stored only as an irreversible hash.
-- This content **is never sent anywhere** and we cannot access it.
+### Developer and privacy contact
 
-### What is sent to our servers (the "Partner" feature)
+Developer: **[DEVELOPER_LEGAL_NAME]**  
+Privacy contact: **[PRIVACY_CONTACT_EMAIL]**
 
-When you link with a partner and use the chat, **the messages, photos
-and videos you share with them are uploaded to our servers** (Supabase,
-EU hosting) so they can reach your partner's device.
+### Data stored only on your device
 
-- This content is **not end-to-end encrypted** and is stored on the
-  server until you or your partner unlink.
-- It is encrypted in transit (TLS) and at rest by the hosting provider.
-- It **may be reviewed by us** for safety, abuse prevention and legal
-  compliance.
-- An **anonymous account** is created for this feature — no email, no
-  phone number, no name.
-- When you unlink from a partner, the content shared with them is
-  deleted from the server.
+The following data is stored locally and is not sent to Intima servers unless
+you separately choose to share specific content through Partner Mode:
 
-If you don't use the "Partner" feature, nothing leaves your device.
+- Diary entries, titles, text, tags, mood, and dates.
+- Cycle calendar data, period days, cycle settings, symptoms, mood, libido,
+  energy, fertile-window calculations, and reminders.
+- Intimate moment logs, including notes, arousal, orgasms, and positions.
+- Videos and audio notes attached to diary entries. (Diary photos are kept on
+  device too, but are also uploaded to our servers — see the section below.)
+- Local profile name and avatar.
+- PIN, biometric lock settings, decoy PIN settings, theme, language, and
+  notification preferences.
 
-### Permissions the app requests
+The local database is encrypted using an AES-256 SQLCipher-compatible format.
+The encryption key is stored in secure device storage such as Android Keystore.
+The PIN is stored as a one-way hash, not as plain text.
 
-| Permission | Why |
+### Diary photos stored on our servers
+
+Photos you add to your diary entries are uploaded to our private server storage
+(Supabase) as a personal copy, in addition to the copy kept on your device.
+These photos are private to your account: other users, including a linked
+partner, cannot access them. They are stored in their original image format and
+are not end-to-end encrypted, so they may be accessed by us for security, abuse
+prevention, troubleshooting, and legal compliance. Diary videos and audio notes
+are not uploaded and remain only on your device.
+
+When you remove a diary photo, delete a diary entry, or use "Delete everything",
+the app also requests deletion of the corresponding server copy.
+
+### Data sent when you use Partner Mode
+
+Partner Mode lets you link with a partner using an invite code and use chat,
+media sharing, and Couple Match features. This feature requires an internet
+connection and uses Supabase as backend and storage provider.
+
+When you use Partner Mode, the following data may be sent to and stored on the
+backend:
+
+- Anonymous account identifier generated by the backend.
+- Pairing codes and couple identifiers.
+- Partner chat messages that you send.
+- Photos or videos that you choose to send in Partner Mode.
+- Couple Match pose-interest records and resulting mutual matches.
+- Technical metadata needed to deliver the service, such as timestamps,
+  storage paths, and standard server request data.
+
+Partner Mode chat and media are not end-to-end encrypted. They are protected in
+transit using HTTPS/TLS and by the backend provider's storage security controls,
+but they may be accessible to us or our service provider for security, abuse
+prevention, troubleshooting, and legal compliance.
+
+If you do not use Partner Mode or optional online account features, the app is
+designed so that your diary and calendar data remain on your device.
+
+### Optional Google or Facebook sign-in
+
+If you choose to sign in with Google or Facebook, the provider and Supabase may
+process authentication data. Depending on the provider, this may include a
+provider account identifier, email address, display name, profile photo, access
+token metadata, and related authentication logs. We use this only to
+authenticate your account and provide app functionality. Your use of those
+providers is also governed by their own privacy policies.
+
+### App permissions
+
+| Permission | Purpose |
 |---|---|
-| Biometrics | Optional fingerprint/face unlock |
-| Notifications | Optional gentle local reminders that never reveal content |
-| Gallery / Camera | Only when you choose to attach a photo/video |
-| Microphone | Only when you record an audio note |
-| Internet | Only for the "Partner" feature (chat sync) |
+| Biometrics | Optional app unlock using fingerprint, face, or supported biometric authentication. |
+| Notifications | Optional local reminders. Notification text is discreet and is not sent to our servers. |
+| Receive boot completed | Reschedules local reminders after the device restarts. |
+| Photos and videos | Used only when you choose media for a diary entry, profile avatar, or Partner Mode message. Diary photos are kept on device and also uploaded to private server storage as a personal copy; diary videos, audio notes, and your profile avatar stay on device; Partner Mode media is uploaded so your partner can receive it. |
+| Microphone | Used only when you record a local audio diary note. Audio notes are stored on your device unless a future version explicitly offers sharing and asks for consent. |
+| Internet | Used for Partner Mode sync, optional sign-in, and loading Partner Mode media. |
 
-### Third parties
+### Use, sharing, and third parties
 
-The "Partner" feature uses **Supabase** (backend and storage) hosted in
-the EU. We don't sell data and use no third-party ad networks or
-analytics.
+We use data only for app functionality, security, troubleshooting, abuse
+prevention, compliance with legal obligations, and responding to user requests.
 
-### Your rights (GDPR)
+We share data only:
 
-- **Access & portability:** export an encrypted archive of your local
-  data anytime (Settings → Export your data).
-- **Erasure:** "Delete everything" removes local data from the device;
-  "Unlink" deletes the content shared with a partner from the server.
-  For full erasure of server data, contact us at the email below.
+- With your linked partner, when you choose to send a message, photo, video, or
+  Couple Match signal through Partner Mode.
+- With service providers such as Supabase, Google, or Facebook when required to
+  operate backend, storage, or authentication features.
+- When required by law, valid legal process, safety, security, or abuse
+  prevention obligations.
+
+We use Supabase for backend, authentication, database, and storage services used
+by Partner Mode and optional account features.
+
+### Retention and deletion
+
+- Local diary and calendar data remains on your device until you delete it in
+  the app, uninstall the app, or erase app data through your operating system.
+- The in-app "Delete everything" action deletes local Intima data from your
+  device, including local database data and local security keys, and requests
+  deletion of your diary photo copies from our server storage.
+- Diary photos also have a private server copy. Removing a photo or deleting its
+  entry requests deletion of that server copy. Some objects or backups may
+  remain for a limited period until deletion processing completes.
+- Partner Mode data remains on the backend while the partner connection is
+  active or as long as needed to provide the feature, protect the service,
+  comply with law, and maintain backups.
+- Unlinking a partner removes the active partner connection and associated chat
+  records from the active backend database. Some media objects, logs, or
+  backups may remain for a limited period or until deletion processing is
+  completed.
+- You can request deletion of server-side Partner Mode or account data by
+  contacting **[PRIVACY_CONTACT_EMAIL]**.
+
+### Security
+
+We use reasonable technical and organizational measures designed to protect user
+data, including local database encryption, secure device key storage, PIN
+hashing, optional biometric lock, HTTPS/TLS for data in transit, private backend
+storage controls, and access restrictions. No method of electronic storage or
+transmission is completely secure.
+
+### Health and wellness data
+
+Intima includes cycle, fertility-window, symptom, mood, and intimacy tracking
+features. These features are for personal wellness and journaling only. Intima
+is not a medical device and does not diagnose, treat, cure, or prevent any
+medical condition. Consult a qualified healthcare professional for medical
+advice, diagnosis, or treatment.
 
 ### Children
 
-The app is intended for users aged 18 and over.
+Intima is intended for adults and is not directed to children. Do not use Intima
+if you are under 18. If you believe a child has provided personal data through
+the app, contact us so we can take appropriate action.
 
-### Changes to this policy
+### Changes
 
-We will update the date above when this text changes.
+We may update this Privacy Policy when the app, our services, or legal
+requirements change. We will update the "Last updated" date above.
 
-### Contact
+---
 
-**[DEVELOPER NAME/COMPANY]** · **[CONTACT EMAIL]**
+## Български
+
+### Кратко
+
+Intima пази личния дневник, календара, цикъла, настроенията, симптомите,
+интимните моменти, локалните снимки, локалните видеа и локалните аудио бележки
+на устройството ти. Локалната база е криптирана. Снимките, които добавяш към
+дневникови записи, се качват и в нашето частно сървърно хранилище като лично
+копие. Останалите данни се изпращат към сървърите ни само когато използваш
+Partner Mode, optional вход с доставчик или друга онлайн account функция.
+
+Не продаваме лични или чувствителни данни. Не използваме рекламни или analytics
+SDK-и на трети страни.
+
+### Разработчик и контакт
+
+Разработчик: **[DEVELOPER_LEGAL_NAME]**  
+Контакт за поверителност: **[PRIVACY_CONTACT_EMAIL]**
+
+### Данни, които остават само на устройството
+
+Следните данни се пазят локално и не се изпращат към Intima сървъри, освен ако
+отделно не избереш да споделиш конкретно съдържание чрез Partner Mode:
+
+- Дневник: записи, заглавия, текст, тагове, настроение и дати.
+- Календар и цикъл: менструални дни, настройки на цикъла, симптоми, настроение,
+  либидо, енергия, изчисления за фертилен прозорец и напомняния.
+- Интимни моменти: бележки, възбуда, оргазми и позиции.
+- Видеа и аудио бележки, прикачени към дневникови записи. (Снимките от дневника
+  също се пазят на устройството, но допълнително се качват на сървърите ни —
+  виж секцията по-долу.)
+- Локално име и аватар на профила.
+- PIN, настройки за биометрия, decoy PIN, тема, език и нотификации.
+
+Локалната база е криптирана с AES-256 SQLCipher-съвместим формат. Ключът се
+пази в защитено хранилище на устройството, например Android Keystore. PIN кодът
+се пази като еднопосочен хеш, не като чист текст.
+
+### Снимки от дневника на нашите сървъри
+
+Снимките, които добавяш към дневникови записи, се качват в нашето частно
+сървърно хранилище (Supabase) като лично копие — в допълнение към копието на
+устройството. Тези снимки са лични за твоя профил: други потребители,
+включително свързан партньор, нямат достъп до тях. Пазят се в оригиналния си
+формат и не са криптирани от край до край, затова може да бъдат достъпни за нас
+с цел сигурност, предотвратяване на злоупотреби, troubleshooting и спазване на
+закона. Видеата и аудио бележките от дневника не се качват и остават само на
+устройството.
+
+Когато премахнеш снимка, изтриеш дневников запис или използваш „Изтрий всичко",
+приложението иска изтриване и на съответното сървърно копие.
+
+### Данни, изпращани при Partner Mode
+
+Partner Mode позволява свързване с партньор чрез код, чат, споделяне на медия
+и Couple Match функции. Функцията изисква интернет и използва Supabase като
+backend и storage доставчик.
+
+Когато използваш Partner Mode, към backend-а може да се изпращат и съхраняват:
+
+- Анонимен account identifier, генериран от backend-а.
+- Кодове за сдвояване и couple identifiers.
+- Чат съобщения, които изпращаш.
+- Снимки или видеа, които избираш да изпратиш в Partner Mode.
+- Couple Match pose-interest записи и взаимни съвпадения.
+- Технически metadata, нужен за услугата, като timestamps, storage paths и
+  стандартни server request данни.
+
+Partner Mode чатът и медията не са криптирани от край до край. Те се защитават
+при пренос чрез HTTPS/TLS и чрез storage контролите на backend доставчика, но
+могат да бъдат достъпни за нас или за service provider-а ни с цел сигурност,
+предотвратяване на злоупотреби, troubleshooting и спазване на закона.
+
+### Optional Google или Facebook вход
+
+Ако избереш вход с Google или Facebook, доставчикът и Supabase може да
+обработват authentication data. В зависимост от доставчика това може да включва
+provider account identifier, имейл адрес, display name, профилна снимка, access
+token metadata и authentication logs. Използваме тези данни само за вход и
+функционалност на приложението.
+
+### Разрешения
+
+| Разрешение | Цел |
+|---|---|
+| Биометрия | Отключване с пръстов отпечатък, лице или поддържана от устройството биометрия. |
+| Нотификации | Локални напомняния. Текстът е дискретен и не се изпраща към сървърите ни. |
+| Receive boot completed | Възстановява локалните напомняния след рестарт на устройството. |
+| Снимки и видеа | Само когато избираш медия за дневник, аватар или Partner Mode съобщение. Снимките от дневника се пазят на устройството и допълнително се качват в частно сървърно хранилище като лично копие; видеата и аудиото от дневника и профилният аватар остават на устройството; Partner Mode медията се качва, за да стигне до партньора. |
+| Микрофон | Само когато записваш локална аудио бележка. Аудио бележките се пазят на устройството. |
+| Интернет | За Partner Mode sync, optional вход и зареждане на Partner Mode медия. |
+
+### Използване, споделяне и трети страни
+
+Използваме данни само за функционалност на приложението, сигурност,
+troubleshooting, предотвратяване на злоупотреби, законови задължения и отговор
+на потребителски заявки.
+
+Споделяме данни само:
+
+- С твоя свързан партньор, когато ти изпращаш съобщение, снимка, видео или
+  Couple Match сигнал чрез Partner Mode.
+- С service providers като Supabase, Google или Facebook, когато е нужно за
+  backend, storage или authentication.
+- Когато законът, сигурността или предотвратяването на злоупотреби го изискват.
+
+### Съхранение и изтриване
+
+- Локалните данни остават на устройството, докато не ги изтриеш в приложението,
+  не деинсталираш приложението или не изтриеш app data през операционната
+  система.
+- "Изтрий всичко" изтрива локалните Intima данни от устройството, включително
+  локалната база и локалните security keys, и иска изтриване на копията на
+  снимките от дневника от сървърното ни хранилище.
+- Снимките от дневника имат и частно сървърно копие. Премахването на снимка или
+  изтриването на записа ѝ иска изтриване на това сървърно копие. Някои обекти
+  или backups може да останат за ограничен период, докато изтриването приключи.
+- Partner Mode данни остават в backend-а, докато партньорската връзка е активна
+  или докато са нужни за функционалност, сигурност, законови задължения и
+  backups.
+- Прекъсването на партньор премахва активната партньорска връзка и свързаните
+  чат записи от активната backend база. Някои media objects, logs или backups
+  може да останат за ограничен период или докато deletion processing приключи.
+- Можеш да поискаш изтриване на server-side Partner Mode или account данни на
+  **[PRIVACY_CONTACT_EMAIL]**.
+
+### Сигурност
+
+Използваме разумни технически и организационни мерки за защита, включително
+криптирана локална база, защитено устройство хранилище за ключове, PIN hashing,
+optional biometric lock, HTTPS/TLS при пренос, private backend storage controls
+и ограничения на достъпа. Никой метод за електронно съхранение или пренос не е
+напълно сигурен.
+
+### Health and wellness данни
+
+Intima включва функции за цикъл, фертилен прозорец, симптоми, настроение и
+intimacy tracking. Те са само за личен wellness и дневник. Intima не е
+медицинско изделие и не диагностицира, лекува или предотвратява медицински
+състояния. За медицински съвет се консултирай с квалифициран специалист.
+
+### Деца
+
+Intima е предназначена за възрастни и не е насочена към деца. Не използвай
+Intima, ако си под 18 години.
+
+### Промени
+
+Може да обновяваме тази политика при промяна на приложението, услугите или
+законовите изисквания. Ще обновяваме датата най-горе.

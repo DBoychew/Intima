@@ -16,7 +16,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onbPrivacyBody =>
-      'Your diary and calendar live on your phone, locked with a PIN.\nShare with a partner only when you choose.';
+      'Lock the app with a PIN.\nShare with a partner only when you choose.';
 
   @override
   String get onbCalendarTitle => 'Intimacy calendar';
@@ -699,6 +699,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get versionValue => '0.1.0 · prototype';
 
   @override
+  String get aboutData => 'Data & privacy';
+
+  @override
+  String get aboutDataTitle => 'Data & privacy';
+
+  @override
+  String get aboutDataBody =>
+      'Your diary, calendar and insights are stored encrypted on this device and can be locked with a PIN.\n\nPhotos you add to your diary are also uploaded to our servers as a private copy — only your account can see them, and they may be reviewed by us for safety.\n\nWhen you connect with a partner, shared messages, photos and videos are stored on our servers so they reach your partner, and may be reviewed for safety. Unlinking removes the active partner connection and chat records; full server-side deletion can be requested through the privacy contact.\n\nFull details are in the Privacy Policy.';
+
+  @override
+  String get close => 'Close';
+
+  @override
   String get themeTitle => 'Theme';
 
   @override
@@ -858,7 +871,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get insightsTeaser =>
-      'See what your data has to say — your real cycle length, mood by phase, libido trends. Entirely on your device, nothing ever leaves it.';
+      'See what your data has to say — your real cycle length, mood by phase, libido trends.';
 
   @override
   String get insightsUnlock => 'Unlock with Premium';
@@ -1077,7 +1090,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get partnerUnlinkBody =>
-      'The chat stops for both of you and the shared content is deleted from the server.';
+      'The chat stops for both of you. The active partner connection and chat records are removed; full server-side deletion can be requested through the privacy contact.';
 
   @override
   String get partnerUnlinked => 'Unlinked';

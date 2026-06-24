@@ -113,7 +113,7 @@ abstract class AppLocalizations {
   /// No description provided for @onbPrivacyBody.
   ///
   /// In bg, this message translates to:
-  /// **'Дневникът и календарът ти живеят на телефона, заключени с PIN.\nСподеляш с партньор само когато ти решиш.'**
+  /// **'Заключи приложението с PIN.\nСподеляш с партньор само когато ти решиш.'**
   String get onbPrivacyBody;
 
   /// No description provided for @onbCalendarTitle.
@@ -1292,6 +1292,30 @@ abstract class AppLocalizations {
   /// **'0.1.0 · прототип'**
   String get versionValue;
 
+  /// No description provided for @aboutData.
+  ///
+  /// In bg, this message translates to:
+  /// **'Данни и поверителност'**
+  String get aboutData;
+
+  /// No description provided for @aboutDataTitle.
+  ///
+  /// In bg, this message translates to:
+  /// **'Данни и поверителност'**
+  String get aboutDataTitle;
+
+  /// No description provided for @aboutDataBody.
+  ///
+  /// In bg, this message translates to:
+  /// **'Записите в дневника, календара и инсайтите се пазят криптирани на това устройство и може да се заключат с PIN.\n\nСнимките, които добавяш в дневника, се качват и на нашите сървъри като лично копие — вижда ги само твоят профил, а за сигурност може да бъдат преглеждани от нас.\n\nКогато се свържеш с партньор, споделените съобщения, снимки и видеа се пазят на нашите сървъри, за да стигат до партньора, и може да бъдат преглеждани за сигурност. Прекъсването на връзката премахва активната партньорска връзка и чат записите; пълно server-side изтриване може да се поиска през privacy контакта.\n\nПълните подробности са в Политиката за поверителност.'**
+  String get aboutDataBody;
+
+  /// No description provided for @close.
+  ///
+  /// In bg, this message translates to:
+  /// **'Затвори'**
+  String get close;
+
   /// No description provided for @themeTitle.
   ///
   /// In bg, this message translates to:
@@ -1601,7 +1625,7 @@ abstract class AppLocalizations {
   /// No description provided for @insightsTeaser.
   ///
   /// In bg, this message translates to:
-  /// **'Виж какво разказват твоите данни — реална дължина на цикъла, настроение по фази, тенденции на либидото. Изцяло на устройството, нищо не го напуска.'**
+  /// **'Виж какво разказват твоите данни — реална дължина на цикъла, настроение по фази, тенденции на либидото.'**
   String get insightsTeaser;
 
   /// No description provided for @insightsUnlock.
@@ -1931,7 +1955,7 @@ abstract class AppLocalizations {
   /// No description provided for @partnerUnlinkBody.
   ///
   /// In bg, this message translates to:
-  /// **'Чатът спира и за двамата и споделеното съдържание се изтрива от сървъра.'**
+  /// **'Чатът спира и за двамата. Активната партньорска връзка и чат записите се премахват; пълно server-side изтриване може да се поиска през privacy контакта.'**
   String get partnerUnlinkBody;
 
   /// No description provided for @partnerUnlinked.

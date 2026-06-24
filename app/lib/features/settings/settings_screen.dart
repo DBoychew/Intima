@@ -580,6 +580,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _deleteEverything() async {
+    // Best-effort: маха и сървърните копия на снимките от дневника.
+    await diaryRepository.removeAllServerMedia();
     await dbManager.wipeEverything();
     await appLock.reload();
     await premium.deactivate();
@@ -811,6 +813,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ],
           _section(_l10n.sectionAbout),
+          ListTile(
+            title: Text(_l10n.aboutData),
+            trailing: Icon(Icons.chevron_right,
+                color: context.colors.textSecondary),
+            onTap: () => showDialog<void>(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                backgroundColor: context.colors.surfaceHigh,
+                title: Text(_l10n.aboutDataTitle),
+                content: SingleChildScrollView(
+                  child: Text(_l10n.aboutDataBody),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(ctx),
+                    child: Text(_l10n.close),
+                  ),
+                ],
+              ),
+            ),
+          ),
           ListTile(
               title: Text(_l10n.version),
               trailing: Text(_l10n.versionValue)),

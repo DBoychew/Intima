@@ -142,13 +142,9 @@ class _InsightsScreenState extends State<InsightsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text('🔒 ${_l10n.insightsTeaser}',
+                Text(_l10n.insightsTeaser,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyMedium),
-                const SizedBox(height: 6),
-                Text(_l10n.insightsPrivacyNote,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.labelMedium),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () async {
@@ -235,11 +231,6 @@ class _InsightsScreenState extends State<InsightsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           ..._cards(data),
-          const SizedBox(height: 16),
-          Center(
-            child: Text(_l10n.insightsPrivacyNote,
-                style: Theme.of(context).textTheme.labelMedium),
-          ),
           const SizedBox(height: 16),
         ],
       ),

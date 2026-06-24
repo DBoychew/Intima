@@ -5,8 +5,12 @@
 --
 -- ВАЖНО: партньорският чат, снимките и видеата се пазят на сървъра в
 -- явен вид и може да бъдат преглеждани (модерация/злоупотреби). Това
--- е оповестено в Privacy Policy и Play Data Safety. Личният дневник и
--- календар остават само на устройството.
+-- е оповестено в Privacy Policy и Play Data Safety.
+--
+-- Снимките от личния дневник също се качват на сървъра (bucket
+-- diary-media) — лично копие на потребителя, видимо само за него и за
+-- модерацията. Останалото от дневника и календарът остават само на
+-- устройството.
 -- =====================================================================
 
 -- Чистим старата (E2E) схема, ако е пускана.
@@ -118,6 +122,23 @@ create policy partner_media_insert on storage.objects
   for insert to authenticated
   with check (bucket_id = 'partner-media' and (storage.foldername(name))[1]::uuid in (
     select id from public.couples where auth.uid() in (member_a, member_b)));
+
+-- ---------------------------------------------------------------------
+-- Storage bucket за снимките от ЛИЧНИЯ дневник (частен). Всеки достъпва
+-- само собствената си папка <uid>/ — копията не се споделят с партньора;
+-- модерацията ги вижда през dashboard-а (service role заобикаля RLS).
+-- ---------------------------------------------------------------------
+insert into storage.buckets (id, name, public)
+values ('diary-media', 'diary-media', false)
+on conflict (id) do nothing;
+
+drop policy if exists diary_media_own on storage.objects;
+create policy diary_media_own on storage.objects
+  for all to authenticated
+  using (bucket_id = 'diary-media'
+    and (storage.foldername(name))[1] = auth.uid()::text)
+  with check (bucket_id = 'diary-media'
+    and (storage.foldername(name))[1] = auth.uid()::text);
 
 -- ---------------------------------------------------------------------
 -- Функции за сдвояването (security definer, винаги проверяват auth.uid()).

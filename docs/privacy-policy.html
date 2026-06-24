@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Intima Privacy Policy</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #fbf8f7;
+      --text: #211a1d;
+      --muted: #695f63;
+      --panel: #ffffff;
+      --border: #e9dddf;
+      --accent: #9b3d63;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #151113;
+        --text: #f4eef0;
+        --muted: #c8bcc0;
+        --panel: #1f191c;
+        --border: #3a2d32;
+        --accent: #f0a6c5;
+      }
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.62 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 20px 72px;
+    }
+
+    header {
+      margin-bottom: 32px;
+    }
+
+    h1, h2, h3 {
+      line-height: 1.2;
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+    }
+
+    h2 {
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 1.55rem;
+    }
+
+    h3 {
+      margin-top: 28px;
+      font-size: 1.15rem;
+    }
+
+    p, ul {
+      margin: 0 0 16px;
+    }
+
+    ul {
+      padding-left: 22px;
+    }
+
+    a {
+      color: var(--accent);
+    }
+
+    .meta, .note {
+      color: var(--muted);
+    }
+
+    .summary {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px;
+      margin: 24px 0;
+    }
+
+    .todo {
+      border-left: 4px solid #c43838;
+      background: color-mix(in srgb, #c43838 10%, var(--panel));
+      padding: 14px 16px;
+      margin: 22px 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0 22px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+    }
+
+    th, td {
+      text-align: left;
+      vertical-align: top;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 12px;
+    }
+
+    th {
+      font-weight: 700;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Intima Privacy Policy</h1>
+    <p class="meta">Last updated: June 24, 2026</p>
+    <p class="meta">This page applies to the Intima mobile app for Android.</p>
+  </header>
+
+  <section class="todo">
+    <strong>Before publishing:</strong> replace
+    <strong>[DEVELOPER_LEGAL_NAME]</strong> and
+    <strong>[PRIVACY_CONTACT_EMAIL]</strong> with the same developer identity
+    and contact email used in Google Play Console.
+  </section>
+
+  <section class="summary">
+    <p><strong>Short version:</strong> Intima stores your private diary,
+      cycle calendar, moods, symptoms, intimate moments, videos, and audio
+      notes on your device. The local database is encrypted. Photos you add to
+      diary entries are also uploaded to our private server storage as a
+      personal copy. Other data is sent to our servers only when you use
+      Partner Mode, optional provider sign-in, or other online account features
+      described below. We do not sell personal or sensitive user data, and we do
+      not use third-party advertising or analytics SDKs.</p>
+  </section>
+
+  <h2>1. Developer and Privacy Contact</h2>
+  <p>Developer: <strong>[DEVELOPER_LEGAL_NAME]</strong></p>
+  <p>Privacy contact: <a href="mailto:[PRIVACY_CONTACT_EMAIL]">[PRIVACY_CONTACT_EMAIL]</a></p>
+
+  <h2>2. Data Stored on Your Device</h2>
+  <p>The following data is stored locally on your device. It is not sent to
+    Intima servers unless you separately choose to share specific content
+    through Partner Mode, except for diary photos as described below:</p>
+  <ul>
+    <li>Diary entries, titles, text, tags, mood, and dates.</li>
+    <li>Cycle calendar data, period days, cycle settings, symptoms, mood,
+      libido, energy, fertile-window calculations, and reminders.</li>
+    <li>Intimate moment logs, including notes, arousal, orgasms, and positions.</li>
+    <li>Videos and audio notes attached to diary entries. (Diary photos are kept
+      on device too, but are also uploaded to our servers &mdash; see below.)</li>
+    <li>Local profile name and avatar.</li>
+    <li>PIN, biometric lock settings, decoy PIN settings, theme, language, and
+      notification preferences.</li>
+  </ul>
+  <p>The local database is encrypted using an AES-256 SQLCipher-compatible
+    format. The encryption key is stored in secure device storage such as
+    Android Keystore. The PIN is stored as a one-way hash, not as plain text.</p>
+
+  <h3>Diary photos stored on our servers</h3>
+  <p>Photos you add to your diary entries are uploaded to our private server
+    storage (Supabase) as a personal copy, in addition to the copy kept on your
+    device. These photos are private to your account: other users, including a
+    linked partner, cannot access them. They are stored in their original image
+    format and are not end-to-end encrypted, so they may be accessed by us for
+    security, abuse prevention, troubleshooting, and legal compliance. Diary
+    videos and audio notes are not uploaded and remain only on your device.</p>
+  <p>When you remove a diary photo, delete a diary entry, or use
+    &ldquo;Delete everything&rdquo;, the app also requests deletion of the
+    corresponding server copy.</p>
+
+  <h2>3. Data Sent When You Use Partner Mode</h2>
+  <p>Partner Mode lets you link with a partner using an invite code and use
+    chat, media sharing, and Couple Match features. This feature requires an
+    internet connection and uses Supabase as our backend and storage provider.</p>
+  <p>When you use Partner Mode, the following data may be sent to and stored on
+    our backend:</p>
+  <ul>
+    <li>Anonymous account identifier generated by the backend.</li>
+    <li>Pairing codes and couple identifiers.</li>
+    <li>Partner chat messages that you send.</li>
+    <li>Photos or videos that you choose to send in Partner Mode.</li>
+    <li>Couple Match pose-interest records and resulting mutual matches.</li>
+    <li>Technical metadata needed to deliver the service, such as timestamps,
+      storage paths, and standard server request data.</li>
+  </ul>
+  <p>Partner Mode chat and media are not end-to-end encrypted. They are
+    protected in transit using HTTPS/TLS and by the backend provider's storage
+    security controls, but they may be accessible to us or our service provider
+    for security, abuse prevention, troubleshooting, and legal compliance.</p>
+  <p>If you do not use Partner Mode or optional online account features, the
+    app is designed so that your diary and calendar data remain on your device,
+    apart from the diary photo copies described in section 2.</p>
+
+  <h2>4. Optional Google or Facebook Sign-In</h2>
+  <p>If you choose to sign in with Google or Facebook, the provider and
+    Supabase may process authentication data. Depending on the provider, this
+    may include a provider account identifier, email address, display name,
+    profile photo, access token metadata, and related authentication logs. We
+    use this only to authenticate your account and provide app functionality.
+    Your use of those providers is also governed by their own privacy policies.</p>
+
+  <h2>5. App Permissions</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Permission</th>
+        <th>Purpose</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Biometrics</td>
+        <td>Optional app unlock using fingerprint, face, or device-supported
+          biometric authentication.</td>
+      </tr>
+      <tr>
+        <td>Notifications</td>
+        <td>Optional local reminders. Notification text is designed to be
+          discreet and is not sent to our servers.</td>
+      </tr>
+      <tr>
+        <td>Receive boot completed</td>
+        <td>Reschedules local reminders after the device restarts.</td>
+      </tr>
+      <tr>
+        <td>Photos and videos</td>
+        <td>Used only when you choose media for a diary entry, profile avatar,
+          or Partner Mode message. Diary photos are kept on device and also
+          uploaded to private server storage as a personal copy; diary videos,
+          audio notes, and your profile avatar stay on device; Partner Mode
+          media is uploaded so your partner can receive it.</td>
+      </tr>
+      <tr>
+        <td>Microphone</td>
+        <td>Used only when you record a local audio diary note. Audio notes are
+          stored on your device unless a future version explicitly offers
+          sharing and asks for consent.</td>
+      </tr>
+      <tr>
+        <td>Internet</td>
+        <td>Used for Partner Mode sync, optional sign-in, and loading Partner
+          Mode media.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>6. How We Use Data</h2>
+  <p>We use data only for app functionality, security, troubleshooting, abuse
+    prevention, compliance with legal obligations, and responding to user
+    requests. We do not use personal or sensitive user data for advertising, and
+    we do not sell personal or sensitive user data.</p>
+
+  <h2>7. Third-Party Service Providers</h2>
+  <p>We use Supabase for backend, authentication, database, and storage services
+    used by Partner Mode and optional account features. If you choose provider
+    sign-in, Google or Facebook may also process authentication data. These
+    providers process data only as needed to provide their services, subject to
+    their own terms and privacy policies.</p>
+
+  <h2>8. Data Sharing</h2>
+  <p>We share data only in the following cases:</p>
+  <ul>
+    <li>With your linked partner, when you choose to send a message, photo,
+      video, or Couple Match signal through Partner Mode.</li>
+    <li>With service providers such as Supabase, Google, or Facebook when
+      required to operate backend, storage, or authentication features.</li>
+    <li>When required by law, valid legal process, safety, security, or abuse
+      prevention obligations.</li>
+  </ul>
+
+  <h2>9. Retention and Deletion</h2>
+  <ul>
+    <li>Local diary and calendar data remains on your device until you delete it
+      in the app, uninstall the app, or erase app data through your operating
+      system.</li>
+    <li>The in-app "Delete everything" action deletes local Intima data from
+      your device, including local database data and local security keys, and
+      requests deletion of your diary photo copies from our server storage.</li>
+    <li>Diary photos also have a private server copy. Removing a photo or
+      deleting its entry requests deletion of that server copy. Some objects or
+      backups may remain for a limited period until deletion processing
+      completes.</li>
+    <li>Partner Mode data remains on the backend while the partner connection is
+      active or as long as needed to provide the feature, protect the service,
+      comply with law, and maintain backups.</li>
+    <li>Unlinking a partner removes the active partner connection and associated
+      chat records from the active backend database. Some media objects,
+      logs, or backups may remain for a limited period or until deletion
+      processing is completed.</li>
+    <li>You can request deletion of server-side Partner Mode or account data by
+      contacting us at <a href="mailto:[PRIVACY_CONTACT_EMAIL]">[PRIVACY_CONTACT_EMAIL]</a>.</li>
+  </ul>
+
+  <h2>10. Security</h2>
+  <p>We use reasonable technical and organizational measures designed to protect
+    user data, including local database encryption, secure device key storage,
+    PIN hashing, optional biometric lock, HTTPS/TLS for data in transit, private
+    backend storage controls, and access restrictions. No method of electronic
+    storage or transmission is completely secure.</p>
+
+  <h2>11. Health and Wellness Data</h2>
+  <p>Intima includes cycle, fertility-window, symptom, mood, and intimacy
+    tracking features. These features are for personal wellness and journaling
+    only. Intima is not a medical device and does not diagnose, treat, cure, or
+    prevent any medical condition. Consult a qualified healthcare professional
+    for medical advice, diagnosis, or treatment.</p>
+
+  <h2>12. Children</h2>
+  <p>Intima is intended for adults and is not directed to children. Do not use
+    Intima if you are under 18. If you believe a child has provided personal
+    data through the app, contact us so we can take appropriate action.</p>
+
+  <h2>13. International Transfers</h2>
+  <p>Our service providers may process data in countries different from your
+    country of residence. When data is transferred internationally, we rely on
+    appropriate safeguards required by applicable law.</p>
+
+  <h2>14. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy when the app, our services, or legal
+    requirements change. We will update the "Last updated" date above. Material
+    changes may also be communicated in the app or through the store listing
+    when appropriate.</p>
+
+  <h2>15. Contact</h2>
+  <p>For privacy questions, deletion requests, or data requests, contact:</p>
+  <p><strong>[DEVELOPER_LEGAL_NAME]</strong><br>
+    <a href="mailto:[PRIVACY_CONTACT_EMAIL]">[PRIVACY_CONTACT_EMAIL]</a></p>
+
+  <h2 lang="bg">Политика за поверителност</h2>
+  <p class="meta" lang="bg">Последна актуализация: 24 юни 2026 г.</p>
+  <p lang="bg">Тази секция е българска версия на политиката по-горе и се
+    отнася за мобилното приложение Intima за Android.</p>
+
+  <section class="summary" lang="bg">
+    <p><strong>Кратко:</strong> Intima пази личния дневник, календара,
+      цикъла, настроенията, симптомите, интимните моменти, видеата и аудио
+      бележките на устройството ти. Локалната база е криптирана. Снимките,
+      които добавяш към дневникови записи, се качват и в нашето частно
+      сървърно хранилище като лично копие. Останалите данни се изпращат към
+      сървърите ни само когато използваш Partner Mode, optional вход с
+      доставчик или друга онлайн функция, описана по-долу. Не продаваме лични
+      или чувствителни данни и не използваме рекламни или analytics SDK-и на
+      трети страни.</p>
+  </section>
+
+  <h3 lang="bg">1. Разработчик и контакт</h3>
+  <p lang="bg">Разработчик: <strong>[DEVELOPER_LEGAL_NAME]</strong></p>
+  <p lang="bg">Контакт за поверителност:
+    <a href="mailto:[PRIVACY_CONTACT_EMAIL]">[PRIVACY_CONTACT_EMAIL]</a></p>
+
+  <h3 lang="bg">2. Данни на устройството</h3>
+  <p lang="bg">Следните данни се пазят локално на устройството. Не се изпращат
+    към Intima сървъри, освен ако отделно не избереш да споделиш конкретно
+    съдържание чрез Partner Mode, с изключение на снимките от дневника, както е
+    описано по-долу:</p>
+  <ul lang="bg">
+    <li>Дневник: записи, заглавия, текст, тагове, настроение и дати.</li>
+    <li>Календар и цикъл: менструални дни, настройки на цикъла, симптоми,
+      настроение, либидо, енергия, изчисления за фертилен прозорец и
+      напомняния.</li>
+    <li>Интимни моменти: бележки, възбуда, оргазми и позиции.</li>
+    <li>Видеа и аудио бележки, прикачени към дневникови записи. (Снимките от
+      дневника също се пазят на устройството, но допълнително се качват на
+      сървърите ни &mdash; виж по-долу.)</li>
+    <li>Локално име и аватар на профила.</li>
+    <li>PIN, настройки за биометрия, decoy PIN, тема, език и нотификации.</li>
+  </ul>
+  <p lang="bg">Локалната база е криптирана с AES-256 SQLCipher-съвместим
+    формат. Ключът се пази в защитено хранилище на устройството, например
+    Android Keystore. PIN кодът се пази като еднопосочен хеш, не като чист
+    текст.</p>
+
+  <h4 lang="bg">Снимки от дневника на нашите сървъри</h4>
+  <p lang="bg">Снимките, които добавяш към дневникови записи, се качват в
+    нашето частно сървърно хранилище (Supabase) като лично копие — в допълнение
+    към копието на устройството. Тези снимки са лични за твоя профил: други
+    потребители, включително свързан партньор, нямат достъп до тях. Пазят се в
+    оригиналния си формат и не са криптирани от край до край, затова може да
+    бъдат достъпни за нас с цел сигурност, предотвратяване на злоупотреби,
+    troubleshooting и спазване на закона. Видеата и аудио бележките от дневника
+    не се качват и остават само на устройството.</p>
+  <p lang="bg">Когато премахнеш снимка, изтриеш дневников запис или използваш
+    „Изтрий всичко", приложението иска изтриване и на съответното сървърно
+    копие.</p>
+
+  <h3 lang="bg">3. Данни, изпращани при Partner Mode</h3>
+  <p lang="bg">Partner Mode позволява свързване с партньор чрез код, чат,
+    споделяне на медия и Couple Match функции. Функцията изисква интернет и
+    използва Supabase като backend и storage доставчик.</p>
+  <p lang="bg">Когато използваш Partner Mode, към backend-а може да се
+    изпращат и съхраняват:</p>
+  <ul lang="bg">
+    <li>Анонимен account identifier, генериран от backend-а.</li>
+    <li>Кодове за сдвояване и couple identifiers.</li>
+    <li>Чат съобщения, които изпращаш.</li>
+    <li>Снимки или видеа, които избираш да изпратиш в Partner Mode.</li>
+    <li>Couple Match pose-interest записи и взаимни съвпадения.</li>
+    <li>Технически metadata, нужен за услугата, като timestamps, storage paths
+      и стандартни server request данни.</li>
+  </ul>
+  <p lang="bg">Partner Mode чатът и медията не са криптирани от край до край.
+    Те се защитават при пренос чрез HTTPS/TLS и чрез storage контролите на
+    backend доставчика, но могат да бъдат достъпни за нас или за service
+    provider-а ни с цел сигурност, предотвратяване на злоупотреби,
+    troubleshooting и спазване на закона.</p>
+
+  <h3 lang="bg">4. Optional Google или Facebook вход</h3>
+  <p lang="bg">Ако избереш вход с Google или Facebook, доставчикът и Supabase
+    може да обработват authentication data. В зависимост от доставчика това
+    може да включва provider account identifier, имейл адрес, display name,
+    профилна снимка, access token metadata и authentication logs. Използваме
+    тези данни само за вход и функционалност на приложението.</p>
+
+  <h3 lang="bg">5. Разрешения</h3>
+  <table lang="bg">
+    <thead>
+      <tr>
+        <th>Разрешение</th>
+        <th>Цел</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Биометрия</td>
+        <td>Отключване с пръстов отпечатък, лице или поддържана от устройството
+          биометрия.</td>
+      </tr>
+      <tr>
+        <td>Нотификации</td>
+        <td>Локални напомняния. Текстът е дискретен и не се изпраща към
+          сървърите ни.</td>
+      </tr>
+      <tr>
+        <td>Receive boot completed</td>
+        <td>Възстановява локалните напомняния след рестарт на устройството.</td>
+      </tr>
+      <tr>
+        <td>Снимки и видеа</td>
+        <td>Само когато избираш медия за дневник, аватар или Partner Mode
+          съобщение. Снимките от дневника се пазят на устройството и
+          допълнително се качват в частно сървърно хранилище като лично копие;
+          видеата и аудиото от дневника и профилният аватар остават на
+          устройството; Partner Mode медията се качва, за да стигне до
+          партньора.</td>
+      </tr>
+      <tr>
+        <td>Микрофон</td>
+        <td>Само когато записваш локална аудио бележка. Аудио бележките се
+          пазят на устройството.</td>
+      </tr>
+      <tr>
+        <td>Интернет</td>
+        <td>За Partner Mode sync, optional вход и зареждане на Partner Mode
+          медия.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 lang="bg">6. Използване, споделяне и трети страни</h3>
+  <p lang="bg">Използваме данни само за функционалност на приложението,
+    сигурност, troubleshooting, предотвратяване на злоупотреби, законови
+    задължения и отговор на потребителски заявки. Не използваме лични или
+    чувствителни данни за реклама и не ги продаваме.</p>
+  <p lang="bg">Споделяме данни само с твоя свързан партньор, когато ти
+    изпращаш съдържание чрез Partner Mode; със service providers като
+    Supabase, Google или Facebook, когато е нужно за backend, storage или
+    authentication; или когато законът, сигурността или предотвратяването на
+    злоупотреби го изискват.</p>
+
+  <h3 lang="bg">7. Съхранение и изтриване</h3>
+  <ul lang="bg">
+    <li>Локалните данни остават на устройството, докато не ги изтриеш в
+      приложението, не деинсталираш приложението или не изтриеш app data през
+      операционната система.</li>
+    <li>"Изтрий всичко" изтрива локалните Intima данни от устройството,
+      включително локалната база и локалните security keys, и иска изтриване на
+      копията на снимките от дневника от сървърното ни хранилище.</li>
+    <li>Снимките от дневника имат и частно сървърно копие. Премахването на
+      снимка или изтриването на записа ѝ иска изтриване на това сървърно копие.
+      Някои обекти или backups може да останат за ограничен период, докато
+      изтриването приключи.</li>
+    <li>Partner Mode данни остават в backend-а, докато партньорската връзка е
+      активна или докато са нужни за функционалност, сигурност, законови
+      задължения и backups.</li>
+    <li>Прекъсването на партньор премахва активната партньорска връзка и
+      свързаните чат записи от активната backend база. Някои media objects,
+      logs или backups може да останат за ограничен период или докато deletion
+      processing приключи.</li>
+    <li>Можеш да поискаш изтриване на server-side Partner Mode или account
+      данни на <a href="mailto:[PRIVACY_CONTACT_EMAIL]">[PRIVACY_CONTACT_EMAIL]</a>.</li>
+  </ul>
+
+  <h3 lang="bg">8. Сигурност</h3>
+  <p lang="bg">Използваме разумни технически и организационни мерки за защита,
+    включително криптирана локална база, защитено устройство хранилище за
+    ключове, PIN hashing, optional biometric lock, HTTPS/TLS при пренос,
+    private backend storage controls и ограничения на достъпа. Никой метод за
+    електронно съхранение или пренос не е напълно сигурен.</p>
+
+  <h3 lang="bg">9. Health and wellness данни</h3>
+  <p lang="bg">Intima включва функции за цикъл, фертилен прозорец, симптоми,
+    настроение и intimacy tracking. Те са само за личен wellness и дневник.
+    Intima не е медицинско изделие и не диагностицира, лекува или предотвратява
+    медицински състояния. За медицински съвет се консултирай с квалифициран
+    специалист.</p>
+
+  <h3 lang="bg">10. Деца</h3>
+  <p lang="bg">Intima е предназначена за възрастни и не е насочена към деца.
+    Не използвай Intima, ако си под 18 години.</p>
+
+  <h3 lang="bg">11. Промени и контакт</h3>
+  <p lang="bg">Може да обновяваме тази политика при промяна на приложението,
+    услугите или законовите изисквания. За въпроси, заявки за изтриване или
+    заявки за данни се свържи с:</p>
+  <p lang="bg"><strong>[DEVELOPER_LEGAL_NAME]</strong><br>
+    <a href="mailto:[PRIVACY_CONTACT_EMAIL]">[PRIVACY_CONTACT_EMAIL]</a></p>
+</main>
+</body>
+</html>

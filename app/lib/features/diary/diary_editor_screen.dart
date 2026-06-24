@@ -267,7 +267,8 @@ class _DiaryEditorScreenState extends State<DiaryEditorScreen> {
     if (!await _confirmRemoval(_l10n.removePhotoTitle, _l10n.removePhotoBody)) {
       return;
     }
-    await diaryRepository.deletePhotoFile(_photos[index]);
+    // Снимките имат сървърно копие — трием и него.
+    await diaryRepository.deletePhoto(_photos[index]);
     if (mounted) setState(() => _photos.removeAt(index));
   }
 

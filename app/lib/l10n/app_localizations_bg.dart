@@ -16,7 +16,7 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get onbPrivacyBody =>
-      'Дневникът и календарът ти живеят на телефона, заключени с PIN.\nСподеляш с партньор само когато ти решиш.';
+      'Заключи приложението с PIN.\nСподеляш с партньор само когато ти решиш.';
 
   @override
   String get onbCalendarTitle => 'Календар на близостта';
@@ -697,6 +697,19 @@ class AppLocalizationsBg extends AppLocalizations {
   String get versionValue => '0.1.0 · прототип';
 
   @override
+  String get aboutData => 'Данни и поверителност';
+
+  @override
+  String get aboutDataTitle => 'Данни и поверителност';
+
+  @override
+  String get aboutDataBody =>
+      'Записите в дневника, календара и инсайтите се пазят криптирани на това устройство и може да се заключат с PIN.\n\nСнимките, които добавяш в дневника, се качват и на нашите сървъри като лично копие — вижда ги само твоят профил, а за сигурност може да бъдат преглеждани от нас.\n\nКогато се свържеш с партньор, споделените съобщения, снимки и видеа се пазят на нашите сървъри, за да стигат до партньора, и може да бъдат преглеждани за сигурност. Прекъсването на връзката премахва активната партньорска връзка и чат записите; пълно server-side изтриване може да се поиска през privacy контакта.\n\nПълните подробности са в Политиката за поверителност.';
+
+  @override
+  String get close => 'Затвори';
+
+  @override
   String get themeTitle => 'Тема';
 
   @override
@@ -856,7 +869,7 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get insightsTeaser =>
-      'Виж какво разказват твоите данни — реална дължина на цикъла, настроение по фази, тенденции на либидото. Изцяло на устройството, нищо не го напуска.';
+      'Виж какво разказват твоите данни — реална дължина на цикъла, настроение по фази, тенденции на либидото.';
 
   @override
   String get insightsUnlock => 'Отключи с Premium';
@@ -1075,7 +1088,7 @@ class AppLocalizationsBg extends AppLocalizations {
 
   @override
   String get partnerUnlinkBody =>
-      'Чатът спира и за двамата и споделеното съдържание се изтрива от сървъра.';
+      'Чатът спира и за двамата. Активната партньорска връзка и чат записите се премахват; пълно server-side изтриване може да се поиска през privacy контакта.';
 
   @override
   String get partnerUnlinked => 'Връзката е прекъсната';
